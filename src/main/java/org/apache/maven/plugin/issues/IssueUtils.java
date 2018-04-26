@@ -78,15 +78,16 @@ public class IssueUtils
 
     /**
      * Find the issues for only the supplied version, by matching the "Fix for" version in the supplied list of issues
-     * with the supplied version. If the supplied version is a SNAPSHOT, then that part of the version will be removed
-     * prior to the matching.
+     * with the supplied version. If the supplied version is a SNAPSHOT and the <code>removeSnapshotSuffix</code> 
+     * parameter is set to <code>true</code>, then that part of the version will be removed prior to the matching.
      *
      * @param issues A list of issues
      * @param version The version that issues should be returned for
+     * @param removeSnapshotSuffix If the snapshot suffix should be removed before to test
      * @return A <code>List</code> of issues for the supplied version
      * @throws org.apache.maven.plugin.MojoExecutionException If no issues could be found for the supplied version
      */
-    public static List<Issue> getIssuesForVersion( List<Issue> issues, String version )
+    public static List<Issue> getIssuesForVersion( List<Issue> issues, String version, boolean removeSnapshotSuffix )
         throws MojoExecutionException
     {
         List<Issue> issuesForVersion = new ArrayList<Issue>();
@@ -95,7 +96,7 @@ public class IssueUtils
         String releaseVersion = version;
 
         // Remove "-SNAPSHOT" from the end of the version, if it's there
-        if ( version != null && version.endsWith( SNAPSHOT_SUFFIX ) )
+        if ( version != null && version.endsWith( SNAPSHOT_SUFFIX ) && removeSnapshotSuffix )
         {
             releaseVersion = version.substring( 0, version.length() - SNAPSHOT_SUFFIX.length() );
         }

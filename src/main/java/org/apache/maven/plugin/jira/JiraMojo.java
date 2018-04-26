@@ -279,6 +279,12 @@ public class JiraMojo
      */
     @Parameter( defaultValue = "" )
     private String webUser;
+    
+    /***
+     * If "-SNAPSHOT" suffix should be removed when searching for issues.
+     */
+    @Parameter( property = "changes.removeSnapshotSuffix", defaultValue = "true" )
+    private boolean removeSnapshotSuffix;    
 
     /*
      * Used for tests.
@@ -358,7 +364,7 @@ public class JiraMojo
             if ( onlyCurrentVersion )
             {
                 String version = ( versionPrefix == null ? "" : versionPrefix ) + project.getVersion();
-                issueList = IssueUtils.getIssuesForVersion( issueList, version );
+                issueList = IssueUtils.getIssuesForVersion( issueList, version, removeSnapshotSuffix );
                 getLog().info( "The JIRA Report will contain issues only for the current version." );
             }
 

@@ -116,10 +116,17 @@ public class GitHubMojo
 
     /**
      * If you only want to show issues for the current version in the report. The current version being used is
-     * <code>${project.version}</code> minus any "-SNAPSHOT" suffix.
+     * <code>${project.version}</code> minus any "-SNAPSHOT" suffix, if <code>removeSnapshotSuffix</code> is set to
+     * <code>true</code>.
      */
     @Parameter( defaultValue = "false" )
     private boolean onlyCurrentVersion;
+    
+    /***
+     * If "-SNAPSHOT" suffix should be removed when searching for issues.
+     */
+    @Parameter( property = "changes.removeSnapshotSuffix", defaultValue = "true" )
+    private boolean removeSnapshotSuffix;
 
     public String getOutputName()
     {
@@ -185,7 +192,7 @@ public class GitHubMojo
 
             if ( onlyCurrentVersion )
             {
-                issueList = IssueUtils.getIssuesForVersion( issueList, project.getVersion() );
+                issueList = IssueUtils.getIssuesForVersion( issueList, project.getVersion(), removeSnapshotSuffix );
                 getLog().info( "The GitHub Report will contain issues only for the current version." );
             }
 
