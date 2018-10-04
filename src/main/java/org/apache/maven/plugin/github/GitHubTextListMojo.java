@@ -8,6 +8,7 @@ import org.apache.maven.plugin.changes.textformatter.IssueListFormatterFactory;
 import org.apache.maven.plugin.issues.Issue;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Mojo to format a list of issues from github in a text format. It will
@@ -16,7 +17,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  * file.
  * 
  * @author riss
- * @since 2.12.3f
+ * @since 2.12.3
  *
  */
 @Mojo(name = "github-text-list")
@@ -41,6 +42,10 @@ public class GitHubTextListMojo extends GitHubMojo {
 		IssueListFormater issueFormatter = IssueListFormatterFactory.getInstance()
 				.getIssueListFormatter(textListFormater, true, project.getIssueManagement().getUrl(), "");
 		project.getProperties().put(issueListPropertyName, issueFormatter.formatIssueList(issueList));
+	}
+
+	public MavenProject getMavenProject() {
+		return project;
 	}
 
 }

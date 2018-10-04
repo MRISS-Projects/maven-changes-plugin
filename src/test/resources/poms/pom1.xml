@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.apache.maven.plugin.projectinfo.tests</groupId>
+	<artifactId>releases-history</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	<name>dependencies project info</name>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.hp.brrnd.rndgears.products.SINAPSE</groupId>
+				<artifactId>maven-release-notes-plugin</artifactId>
+				<version>1.0.0-SNAPSHOT</version>
+				<configuration>
+					<settings implementation="org.apache.maven.plugin.github.stubs.SettingsStub"/>
+					<mavenProject implementation="org.apache.maven.plugin.github.stubs.ChangesIssueSystemStub"/>
+					<currentReleaseIssuesPropertyName>current.release.issues</currentReleaseIssuesPropertyName>
+					<historicReleasesIssuesPropertyName>older.releases.issues</historicReleasesIssuesPropertyName>		
+					<propertyFormat>markdown</propertyFormat>
+					<githubAPIServerId>ghe</githubAPIServerId>
+					<failOnError>true</failOnError>
+					<githubAPIScheme>https</githubAPIScheme>
+    				<githubAPIPort>443</githubAPIPort>
+    				<currentReleaseTicketQuery>state=closed&amp;version=0.1.0-SNAPSHOT</currentReleaseTicketQuery>
+    				<olderReleasesTicketQuery>state=closed</olderReleasesTicketQuery>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

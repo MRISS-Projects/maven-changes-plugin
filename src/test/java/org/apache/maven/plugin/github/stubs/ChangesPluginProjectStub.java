@@ -1,0 +1,164 @@
+package org.apache.maven.plugin.github.stubs;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.artifact.repository.DefaultArtifactRepository;
+import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
+import org.apache.maven.artifact.versioning.VersionRange;
+import org.apache.maven.model.Build;
+import org.apache.maven.model.DependencyManagement;
+import org.apache.maven.model.IssueManagement;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.PluginManagement;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
+import org.codehaus.plexus.util.ReaderFactory;
+
+/**
+ * @author <a href="mailto:marcelo.riss@gmail.com">Marcelo Riss</a>
+ * @version 2018 Oct, 4
+ */
+public abstract class ChangesPluginProjectStub
+    extends MavenProjectStub
+{
+    private Model model;
+
+    private Build build;
+
+    /**
+     * Default constructor
+     */
+    public ChangesPluginProjectStub()
+    {
+        MavenXpp3Reader pomReader = new MavenXpp3Reader();
+        try
+        {
+            model = pomReader.read( ReaderFactory.newXmlReader( new File( getBasedir(), getPOM() ) ) );
+            setModel( model );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
+
+        setGroupId( model.getGroupId() );
+        setArtifactId( model.getArtifactId() );
+        setVersion( model.getVersion() );
+        setName( model.getName() );
+        setUrl( model.getUrl() );
+        setPackaging( model.getPackaging() );
+        
+
+        Artifact artifact = new ChangesPluginArtifactStub( getGroupId(), getArtifactId(), getVersion(),
+                                                               getPackaging(), null );
+        artifact.setArtifactHandler( new DefaultArtifactHandlerStub() );
+        setArtifact( artifact );
+
+        Build build = new Build();
+        build.setFinalName( model.getArtifactId() + "-" + model.getVersion() );
+        build.setDirectory( super.getBasedir() + "/target/test/unit/" + model.getArtifactId() + "/target" );
+        build.setSourceDirectory( getBasedir() + "/src/main/java" );
+        build.setOutputDirectory( super.getBasedir() + "/target/test/unit/" + model.getArtifactId()
+                                  + "/target/classes" );
+        build.setTestSourceDirectory( getBasedir() + "/src/test/java" );
+        build.setTestOutputDirectory( super.getBasedir() + "/target/test/unit/" + model.getArtifactId()
+            + "/target/test-classes" );
+        setBuild( build );
+
+        List<String> compileSourceRoots = new ArrayList<String>();
+        compileSourceRoots.add( getBasedir() + "/src/main/java" );
+        setCompileSourceRoots( compileSourceRoots );
+
+        List<String> testCompileSourceRoots = new ArrayList<String>();
+        testCompileSourceRoots.add( getBasedir() + "/src/test/java" );
+        setTestCompileSourceRoots( testCompileSourceRoots );
+    }
+
+    /**
+     * @return the POM file name
+     */
+    protected abstract String getPOM();
+
+    @Override
+    public Model getModel()
+    {
+        return model;
+    }
+
+    @Override
+    public Build getBuild()
+    {
+        return build;
+    }
+
+    @Override
+    public void setBuild( Build build )
+    {
+        this.build = build;
+    }
+
+    @Override
+    public File getBasedir()
+    {
+        return new File( super.getBasedir() + "/target/test-classes/integration/" );
+    }
+
+    @Override
+    public File getFile()
+    {
+        return new File( getBasedir(), getPOM() );
+    }
+
+    @Override
+    public Set<Artifact> getArtifacts()
+    {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public List<ArtifactRepository> getRemoteArtifactRepositories()
+    {
+        ArtifactRepository repository = new DefaultArtifactRepository( "central", "http://repo1.maven.org/maven2",
+                                                                       new DefaultRepositoryLayout() );
+
+        return Collections.singletonList( repository );
+    }
+
+    @Override
+    public Set<Artifact> getDependencyArtifacts()
+    {
+        Artifact artifact =
+            new DefaultArtifact( "junit", "junit", VersionRange.createFromVersion( "3.8.1" ), Artifact.SCOPE_TEST,
+                                 "jar", null, new DefaultArtifactHandler( "jar" ), false );
+        return Collections.singleton( artifact );
+    }
+
+    @Override
+    public DependencyManagement getDependencyManagement()
+    {
+        return model.getDependencyManagement();
+    }
+
+    @Override
+    public PluginManagement getPluginManagement()
+    {
+        PluginManagement pluginMgmt = null;
+
+        Build build = model.getBuild();
+        if ( build != null )
+        {
+            pluginMgmt = build.getPluginManagement();
+        }
+
+        return pluginMgmt;
+    }
+    
+}
