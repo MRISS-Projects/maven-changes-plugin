@@ -196,18 +196,8 @@ public class GitHubMojo
                 getLog().info( "The GitHub Report will contain issues only for the current version." );
             }
 
-            // Generate the report
-            IssuesReportGenerator report = new IssuesReportGenerator( IssuesReportHelper.toIntArray( columnIds ) );
-
-            if ( issueList.isEmpty() )
-            {
-                report.doGenerateEmptyReport( getBundle( locale ), getSink() );
-                getLog().warn( "No issue was matched." );
-            }
-            else
-            {
-                report.doGenerateReport( getBundle( locale ), getSink(), issueList );
-            }
+            generateReport(locale, columnIds, issueList);
+            
         }
         catch ( MalformedURLException e )
         {
@@ -219,6 +209,21 @@ public class GitHubMojo
             throw new MavenReportException( e.getMessage(), e );
         }
     }
+
+	protected void generateReport(Locale locale, List<Integer> columnIds, List<Issue> issueList) {
+		// Generate the report
+		IssuesReportGenerator report = new IssuesReportGenerator( IssuesReportHelper.toIntArray( columnIds ) );
+
+		if ( issueList.isEmpty() )
+		{
+		    report.doGenerateEmptyReport( getBundle( locale ), getSink() );
+		    getLog().warn( "No issue was matched." );
+		}
+		else
+		{
+		    report.doGenerateReport( getBundle( locale ), getSink(), issueList );
+		}
+	}
 
     /* --------------------------------------------------------------------- */
     /* Private methods */
