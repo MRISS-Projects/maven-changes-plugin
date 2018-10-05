@@ -185,6 +185,8 @@ public class GitHubMojo
             // Download issues
             GitHubDownloader issueDownloader =
                 new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues, onlyMilestoneIssues );
+            
+            issueDownloader.configureProxy(settings);
 
             issueDownloader.configureAuthentication( githubAPIServerId, settings, getLog() );
 

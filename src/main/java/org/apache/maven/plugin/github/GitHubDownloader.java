@@ -22,6 +22,7 @@ package org.apache.maven.plugin.github;
 import org.apache.maven.plugin.issues.Issue;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 
@@ -34,6 +35,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -122,7 +124,25 @@ public class GitHubDownloader
         this.githubRepo = urlPathParts[1];
     }
 
-    protected Issue createIssue( org.eclipse.egit.github.core.Issue githubIssue )
+	public void configureProxy(Settings settings) {
+		List<Proxy> proxies = settings.getProxies();
+		if (proxies != null && !proxies.isEmpty()) {
+			for (Iterator<Proxy> iterator = proxies.iterator(); iterator.hasNext();) {
+				Proxy proxy = (Proxy) iterator.next();
+				if (System.getProperty("http.proxyHost") == null || System.getProperty("http.proxyHost").isEmpty()) {
+					System.setProperty("http.proxyHost", proxy.getHost());					
+			    	System.setProperty("http.proxyPort", Integer.toString(proxy.getPort()));					
+				}
+				if (System.getProperty("https.proxyHost") == null || System.getProperty("https.proxyHost").isEmpty()) {
+			    	System.setProperty("https.proxyHost", proxy.getHost());
+			    	System.setProperty("https.proxyPort", Integer.toString(proxy.getPort()));
+				}				
+		    	break;
+			}			
+		}		
+	}
+
+	protected Issue createIssue( org.eclipse.egit.github.core.Issue githubIssue )
     {
         Issue issue = new Issue();
 

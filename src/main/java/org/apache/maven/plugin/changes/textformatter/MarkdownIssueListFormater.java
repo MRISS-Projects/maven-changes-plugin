@@ -3,6 +3,7 @@ package org.apache.maven.plugin.changes.textformatter;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.issues.Issue;
 
 public class MarkdownIssueListFormater implements IssueListFormater {
@@ -38,10 +39,12 @@ public class MarkdownIssueListFormater implements IssueListFormater {
 		String version = "";
 		for (Iterator<Issue> iterator = issueList.iterator(); iterator.hasNext();) {
 			Issue issue = (Issue) iterator.next();
-			if (!issue.getVersion().equals(version) && versionSeparator) {
+			String issueVersion = getVersion(issue);
+			if (StringUtils.isEmpty(issueVersion) || issue == null) continue;
+			if (!issueVersion.equals(version) && versionSeparator) {
 				if (!version.isEmpty()) result += "\n";
-				version = issue.getVersion();
-				result += ("### Version " + issue.getVersion() + "\n\n");
+				version = issueVersion;
+				result += ("### Version " + issueVersion + "\n\n");
 				result += (HEADER);
 			}
 			result += (MD_LINE_PREFIX + COLUMN_SEPARATOR);
@@ -59,6 +62,18 @@ public class MarkdownIssueListFormater implements IssueListFormater {
 			result += "\n";
 		}
 		return result;
+	}
+
+	private String getVersion(Issue issue) {
+		String version = issue.getVersion();
+		if (StringUtils.isEmpty(version)) {
+			List<String> fixVersions = issue.getFixVersions();
+			if (fixVersions == null || fixVersions.isEmpty()) return null;
+			else {
+				return fixVersions.get(0);
+			}
+		}
+		return version;
 	}
 
 }

@@ -9,21 +9,20 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>com.hp.brrnd.rndgears.products.SINAPSE</groupId>
-				<artifactId>maven-release-notes-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-changes-plugin</artifactId>
 				<version>1.0.0-SNAPSHOT</version>
 				<configuration>
 					<settings implementation="org.apache.maven.plugin.github.stubs.SettingsStub"/>
-					<mavenProject implementation="org.apache.maven.plugin.github.stubs.ChangesIssueSystemStub"/>
-					<currentReleaseIssuesPropertyName>current.release.issues</currentReleaseIssuesPropertyName>
-					<historicReleasesIssuesPropertyName>older.releases.issues</historicReleasesIssuesPropertyName>		
-					<propertyFormat>markdown</propertyFormat>
-					<githubAPIServerId>ghe</githubAPIServerId>
-					<failOnError>true</failOnError>
+					<project implementation="org.apache.maven.plugin.github.stubs.ChangesIssueSystemStub"/>
+					<issueListPropertyName>issues.text.list</issueListPropertyName>
+					<textListFormater>markdown</textListFormater>
+					<githubAPIServerId>github.com</githubAPIServerId>
 					<githubAPIScheme>https</githubAPIScheme>
     				<githubAPIPort>443</githubAPIPort>
-    				<currentReleaseTicketQuery>state=closed&amp;version=0.1.0-SNAPSHOT</currentReleaseTicketQuery>
-    				<olderReleasesTicketQuery>state=closed</olderReleasesTicketQuery>
+					<localRepository>${localRepository}</localRepository>
+					<outputDirectory>target/site</outputDirectory>
+					<columnNames>Id,Type,Summary,Assignee,Reporter,Status,Created,Updated,Fix Version</columnNames>    				
 				</configuration>
 			</plugin>
 		</plugins>

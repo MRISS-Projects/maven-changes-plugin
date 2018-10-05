@@ -18,7 +18,7 @@ public class ChangesIssueSystemStub
     @Override
     protected String getPOM()
     {
-        return "pom11.xml";
+        return "pom1.xml";
     }
     
 	@Override

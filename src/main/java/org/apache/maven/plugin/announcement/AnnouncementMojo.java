@@ -853,6 +853,8 @@ public class AnnouncementMojo
         {
             GitHubDownloader issueDownloader =
                 new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues, true );
+            
+            issueDownloader.configureProxy(settings);
 
             issueDownloader.configureAuthentication( githubAPIServerId, settings, getLog() );
 

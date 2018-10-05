@@ -3,12 +3,14 @@ package org.apache.maven.plugin.github;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.changes.textformatter.IssueListFormater;
 import org.apache.maven.plugin.changes.textformatter.IssueListFormatterFactory;
 import org.apache.maven.plugin.issues.Issue;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.reporting.MavenReportException;
 
 /**
  * Mojo to format a list of issues from github in a text format. It will
@@ -46,6 +48,21 @@ public class GitHubTextListMojo extends GitHubMojo {
 
 	public MavenProject getMavenProject() {
 		return project;
+	}
+
+	@Override
+	public void execute() throws MojoExecutionException {
+        if ( !canGenerateReport() )
+        {
+            return;
+        }
+        Locale locale = Locale.getDefault();
+        try {
+			executeReport(locale);
+		} catch (MavenReportException e) {
+            throw new MojoExecutionException( "An error has occurred in " + getName( Locale.ENGLISH )
+            	+ " report generation.", e );
+		}
 	}
 
 }

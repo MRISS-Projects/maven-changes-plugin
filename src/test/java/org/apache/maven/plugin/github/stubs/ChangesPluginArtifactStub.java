@@ -1,5 +1,7 @@
 package org.apache.maven.plugin.github.stubs;
 
+import java.io.File;
+
 import org.apache.maven.artifact.handler.ArtifactHandler;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.plugin.testing.stubs.ArtifactStub;
@@ -41,10 +43,21 @@ public class ChangesPluginArtifactStub
         this.packaging = packaging;
         this.classifier = classifier;
         this.type = packaging;
-        versionRange = VersionRange.createFromVersion( version );
+        this.versionRange = VersionRange.createFromVersion( version );
+        setFile(new File("target/dummyFile.jar"));
     }
 
-    @Override
+    public ChangesPluginArtifactStub(String groupId, String artifactId, VersionRange versionRange, String type,
+			String classifier, String scope) {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.classifier = classifier;
+        this.type = type;
+        this.versionRange = versionRange;
+        setArtifactHandler(new DefaultArtifactHandlerStub());
+	}
+
+	@Override
     public void setGroupId( String groupId )
     {
         this.groupId = groupId;

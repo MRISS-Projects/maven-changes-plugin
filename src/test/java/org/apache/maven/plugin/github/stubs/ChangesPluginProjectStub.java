@@ -108,7 +108,7 @@ public abstract class ChangesPluginProjectStub
     @Override
     public File getBasedir()
     {
-        return new File( super.getBasedir() + "/target/test-classes/integration/" );
+        return new File( super.getBasedir() + "/target/test-classes/poms/" );
     }
 
     @Override

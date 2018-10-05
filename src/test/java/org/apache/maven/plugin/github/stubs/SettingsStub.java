@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,27 @@ public class SettingsStub extends Settings {
 		if (mavenHome != null && !mavenHome.isEmpty()) {
 			try {
 				List<Proxy> proxies = getProxiesFromSettings(mavenHome, "settings.xml");
+				if (isProxyEnvironment()) {
+					proxies = new ArrayList<Proxy>();
+					String httpProxy = System.getenv("http_proxy");
+					if (httpProxy != null) {
+						Proxy p = new Proxy();
+						URL u = new URL(httpProxy);
+						p.setHost(u.getHost());
+						p.setProtocol(u.getProtocol());
+						p.setPort(u.getPort());
+						proxies.add(p);
+					}
+					String httpsProxy = System.getenv("http_proxy");
+					if (httpsProxy != null) {
+						Proxy p = new Proxy();
+						URL u = new URL(httpsProxy);
+						p.setHost(u.getHost());
+						p.setProtocol(u.getProtocol());
+						p.setPort(u.getPort());
+						proxies.add(p);
+					}					
+				}
 				return proxies;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -68,7 +90,7 @@ public class SettingsStub extends Settings {
 
 	private List<Proxy> getProxiesFromSettings(String mavenHome, String settingsFileName)
 			throws FileNotFoundException, IOException, XmlPullParserException {
-		FileReader sReader = new FileReader(new File(mavenHome + File.separator + "conf" + File.separator + settingsFileName));
+		FileReader sReader = new FileReader(new File(mavenHome + "/conf/" + settingsFileName));
 		SettingsXpp3Reader modelReader = new SettingsXpp3Reader();
 		Settings settings = modelReader.read( sReader, true );
 		List<Proxy> proxies = settings.getProxies();

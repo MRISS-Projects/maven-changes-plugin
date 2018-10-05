@@ -37,8 +37,7 @@ public class GitHubTextListMojoTestCase extends AbstractMojoTestCase {
 			this.configureMojo(mojo, pc);
 			assertNotNull(mojo);
 			mojo.execute();
-			System.out.println(mojo.getMavenProject().getProperties().get("current.release.issues"));
-			System.out.println(mojo.getMavenProject().getProperties().get("older.releases.issues"));
+			System.out.println(mojo.getMavenProject().getProperties().get("issues.text.list"));
 		} catch (Exception e) {
 			e.printStackTrace();
 			// Try with mockito
