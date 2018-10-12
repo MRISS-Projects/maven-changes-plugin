@@ -1,5 +1,24 @@
 package org.apache.maven.plugin.github.stubs;
 
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +34,6 @@ import org.apache.maven.artifact.repository.layout.DefaultRepositoryLayout;
 import org.apache.maven.artifact.versioning.VersionRange;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.DependencyManagement;
-import org.apache.maven.model.IssueManagement;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.PluginManagement;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
@@ -26,8 +44,7 @@ import org.codehaus.plexus.util.ReaderFactory;
  * @author <a href="mailto:marcelo.riss@gmail.com">Marcelo Riss</a>
  * @version 2018 Oct, 4
  */
-public abstract class ChangesPluginProjectStub
-    extends MavenProjectStub
+public abstract class ChangesPluginProjectStub extends MavenProjectStub
 {
     private Model model;
 
@@ -55,10 +72,9 @@ public abstract class ChangesPluginProjectStub
         setName( model.getName() );
         setUrl( model.getUrl() );
         setPackaging( model.getPackaging() );
-        
 
-        Artifact artifact = new ChangesPluginArtifactStub( getGroupId(), getArtifactId(), getVersion(),
-                                                               getPackaging(), null );
+        Artifact artifact = new ChangesPluginArtifactStub( getGroupId(), getArtifactId(), getVersion(), getPackaging(),
+                null );
         artifact.setArtifactHandler( new DefaultArtifactHandlerStub() );
         setArtifact( artifact );
 
@@ -66,11 +82,11 @@ public abstract class ChangesPluginProjectStub
         build.setFinalName( model.getArtifactId() + "-" + model.getVersion() );
         build.setDirectory( super.getBasedir() + "/target/test/unit/" + model.getArtifactId() + "/target" );
         build.setSourceDirectory( getBasedir() + "/src/main/java" );
-        build.setOutputDirectory( super.getBasedir() + "/target/test/unit/" + model.getArtifactId()
-                                  + "/target/classes" );
+        build.setOutputDirectory(
+                super.getBasedir() + "/target/test/unit/" + model.getArtifactId() + "/target/classes" );
         build.setTestSourceDirectory( getBasedir() + "/src/test/java" );
-        build.setTestOutputDirectory( super.getBasedir() + "/target/test/unit/" + model.getArtifactId()
-            + "/target/test-classes" );
+        build.setTestOutputDirectory(
+                super.getBasedir() + "/target/test/unit/" + model.getArtifactId() + "/target/test-classes" );
         setBuild( build );
 
         List<String> compileSourceRoots = new ArrayList<String>();
@@ -127,7 +143,7 @@ public abstract class ChangesPluginProjectStub
     public List<ArtifactRepository> getRemoteArtifactRepositories()
     {
         ArtifactRepository repository = new DefaultArtifactRepository( "central", "http://repo1.maven.org/maven2",
-                                                                       new DefaultRepositoryLayout() );
+                new DefaultRepositoryLayout() );
 
         return Collections.singletonList( repository );
     }
@@ -135,9 +151,8 @@ public abstract class ChangesPluginProjectStub
     @Override
     public Set<Artifact> getDependencyArtifacts()
     {
-        Artifact artifact =
-            new DefaultArtifact( "junit", "junit", VersionRange.createFromVersion( "3.8.1" ), Artifact.SCOPE_TEST,
-                                 "jar", null, new DefaultArtifactHandler( "jar" ), false );
+        Artifact artifact = new DefaultArtifact( "junit", "junit", VersionRange.createFromVersion( "3.8.1" ),
+                Artifact.SCOPE_TEST, "jar", null, new DefaultArtifactHandler( "jar" ), false );
         return Collections.singleton( artifact );
     }
 
@@ -160,5 +175,5 @@ public abstract class ChangesPluginProjectStub
 
         return pluginMgmt;
     }
-    
+
 }

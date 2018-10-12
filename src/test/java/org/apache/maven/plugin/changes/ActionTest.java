@@ -25,6 +25,10 @@ import junit.framework.TestSuite;
 
 import org.apache.maven.plugins.changes.model.Action;
 
+/**
+ * ActionTest class.
+ *
+ */
 public class ActionTest
     extends TestCase
 {

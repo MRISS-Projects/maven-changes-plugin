@@ -54,8 +54,7 @@ import org.codehaus.plexus.util.StringUtils;
  */
 @Mojo( name = "announcement-mail", threadSafe = true )
 @Execute( goal = "announcement-generate" )
-public class AnnouncementMailMojo
-    extends AbstractAnnouncementMojo
+public class AnnouncementMailMojo extends AbstractAnnouncementMojo
 {
     // =========================================
     // announcement-mail goal fields
@@ -228,14 +227,13 @@ public class AnnouncementMailMojo
 
     private ProjectJavamailMailSender mailer = new ProjectJavamailMailSender();
 
-    public void execute()
-        throws MojoExecutionException
+    public void execute() throws MojoExecutionException
     {
         // Fail build fast if it is using deprecated parameters
         if ( templateOutputDirectory != null )
         {
             throw new MojoExecutionException( "You are using the old parameter 'templateOutputDirectory'. "
-                + "You must use 'announcementDirectory' instead." );
+                    + "You must use 'announcementDirectory' instead." );
         }
 
         // Run only at the execution root
@@ -295,10 +293,10 @@ public class AnnouncementMailMojo
     /**
      * Send the email.
      *
-     * @throws MojoExecutionException if the mail could not be sent
+     * @throws MojoExecutionException
+     *             if the mail could not be sent
      */
-    protected void sendMessage()
-        throws MojoExecutionException
+    protected void sendMessage() throws MojoExecutionException
     {
         File file = new File( announcementDirectory, announcementFile );
         String email = "";
@@ -357,12 +355,13 @@ public class AnnouncementMailMojo
     /**
      * Read the content of the generated announcement file.
      *
-     * @param file the file to be read
+     * @param file
+     *            the file to be read
      * @return Return the announcement text
-     * @throws MojoExecutionException if the file could not be found, or if the encoding is unsupported
+     * @throws MojoExecutionException
+     *             if the file could not be found, or if the encoding is unsupported
      */
-    protected String readAnnouncement( File file )
-        throws MojoExecutionException
+    protected String readAnnouncement( File file ) throws MojoExecutionException
     {
         InputStreamReader reader = null;
         try
@@ -371,7 +370,7 @@ public class AnnouncementMailMojo
             {
                 templateEncoding = ReaderFactory.FILE_ENCODING;
                 getLog().warn( "File encoding has not been set, using platform encoding '" + templateEncoding
-                                   + "', i.e. build is platform dependent!" );
+                        + "', i.e. build is platform dependent!" );
 
             }
 
@@ -409,10 +408,10 @@ public class AnnouncementMailMojo
      * </ul>
      *
      * @return the mail sender to use
-     * @throws MojoExecutionException if the mail sender could not be retrieved
+     * @throws MojoExecutionException
+     *             if the mail sender could not be retrieved
      */
-    protected MailSender getActualMailSender()
-        throws MojoExecutionException
+    protected MailSender getActualMailSender() throws MojoExecutionException
     {
         if ( senderString != null )
         {
@@ -433,7 +432,7 @@ public class AnnouncementMailMojo
         else if ( from == null || from.isEmpty() )
         {
             throw new MojoExecutionException( "The <developers> section in your pom should not be empty. "
-                + "Add a <developer> entry or set the mailSender parameter." );
+                    + "Add a <developer> entry or set the mailSender parameter." );
         }
         else if ( fromDeveloperId == null )
         {
@@ -451,8 +450,8 @@ public class AnnouncementMailMojo
                     return new MailSender( developer.getName(), developer.getEmail() );
                 }
             }
-            throw new MojoExecutionException( "Missing developer with id '" + fromDeveloperId
-                + "' in the <developers> section in your pom." );
+            throw new MojoExecutionException(
+                    "Missing developer with id '" + fromDeveloperId + "' in the <developers> section in your pom." );
         }
     }
 

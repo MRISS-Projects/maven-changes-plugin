@@ -30,7 +30,9 @@ public enum IssueType
 
     private String configurationKey;
 
+    // CHECKSTYLE_OFF: RedundantModifier
     private IssueType( String configurationKey )
+    // CHECKSTYLE_ON: RedundantModifier
     {
         this.configurationKey = configurationKey;
     }

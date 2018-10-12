@@ -37,12 +37,16 @@ public class IssueUtilsTestCase
 {
     public void testFilterIssuesWithVersionPrefix()
     {
+        // CHECKSTYLE_OFF: LocalVariableName
         Issue issue_1;
+        // CHECKSTYLE_ON: LocalVariableName
         issue_1 = new Issue();
         issue_1.setId( "1" );
         issue_1.addFixVersion( "myPrefix-1.0" );
 
+     // CHECKSTYLE_OFF: LocalVariableName
         Issue issue_2;
+     // CHECKSTYLE_on: LocalVariableName
         issue_2 = new Issue();
         issue_2.setId( "2" );
         issue_2.addFixVersion( "1.0" );

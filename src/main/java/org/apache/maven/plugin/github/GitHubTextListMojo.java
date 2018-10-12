@@ -1,5 +1,24 @@
 package org.apache.maven.plugin.github;
 
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import java.util.List;
 import java.util.Locale;
 
@@ -13,56 +32,60 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.reporting.MavenReportException;
 
 /**
- * Mojo to format a list of issues from github in a text format. It will
- * generate a apt or markdown text formatting style which can be set to a
- * property. That property can then be inserted in another markdown or apt text
- * file.
+ * Mojo to format a list of issues from github in a text format. It will generate a apt or markdown text formatting
+ * style which can be set to a property. That property can then be inserted in another markdown or apt text file.
  * 
  * @author riss
  * @since 2.12.3
  *
  */
-@Mojo(name = "github-text-list")
-public class GitHubTextListMojo extends GitHubMojo {
+@Mojo( name = "github-text-list" )
+public class GitHubTextListMojo extends GitHubMojo
+{
 
-	/***
-	 * The text formatter to be used to format issues. Accepted values are
-	 * <code>apt</code> or <code>markdown</code>.
-	 */
-	@Parameter(property = "changes.text.list.formater", defaultValue = "markdown")
-	private String textListFormater;
+    /***
+     * The text formatter to be used to format issues. Accepted values are <code>apt</code> or <code>markdown</code>.
+     */
+    @Parameter( property = "changes.text.list.formater", defaultValue = "markdown" )
+    private String textListFormater;
 
-	/***
-	 * The name of the property to be set with the formatted result of issues,
-	 * following the format defined at <code>textListFormater</code>.
-	 */
-	@Parameter(property = "changes.issue.list.propert.name", defaultValue = "issues.text.list")
-	private String issueListPropertyName;
+    /***
+     * The name of the property to be set with the formatted result of issues, following the format defined at
+     * <code>textListFormater</code>.
+     */
+    @Parameter( property = "changes.issue.list.propert.name", defaultValue = "issues.text.list" )
+    private String issueListPropertyName;
 
-	@Override
-	protected void generateReport(Locale locale, List<Integer> columnIds, List<Issue> issueList) {
-		IssueListFormater issueFormatter = IssueListFormatterFactory.getInstance()
-				.getIssueListFormatter(textListFormater, true, project.getIssueManagement().getUrl(), "");
-		project.getProperties().put(issueListPropertyName, issueFormatter.formatIssueList(issueList));
-	}
+    @Override
+    protected void generateReport( Locale locale, List<Integer> columnIds, List<Issue> issueList )
+    {
+        IssueListFormater issueFormatter = IssueListFormatterFactory.getInstance()
+                .getIssueListFormatter( textListFormater, true, project.getIssueManagement().getUrl(), "" );
+        project.getProperties().put( issueListPropertyName, issueFormatter.formatIssueList( issueList ) );
+    }
 
-	public MavenProject getMavenProject() {
-		return project;
-	}
+    public MavenProject getMavenProject()
+    {
+        return project;
+    }
 
-	@Override
-	public void execute() throws MojoExecutionException {
+    @Override
+    public void execute() throws MojoExecutionException
+    {
         if ( !canGenerateReport() )
         {
             return;
         }
         Locale locale = Locale.getDefault();
-        try {
-			executeReport(locale);
-		} catch (MavenReportException e) {
-            throw new MojoExecutionException( "An error has occurred in " + getName( Locale.ENGLISH )
-            	+ " report generation.", e );
-		}
-	}
+        try
+        {
+            executeReport( locale );
+        }
+        catch ( MavenReportException e )
+        {
+            throw new MojoExecutionException(
+                    "An error has occurred in " + getName( Locale.ENGLISH ) + " report generation.", e );
+        }
+    }
 
 }

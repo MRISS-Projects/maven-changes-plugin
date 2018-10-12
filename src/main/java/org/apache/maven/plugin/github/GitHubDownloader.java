@@ -76,8 +76,7 @@ public class GitHubDownloader
     private String githubIssueURL;
 
     public GitHubDownloader( MavenProject project, String githubScheme, int githubPort, boolean includeOpenIssues,
-                             boolean onlyMilestoneIssues )
-                                 throws MalformedURLException
+            boolean onlyMilestoneIssues ) throws MalformedURLException
     {
         this.includeOpenIssues = includeOpenIssues;
         this.onlyMilestoneIssues = onlyMilestoneIssues;
@@ -116,33 +115,40 @@ public class GitHubDownloader
 
         if ( urlPathParts.length != 3 )
         {
-            throw new MalformedURLException( "GitHub issue management URL must look like, "
-                + "[GITHUB_DOMAIN]/[OWNER]/[REPO]/issues" );
+            throw new MalformedURLException(
+                    "GitHub issue management URL must look like, " + "[GITHUB_DOMAIN]/[OWNER]/[REPO]/issues" );
         }
 
         this.githubOwner = urlPathParts[0];
         this.githubRepo = urlPathParts[1];
     }
 
-	public void configureProxy(Settings settings) {
-		List<Proxy> proxies = settings.getProxies();
-		if (proxies != null && !proxies.isEmpty()) {
-			for (Iterator<Proxy> iterator = proxies.iterator(); iterator.hasNext();) {
-				Proxy proxy = (Proxy) iterator.next();
-				if (System.getProperty("http.proxyHost") == null || System.getProperty("http.proxyHost").isEmpty()) {
-					System.setProperty("http.proxyHost", proxy.getHost());					
-			    	System.setProperty("http.proxyPort", Integer.toString(proxy.getPort()));					
-				}
-				if (System.getProperty("https.proxyHost") == null || System.getProperty("https.proxyHost").isEmpty()) {
-			    	System.setProperty("https.proxyHost", proxy.getHost());
-			    	System.setProperty("https.proxyPort", Integer.toString(proxy.getPort()));
-				}				
-		    	break;
-			}			
-		}		
-	}
+    public void configureProxy( Settings settings )
+    {
+        List<Proxy> proxies = settings.getProxies();
+        if ( proxies != null && !proxies.isEmpty() )
+        {
+            for ( Iterator<Proxy> iterator = proxies.iterator(); iterator.hasNext(); )
+            {
+                Proxy proxy = (Proxy) iterator.next();
+                if ( System.getProperty( "http.proxyHost" ) == null
+                        || System.getProperty( "http.proxyHost" ).isEmpty() )
+                {
+                    System.setProperty( "http.proxyHost", proxy.getHost() );
+                    System.setProperty( "http.proxyPort", Integer.toString( proxy.getPort() ) );
+                }
+                if ( System.getProperty( "https.proxyHost" ) == null
+                        || System.getProperty( "https.proxyHost" ).isEmpty() )
+                {
+                    System.setProperty( "https.proxyHost", proxy.getHost() );
+                    System.setProperty( "https.proxyPort", Integer.toString( proxy.getPort() ) );
+                }
+                break;
+            }
+        }
+    }
 
-	protected Issue createIssue( org.eclipse.egit.github.core.Issue githubIssue )
+    protected Issue createIssue( org.eclipse.egit.github.core.Issue githubIssue )
     {
         Issue issue = new Issue();
 
@@ -196,8 +202,7 @@ public class GitHubDownloader
         return issue;
     }
 
-    public List<Issue> getIssueList()
-        throws IOException
+    public List<Issue> getIssueList() throws IOException
     {
         List<Issue> issueList = new ArrayList<Issue>();
 

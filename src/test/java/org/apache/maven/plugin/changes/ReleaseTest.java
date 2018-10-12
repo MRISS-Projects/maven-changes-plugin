@@ -28,6 +28,11 @@ import junit.framework.TestSuite;
 
 import org.apache.maven.plugins.changes.model.Release;
 
+/**
+ * 
+ * ReleaseTest class.
+ *
+ */
 public class ReleaseTest
     extends TestCase
 {
