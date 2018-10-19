@@ -73,12 +73,22 @@ public class MarkdownIssueListFormater implements IssueListFormater
         for ( Iterator<Issue> iterator = issueList.iterator(); iterator.hasNext(); )
         {
             Issue issue = (Issue) iterator.next();
-            String issueVersion = getVersion( issue );
-            if ( StringUtils.isEmpty( issueVersion ) || issue == null )
+            if ( issue == null || issue.getType() == null )
             {
                 continue;
             }
-            if ( !issueVersion.equals( version ) && versionSeparator )
+            String issueVersion = getVersion( issue );
+            if ( issueVersion == null && version != null && isOpened( issue ) && versionSeparator )
+            {
+                if ( !version.isEmpty() )
+                {
+                    result += "\n";
+                }
+                version = issueVersion;
+                result += ( "### Opened Issues\n\n" );
+                result += ( HEADER );
+            }
+            else if ( issueVersion != null && !issueVersion.equals( version ) && versionSeparator )
             {
                 if ( !version.isEmpty() )
                 {
@@ -113,6 +123,11 @@ public class MarkdownIssueListFormater implements IssueListFormater
             result += "\n";
         }
         return result;
+    }
+
+    private boolean isOpened( Issue issue )
+    {
+        return issue.getStatus() != null && !issue.getStatus().equalsIgnoreCase( "closed" );
     }
 
     private String getVersion( Issue issue )

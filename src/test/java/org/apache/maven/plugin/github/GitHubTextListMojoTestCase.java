@@ -54,6 +54,14 @@ public class GitHubTextListMojoTestCase extends AbstractMojoTestCase
         testPom( "pom1" );
     }
 
+    /**
+     * No Opened Issues
+     */
+    public void testExecuteNoOpenedIssues()
+    {
+        testPom( "pom2" );
+    }
+
     private void testPom( String testPomName )
     {
         File testPom = new File( getBasedir(), "target/test-classes/poms/" + testPomName + ".xml" );

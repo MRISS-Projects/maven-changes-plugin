@@ -28,7 +28,7 @@
                     <settings
                         implementation="org.apache.maven.plugin.github.stubs.SettingsStub" />
                     <project
-                        implementation="org.apache.maven.plugin.github.stubs.ChangesIssueSystemStub" />
+                        implementation="org.apache.maven.plugin.github.stubs.ChangesIssueSystemNoOpenedIssuesStub" />
                     <issueListPropertyName>issues.text.list
                     </issueListPropertyName>
                     <textListFormater>markdown</textListFormater>
@@ -41,8 +41,8 @@
                     <columnNames>Id,Type,Summary,Assignee,Reporter,Status,Created,Updated,Fix
                         Version
                     </columnNames>
-                    <onlyMilestoneIssues>false</onlyMilestoneIssues>
-                    <includeOpenIssues>true</includeOpenIssues>
+                    <includeOpenIssues>false</includeOpenIssues>
+                    <onlyMilestoneIssues>true</onlyMilestoneIssues>
                 </configuration>
             </plugin>
         </plugins>
