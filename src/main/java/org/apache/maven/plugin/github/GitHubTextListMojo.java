@@ -125,7 +125,8 @@ public class GitHubTextListMojo extends GitHubMojo
     {
         Collections.sort( issueList, new IssueComparator() );
         IssueListFormater issueFormatter = IssueListFormatterFactory.getInstance()
-                .getIssueListFormatter( textListFormater, true, project.getIssueManagement().getUrl(), "" );
+                .getIssueListFormatter( textListFormater, true, project.getIssueManagement().getUrl(), "", columnIds,
+                        locale );
         project.getProperties().put( issueListPropertyName, issueFormatter.formatIssueList( issueList ) );
     }
 

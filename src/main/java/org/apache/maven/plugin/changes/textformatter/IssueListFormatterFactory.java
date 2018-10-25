@@ -19,6 +19,9 @@ package org.apache.maven.plugin.changes.textformatter;
  * under the License.
  */
 
+import java.util.List;
+import java.util.Locale;
+
 /**
  * 
  * @author riss
@@ -46,11 +49,12 @@ public class IssueListFormatterFactory
     }
 
     public IssueListFormater getIssueListFormatter( String formatterId, boolean versionSeparator,
-            String issueManagementUrl, String ticketSuffix )
+            String issueManagementUrl, String ticketSuffix, List<Integer> columnIds, Locale locale )
     {
         if ( formatterId.equals( "markdown" ) )
         {
-            return new MarkdownIssueListFormater( versionSeparator, issueManagementUrl, ticketSuffix );
+            return new MarkdownIssueListFormater( versionSeparator, issueManagementUrl, ticketSuffix, columnIds,
+                    locale );
         }
         else if ( formatterId.equals( "apt" ) )
         {
