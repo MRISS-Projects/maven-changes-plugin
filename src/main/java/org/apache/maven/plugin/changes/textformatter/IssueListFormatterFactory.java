@@ -49,12 +49,13 @@ public class IssueListFormatterFactory
     }
 
     public IssueListFormater getIssueListFormatter( String formatterId, boolean versionSeparator,
-            String issueManagementUrl, String ticketSuffix, List<Integer> columnIds, Locale locale )
+            String issueManagementUrl, String ticketSuffix, List<Integer> columnIds, Locale locale,
+            int subtitleLevelNumber )
     {
         if ( formatterId.equals( "markdown" ) )
         {
             return new MarkdownIssueListFormater( versionSeparator, issueManagementUrl, ticketSuffix, columnIds,
-                    locale );
+                    locale, subtitleLevelNumber );
         }
         else if ( formatterId.equals( "apt" ) )
         {

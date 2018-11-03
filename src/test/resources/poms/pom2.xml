@@ -41,6 +41,7 @@
                     <columnNames>Id,Type,Summary,Assignee,Reporter,Status,Created,Updated,Fix Version</columnNames>
                     <includeOpenIssues>false</includeOpenIssues>
                     <onlyMilestoneIssues>true</onlyMilestoneIssues>
+                    <subtitleLevelNumber>3</subtitleLevelNumber>
                 </configuration>
             </plugin>
         </plugins>

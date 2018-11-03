@@ -120,13 +120,20 @@ public class GitHubTextListMojo extends GitHubMojo
     @Parameter( property = "changes.issue.list.propert.name", defaultValue = "issues.text.list" )
     private String issueListPropertyName;
 
+    /***
+     * The number of symbols used for sub-title leveling in case of version title separators. 
+     * In case of markdown the number of '#' characters used in the version sub-title.
+     */
+    @Parameter( property = "subtitle.level.number", defaultValue = "3" )
+    private int subtitleLevelNumber;
+
     @Override
     protected void generateReport( Locale locale, List<Integer> columnIds, List<Issue> issueList )
     {
         Collections.sort( issueList, new IssueComparator() );
         IssueListFormater issueFormatter = IssueListFormatterFactory.getInstance()
                 .getIssueListFormatter( textListFormater, true, project.getIssueManagement().getUrl(), "", columnIds,
-                        locale );
+                        locale, subtitleLevelNumber );
         project.getProperties().put( issueListPropertyName, issueFormatter.formatIssueList( issueList ) );
     }
 

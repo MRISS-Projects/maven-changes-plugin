@@ -60,6 +60,8 @@ public class MarkdownIssueListFormater implements IssueListFormater
 
     private String[] headerLabelKeys;
 
+    private int subtitleLevelNumber;
+
     /**
      * 
      * @param versionSeparator
@@ -71,10 +73,11 @@ public class MarkdownIssueListFormater implements IssueListFormater
      *            a suffix to be appended to the issue management URL to identify the unique URL for each issue
      * @param columnIds
      *            the integer IDs for columns as stated at {@link IssuesReportHelper} class.
-     * @param locale
+     * @param locale the locale used for messages.
+     * @param subtitleLevelNumber the number of characters used to set the version sub-title
      */
     public MarkdownIssueListFormater( boolean versionSeparator, String issueManagementUrl, String ticketSuffix,
-            List<Integer> columnIds, Locale locale )
+            List<Integer> columnIds, Locale locale, int subtitleLevelNumber )
     {
         this.versionSeparator = versionSeparator;
         if ( issueManagementUrl.endsWith( "/" ) )
@@ -88,6 +91,7 @@ public class MarkdownIssueListFormater implements IssueListFormater
         this.ticketSuffix = ticketSuffix;
         this.columnIds = columnIds;
         this.locale = locale;
+        this.subtitleLevelNumber = subtitleLevelNumber;
         this.headerLabelKeys = new String[] { "report.issues.label.assignee", "report.issues.label.component",
                 "report.issues.label.created", "report.issues.label.fixVersion", "report.issues.label.id",
                 "report.issues.label.key", "report.issues.label.priority", "report.issues.label.reporter",
@@ -122,7 +126,7 @@ public class MarkdownIssueListFormater implements IssueListFormater
                     result += "\n";
                 }
                 version = issueVersion;
-                result += ( "### Opened Issues\n\n" );
+                result += ( StringUtils.repeat( "#", subtitleLevelNumber ) + " Opened Issues\n\n" );
                 result += ( header );
             }
             else if ( issueVersion != null && !issueVersion.equals( version ) && versionSeparator )
@@ -132,7 +136,7 @@ public class MarkdownIssueListFormater implements IssueListFormater
                     result += "\n";
                 }
                 version = issueVersion;
-                result += ( "### Version " + issueVersion + "\n\n" );
+                result += ( StringUtils.repeat( "#", subtitleLevelNumber ) + " Version " + issueVersion + "\n\n" );
                 result += ( header );
             }
 
