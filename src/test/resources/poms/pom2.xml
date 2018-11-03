@@ -38,9 +38,7 @@
                     <localRepository>${localRepository}
                     </localRepository>
                     <outputDirectory>target/site</outputDirectory>
-                    <columnNames>Id,Type,Summary,Assignee,Reporter,Status,Created,Updated,Fix
-                        Version
-                    </columnNames>
+                    <columnNames>Id,Type,Summary,Assignee,Reporter,Status,Created,Updated,Fix Version</columnNames>
                     <includeOpenIssues>false</includeOpenIssues>
                     <onlyMilestoneIssues>true</onlyMilestoneIssues>
                 </configuration>

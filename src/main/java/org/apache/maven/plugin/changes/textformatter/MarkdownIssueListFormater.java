@@ -162,7 +162,7 @@ public class MarkdownIssueListFormater implements IssueListFormater
                 String created = NOT_AVAILABLE;
                 if ( issue.getCreated() != null )
                 {
-                    created = df.format( issue.getCreated() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );
+                    created = df.format( issue.getCreated() ) + MD_COLUMN_SPACE + COLUMN_SEPARATOR;
                 }
                 result += ( MD_COLUMN_SPACE + created );
                 break;
