@@ -78,7 +78,7 @@ your project.
     <groupId>com.mygrupid</groupId>
     <artifactId>my-artifactId</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     
     <properties>
         <!-- Set property below like: https://github.com/[MY-ORGANIZATION/MY-REPOSITORY]/issues -->
@@ -160,6 +160,26 @@ your project.
             </plugin>
         </plugins>
     </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <version>2.12.3</version>
+                <configuration>
+                    <includeOpenIssues>false</includeOpenIssues>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.8</version>
+                <configuration>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                </configuration>
+            </plugin>
+    </plugins>
+    </reporting>
     <issueManagement>
         <system>github</system>
         <url>${github.project}</url>
@@ -196,6 +216,19 @@ can be set to another name. See the new mojo configuration instructions [here]()
 
 ${issues.text.list}
 
+```
+
+#### Site.xml Content
+
+```
+<?xml version='1.0' encoding='UTF-8'?>
+<project name="${project.name}" combine.self="override">
+    <version position="right" />
+    <publishDate position="right" format="yyyy-MM-dd - hh:mm:ss" />
+    <body>
+        <menu ref="reports" />
+    </body>
+</project>
 ```
 
 ### Maven Repository Where to Find the Adapted Plugin Version
