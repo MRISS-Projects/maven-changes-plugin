@@ -185,3 +185,15 @@ ${issues.text.list}
     </body>
 </project>
 ```
+
+## Command
+
+At command prompt at the root where pom.xml resides, run:
+
+```sh
+mvn clean install site
+```
+
+The results will be at `target/site/README.html` and `target/site/pdf/README.pdf`. At
+`target/generated-site/markdown` you can see the filtered version of `README.md` with
+the the variable replaced by a markdown table having the list of issues.
