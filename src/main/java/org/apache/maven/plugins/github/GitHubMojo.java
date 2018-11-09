@@ -46,8 +46,7 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
  * @since 2.8
  */
 @Mojo( name = "github-report", threadSafe = true )
-public class GitHubMojo
-    extends AbstractChangesReport
+public class GitHubMojo extends AbstractChangesReport
 {
 
     /**
@@ -124,10 +123,17 @@ public class GitHubMojo
 
     /**
      * If you only want to show issues for the current version in the report. The current version being used is
-     * <code>${project.version}</code> minus any "-SNAPSHOT" suffix.
+     * <code>${project.version}</code> minus any "-SNAPSHOT" suffix, if <code>removeSnapshotSuffix</code> is set to
+     * <code>true</code>.
      */
     @Parameter( defaultValue = "false" )
     private boolean onlyCurrentVersion;
+
+    /***
+     * If "-SNAPSHOT" suffix should be removed when searching for issues.
+     */
+    @Parameter( property = "changes.removeSnapshotSuffix", defaultValue = "true" )
+    private boolean removeSnapshotSuffix;
 
     public String getOutputName()
     {
@@ -168,8 +174,7 @@ public class GitHubMojo
     }
 
     @Override
-    protected void executeReport( Locale locale )
-        throws MavenReportException
+    protected void executeReport( Locale locale ) throws MavenReportException
     {
 
         // Validate parameters
@@ -177,15 +182,17 @@ public class GitHubMojo
         if ( columnIds.size() == 0 )
         {
             // This can happen if the user has configured column names and they are all invalid
-            throw new MavenReportException( "maven-changes-plugin: None of the configured columnNames '" + columnNames
-                + "' are valid." );
+            throw new MavenReportException(
+                    "maven-changes-plugin: None of the configured columnNames '" + columnNames + "' are valid." );
         }
 
         try
         {
             // Download issues
-            GitHubDownloader issueDownloader =
-                new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues, onlyMilestoneIssues );
+            GitHubDownloader issueDownloader = new GitHubDownloader( project, githubAPIScheme, githubAPIPort,
+                    includeOpenIssues, onlyMilestoneIssues );
+
+            issueDownloader.configureProxy( settings );
 
             issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, getLog() );
 
@@ -193,22 +200,12 @@ public class GitHubMojo
 
             if ( onlyCurrentVersion )
             {
-                issueList = IssueUtils.getIssuesForVersion( issueList, project.getVersion() );
+                issueList = IssueUtils.getIssuesForVersion( issueList, project.getVersion(), removeSnapshotSuffix );
                 getLog().info( "The GitHub Report will contain issues only for the current version." );
             }
 
-            // Generate the report
-            IssuesReportGenerator report = new IssuesReportGenerator( IssuesReportHelper.toIntArray( columnIds ) );
+            generateReport( locale, columnIds, issueList );
 
-            if ( issueList.isEmpty() )
-            {
-                report.doGenerateEmptyReport( getBundle( locale ), getSink() );
-                getLog().warn( "No issue was matched." );
-            }
-            else
-            {
-                report.doGenerateReport( getBundle( locale ), getSink(), issueList );
-            }
         }
         catch ( MalformedURLException e )
         {
@@ -218,6 +215,22 @@ public class GitHubMojo
         catch ( Exception e )
         {
             throw new MavenReportException( e.getMessage(), e );
+        }
+    }
+
+    protected void generateReport( Locale locale, List<Integer> columnIds, List<Issue> issueList )
+    {
+        // Generate the report
+        IssuesReportGenerator report = new IssuesReportGenerator( IssuesReportHelper.toIntArray( columnIds ) );
+
+        if ( issueList.isEmpty() )
+        {
+            report.doGenerateEmptyReport( getBundle( locale ), getSink() );
+            getLog().warn( "No issue was matched." );
+        }
+        else
+        {
+            report.doGenerateReport( getBundle( locale ), getSink(), issueList );
         }
     }
 

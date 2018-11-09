@@ -22,13 +22,18 @@ package org.apache.maven.plugins.changes;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.maven.plugins.changes.model.Action;
+import org.apache.maven.plugins.changes.model.Release;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.maven.plugins.changes.model.Action;
-import org.apache.maven.plugins.changes.model.Release;
-
+/**
+ * 
+ * ReleaseTest class.
+ *
+ */
 public class ReleaseTest
     extends TestCase
 {

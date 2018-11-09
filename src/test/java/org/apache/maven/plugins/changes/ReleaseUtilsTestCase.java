@@ -22,11 +22,11 @@ package org.apache.maven.plugins.changes;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.changes.ReleaseUtils;
-import org.apache.maven.plugins.changes.model.Release;
 import org.apache.maven.plugin.testing.SilentLog;
+import org.apache.maven.plugins.changes.model.Release;
+
+import junit.framework.TestCase;
 
 /**
  * @author Dennis Lundberg

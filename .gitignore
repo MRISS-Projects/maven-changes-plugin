@@ -1,3 +1,5 @@
+/.checkstyle
+/**/*.md.html
 target/
 .project
 .classpath

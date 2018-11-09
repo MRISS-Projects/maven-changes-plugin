@@ -19,6 +19,11 @@ package org.apache.maven.plugins.jira;
  * under the License.
  */
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.issues.Issue;
@@ -28,11 +33,6 @@ import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.wagon.proxy.ProxyInfo;
 import org.apache.maven.wagon.proxy.ProxyUtils;
-
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 
 /**
  * Abstract API, more or less, to retrieving issue information from JIRA. Intended to have subclasses for the old (RSS)

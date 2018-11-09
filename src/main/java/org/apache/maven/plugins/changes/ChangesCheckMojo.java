@@ -75,6 +75,12 @@ public class ChangesCheckMojo
      */
     @Parameter( property = "changes.skipSnapshots", defaultValue = "false" )
     private boolean skipSnapshots;
+    
+    /***
+     * If "-SNAPSHOT" suffix should be removed when searching for issues.
+     */
+    @Parameter( property = "changes.removeSnapshotSuffix", defaultValue = "true" )
+    private boolean removeSnapshotSuffix;    
 
     /**
      * Check that the latest release contains a valid release date.
@@ -100,7 +106,8 @@ public class ChangesCheckMojo
                 ChangesXML xml = new ChangesXML( xmlPath, getLog() );
                 ReleaseUtils releaseUtils = new ReleaseUtils( getLog() );
                 Release release =
-                    releaseUtils.getLatestRelease( xml.getReleaseList(), version );
+                    releaseUtils.getLatestRelease( releaseUtils.convertReleaseList( xml.getReleaseList() ), version, 
+                       removeSnapshotSuffix );
 
                 if ( !isValidDate( release.getDateRelease(), releaseDateFormat, releaseDateLocale ) )
                 {

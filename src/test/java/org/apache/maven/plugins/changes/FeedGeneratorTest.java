@@ -22,15 +22,13 @@ package org.apache.maven.plugins.changes;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import junit.framework.TestCase;
-
-import org.apache.maven.plugins.changes.FeedGenerator;
 import org.apache.maven.plugins.changes.model.Release;
+
+import junit.framework.TestCase;
 
 /**
  * @author ltheussl

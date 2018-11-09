@@ -54,8 +54,7 @@ import org.codehaus.plexus.util.StringUtils;
  */
 @Mojo( name = "announcement-mail", threadSafe = true )
 @Execute( goal = "announcement-generate" )
-public class AnnouncementMailMojo
-    extends AbstractAnnouncementMojo
+public class AnnouncementMailMojo extends AbstractAnnouncementMojo
 {
     // =========================================
     // announcement-mail goal fields
@@ -228,8 +227,7 @@ public class AnnouncementMailMojo
 
     private ProjectJavamailMailSender mailer = new ProjectJavamailMailSender();
 
-    public void execute()
-        throws MojoExecutionException
+    public void execute() throws MojoExecutionException
     {
         // Fail build fast if it is using deprecated parameters
         if ( templateOutputDirectory != null )

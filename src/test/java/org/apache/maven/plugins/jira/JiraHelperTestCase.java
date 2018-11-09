@@ -19,11 +19,9 @@ package org.apache.maven.plugins.jira;
  * under the License.
  */
 
-import junit.framework.TestCase;
-
 import java.util.Map;
 
-import org.apache.maven.plugins.jira.JiraHelper;
+import junit.framework.TestCase;
 
 /**
  * Tests for the JiraHelper class.
@@ -47,8 +45,10 @@ public class JiraHelperTestCase
         assertEquals( "https://issues.apache.org/jira", map.get( "url" ) );
 
         // MCHANGES-222
+        // CHECKSTYLE_OFF: LineLength
         map =
             JiraHelper.getJiraUrlAndProjectId( "https://issues.apache.org/jira/secure/IssueNavigator.jspa?pid=11761&reset=true" );
+        // CHECKSTYLE_OFF: LineLength
         assertEquals( "https://issues.apache.org/jira", map.get( "url" ) );
         map = JiraHelper.getJiraUrlAndProjectId( "https://issues.apache.org/jira/browse/MSHARED/component/13380" );
         assertEquals( "https://issues.apache.org/jira", map.get( "url" ) );

@@ -19,13 +19,12 @@ package org.apache.maven.plugins.jira;
  * under the License.
  */
 
-import junit.framework.TestCase;
-import org.apache.maven.plugin.logging.SystemStreamLog;
-import org.apache.maven.plugins.jira.JiraQueryBuilder;
-import org.apache.maven.plugins.jira.JqlQueryBuilder;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+
+import org.apache.maven.plugin.logging.SystemStreamLog;
+
+import junit.framework.TestCase;
 
 /**
  * Test class for {@link JqlQueryBuilder}

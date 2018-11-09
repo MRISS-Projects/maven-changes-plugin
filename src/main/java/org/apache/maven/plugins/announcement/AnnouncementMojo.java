@@ -255,6 +255,12 @@ public class AnnouncementMojo
      */
     @Parameter( defaultValue = "${basedir}/src/changes/changes.xml" )
     private File xmlPath;
+    
+    /***
+     * If "-SNAPSHOT" suffix should be removed when searching for issues.
+     */
+    @Parameter( property = "changes.removeSnapshotSuffix", defaultValue = "true" )
+    private boolean removeSnapshotSuffix;
 
     // =======================================//
     // JIRA-Announcement Needed Parameters //
@@ -609,7 +615,7 @@ public class AnnouncementMojo
         getLog().debug( "Generating announcement for version [" + version + "]. Found these releases: "
             + ReleaseUtils.toString( releases ) );
 
-        doGenerate( releases, releaseUtils.getLatestRelease( releases, version ) );
+        doGenerate( releases, releaseUtils.getLatestRelease( releases, version, removeSnapshotSuffix ) );
     }
 
     protected void doGenerate( List<Release> releases, Release release )
@@ -851,6 +857,8 @@ public class AnnouncementMojo
         {
             GitHubDownloader issueDownloader =
                 new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues, true );
+            
+            issueDownloader.configureProxy( settings );
 
             issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, getLog() );
 

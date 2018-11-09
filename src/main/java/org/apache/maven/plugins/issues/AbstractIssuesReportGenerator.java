@@ -19,12 +19,12 @@ package org.apache.maven.plugins.issues;
  * under the License.
  */
 
+import java.util.ResourceBundle;
+
 import org.apache.maven.doxia.sink.Sink;
 import org.apache.maven.doxia.sink.SinkEventAttributeSet;
 import org.apache.maven.doxia.sink.SinkEventAttributes;
 import org.codehaus.plexus.util.StringUtils;
-
-import java.util.ResourceBundle;
 
 /**
  * An abstract super class that helps when generating a report on issues.

@@ -19,7 +19,6 @@ package org.apache.maven.plugins.jira;
  * under the License.
  */
 
-import org.apache.maven.plugins.jira.JiraMojo;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 
 /**

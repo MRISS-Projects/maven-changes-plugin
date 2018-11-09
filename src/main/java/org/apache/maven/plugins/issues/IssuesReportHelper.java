@@ -19,13 +19,13 @@ package org.apache.maven.plugins.issues;
  * under the License.
  */
 
-import org.apache.commons.collections.bidimap.DualHashBidiMap;
-import org.apache.maven.plugin.logging.Log;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.collections.bidimap.DualHashBidiMap;
+import org.apache.maven.plugin.logging.Log;
 
 /**
  * A helper class for generation of reports based on issues.

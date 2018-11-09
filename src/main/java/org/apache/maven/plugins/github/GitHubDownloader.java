@@ -19,9 +19,19 @@ package org.apache.maven.plugins.github;
  * under the License.
  */
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.issues.Issue;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.building.SettingsProblem;
@@ -32,13 +42,6 @@ import org.eclipse.egit.github.core.Label;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.IssueService;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @since 2.8
@@ -77,8 +80,7 @@ public class GitHubDownloader
     private String githubIssueURL;
 
     public GitHubDownloader( MavenProject project, String githubScheme, int githubPort, boolean includeOpenIssues,
-                             boolean onlyMilestoneIssues )
-                                 throws MalformedURLException
+            boolean onlyMilestoneIssues ) throws MalformedURLException
     {
         this.includeOpenIssues = includeOpenIssues;
         this.onlyMilestoneIssues = onlyMilestoneIssues;
@@ -117,12 +119,37 @@ public class GitHubDownloader
 
         if ( urlPathParts.length != 3 )
         {
-            throw new MalformedURLException( "GitHub issue management URL must look like, "
-                + "[GITHUB_DOMAIN]/[OWNER]/[REPO]/issues" );
+            throw new MalformedURLException(
+                    "GitHub issue management URL must look like, " + "[GITHUB_DOMAIN]/[OWNER]/[REPO]/issues" );
         }
 
         this.githubOwner = urlPathParts[0];
         this.githubRepo = urlPathParts[1];
+    }
+
+    public void configureProxy( Settings settings )
+    {
+        List<Proxy> proxies = settings.getProxies();
+        if ( proxies != null && !proxies.isEmpty() )
+        {
+            for ( Iterator<Proxy> iterator = proxies.iterator(); iterator.hasNext(); )
+            {
+                Proxy proxy = (Proxy) iterator.next();
+                if ( System.getProperty( "http.proxyHost" ) == null
+                        || System.getProperty( "http.proxyHost" ).isEmpty() )
+                {
+                    System.setProperty( "http.proxyHost", proxy.getHost() );
+                    System.setProperty( "http.proxyPort", Integer.toString( proxy.getPort() ) );
+                }
+                if ( System.getProperty( "https.proxyHost" ) == null
+                        || System.getProperty( "https.proxyHost" ).isEmpty() )
+                {
+                    System.setProperty( "https.proxyHost", proxy.getHost() );
+                    System.setProperty( "https.proxyPort", Integer.toString( proxy.getPort() ) );
+                }
+                break;
+            }
+        }
     }
 
     protected Issue createIssue( org.eclipse.egit.github.core.Issue githubIssue )
@@ -179,8 +206,7 @@ public class GitHubDownloader
         return issue;
     }
 
-    public List<Issue> getIssueList()
-        throws IOException
+    public List<Issue> getIssueList() throws IOException
     {
         List<Issue> issueList = new ArrayList<Issue>();
 
@@ -216,8 +242,9 @@ public class GitHubDownloader
     }
 
     public void configureAuthentication( SettingsDecrypter decrypter, String githubAPIServerId, Settings settings,
-                                         Log log )
+            Log log )
     {
+
         boolean configured = false;
 
         List<Server> servers = settings.getServers();

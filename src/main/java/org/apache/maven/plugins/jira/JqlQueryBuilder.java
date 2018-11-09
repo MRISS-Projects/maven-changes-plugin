@@ -19,12 +19,12 @@ package org.apache.maven.plugins.jira;
  * under the License.
  */
 
-import org.apache.maven.plugin.logging.Log;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Locale;
+
+import org.apache.maven.plugin.logging.Log;
 
 /**
  * Builder for a JIRA query using the JIRA query language. Only a limited set of JQL is supported.

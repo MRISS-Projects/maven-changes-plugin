@@ -19,17 +19,15 @@ package org.apache.maven.plugins.changes;
  * under the License.
  */
 
+import java.io.File;
+import java.util.List;
+
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.changes.ChangesXML;
-import org.apache.maven.plugins.changes.ChangesXMLRuntimeException;
 import org.apache.maven.plugins.changes.model.Action;
 import org.apache.maven.plugins.changes.model.Release;
 import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * @author Olivier Lamy

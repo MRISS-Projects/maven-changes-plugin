@@ -51,14 +51,15 @@ public class ReleaseUtils
      *
      * @param releases list of releases
      * @param pomVersion Version of the artifact
+     * @param removeSnapshotSuffix if snapshot suffix should be removed before to search for the release
      * @return A <code>Release</code> that matches the next release of the current project
      * @throws org.apache.maven.plugin.MojoExecutionException If a release can't be found
      */
-    public Release getLatestRelease( List<Release> releases, String pomVersion )
+    public Release getLatestRelease( List<Release> releases, String pomVersion, boolean removeSnapshotSuffix )
         throws MojoExecutionException
     {
         // Remove "-SNAPSHOT" from the end, if it's there
-        if ( pomVersion != null && pomVersion.endsWith( SNAPSHOT_SUFFIX ) )
+        if ( pomVersion != null && pomVersion.endsWith( SNAPSHOT_SUFFIX ) && removeSnapshotSuffix )
         {
             pomVersion = pomVersion.substring( 0, pomVersion.length() - SNAPSHOT_SUFFIX.length() );
         }
@@ -174,6 +175,27 @@ public class ReleaseUtils
             }
         }
         return mergedReleases;
+    }
+
+    /**
+     * Convert an untyped List of Release objects that comes from changes.xml into a typed List of Release objects.
+     *
+     * @param changesReleases An untyped List of Release objects
+     * @return A type List of Release objects
+     * @todo When Modello can generate typed collections this method is no longer needed
+     */
+    public List<Release> convertReleaseList( List<Release> changesReleases )
+    {
+        List<Release> releases = new ArrayList<Release>();
+
+        // Loop through the List of releases from changes.xml and casting each
+        // release to a Release
+        for ( Object changesRelease : changesReleases )
+        {
+            Release release = (Release) changesRelease;
+            releases.add( release );
+        }
+        return releases;
     }
 
     /**

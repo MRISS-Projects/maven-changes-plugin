@@ -19,14 +19,6 @@ package org.apache.maven.plugins.trac;
  * under the License.
  */
 
-import org.apache.maven.plugins.issues.Issue;
-import org.apache.maven.project.MavenProject;
-import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.client.XmlRpcClient;
-import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
-import org.apache.xmlrpc.client.XmlRpcCommonsTransportFactory;
-import org.codehaus.plexus.util.StringUtils;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
@@ -37,6 +29,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.apache.maven.plugins.issues.Issue;
+import org.apache.maven.project.MavenProject;
+import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.client.XmlRpcClient;
+import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.apache.xmlrpc.client.XmlRpcCommonsTransportFactory;
+import org.codehaus.plexus.util.StringUtils;
 
 /**
  * Get issues from a Trac installation.

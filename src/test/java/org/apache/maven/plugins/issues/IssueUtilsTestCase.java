@@ -19,13 +19,12 @@ package org.apache.maven.plugins.issues;
  * under the License.
  */
 
-import junit.framework.TestCase;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.issues.Issue;
-import org.apache.maven.plugins.issues.IssueUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.maven.plugin.MojoExecutionException;
+
+import junit.framework.TestCase;
 
 /**
  * Tests for the IssueUtils class.
@@ -39,12 +38,16 @@ public class IssueUtilsTestCase
 {
     public void testFilterIssuesWithVersionPrefix()
     {
+        // CHECKSTYLE_OFF: LocalVariableName
         Issue issue_1;
+        // CHECKSTYLE_ON: LocalVariableName
         issue_1 = new Issue();
         issue_1.setId( "1" );
         issue_1.addFixVersion( "myPrefix-1.0" );
 
+     // CHECKSTYLE_OFF: LocalVariableName
         Issue issue_2;
+     // CHECKSTYLE_on: LocalVariableName
         issue_2 = new Issue();
         issue_2.setId( "2" );
         issue_2.addFixVersion( "1.0" );
