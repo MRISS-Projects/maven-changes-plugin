@@ -19,11 +19,9 @@ package org.apache.maven.plugins.jira;
  * under the License.
  */
 
-import junit.framework.TestCase;
-
 import java.util.Map;
 
-import org.apache.maven.plugins.jira.JiraHelper;
+import junit.framework.TestCase;
 
 /**
  * Tests for the JiraHelper class.

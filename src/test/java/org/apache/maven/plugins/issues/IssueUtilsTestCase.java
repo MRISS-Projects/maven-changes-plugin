@@ -19,13 +19,12 @@ package org.apache.maven.plugins.issues;
  * under the License.
  */
 
-import junit.framework.TestCase;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.issues.Issue;
-import org.apache.maven.plugins.issues.IssueUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.maven.plugin.MojoExecutionException;
+
+import junit.framework.TestCase;
 
 /**
  * Tests for the IssueUtils class.

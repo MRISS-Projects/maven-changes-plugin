@@ -19,10 +19,10 @@ package org.apache.maven.plugins.issues;
  * under the License.
  */
 
-import org.apache.maven.plugin.MojoExecutionException;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.maven.plugin.MojoExecutionException;
 
 /**
  * A utility class for working with issue objects.

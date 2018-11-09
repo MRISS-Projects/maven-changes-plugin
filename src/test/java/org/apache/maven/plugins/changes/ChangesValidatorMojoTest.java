@@ -22,7 +22,6 @@ package org.apache.maven.plugins.changes;
 import java.io.File;
 
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugins.changes.ChangesValidatorMojo;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 
 /**

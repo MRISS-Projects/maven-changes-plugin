@@ -1,12 +1,5 @@
-<<<<<<< HEAD
-/target/
-/bin/
-/.classpath
-/.project
-/.settings/
 /.checkstyle
-/.README.md.html
-=======
+/**/*.md.html
 target/
 .project
 .classpath
@@ -22,4 +15,3 @@ out/
 /bootstrap
 /dependencies.xml
 .java-version
->>>>>>> refs/heads/master

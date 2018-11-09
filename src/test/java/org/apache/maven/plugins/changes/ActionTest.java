@@ -19,11 +19,11 @@ package org.apache.maven.plugins.changes;
  * under the License.
  */
 
+import org.apache.maven.plugins.changes.model.Action;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import org.apache.maven.plugins.changes.model.Action;
 
 /**
  * ActionTest class.

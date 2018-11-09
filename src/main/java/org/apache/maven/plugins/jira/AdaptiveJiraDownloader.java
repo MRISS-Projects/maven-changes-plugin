@@ -19,10 +19,10 @@ package org.apache.maven.plugins.jira;
  * under the License.
  */
 
+import java.util.List;
+
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.issues.Issue;
-
-import java.util.List;
 
 /**
  * Jira downloader that uses REST or RSS, depending. This code is not very attractive. However, JIRA has supported REST

@@ -19,12 +19,12 @@ package org.apache.maven.plugins.issues;
  * under the License.
  */
 
-import org.apache.maven.doxia.sink.Sink;
-
 import java.text.DateFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+
+import org.apache.maven.doxia.sink.Sink;
 
 /**
  * Generates a report on issues.

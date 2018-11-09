@@ -19,6 +19,9 @@ package org.apache.maven.plugins.github;
  * under the License.
  */
 
+import java.util.Collections;
+import java.util.Comparator;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -31,9 +34,6 @@ import org.apache.maven.plugins.changes.textformater.IssueListFormatterFactory;
 import org.apache.maven.plugins.issues.Issue;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.reporting.MavenReportException;
-
-import java.util.Collections;
-import java.util.Comparator;
 
 /**
  * Mojo to format a list of issues from github in a text format. It will generate a apt or markdown text formatting

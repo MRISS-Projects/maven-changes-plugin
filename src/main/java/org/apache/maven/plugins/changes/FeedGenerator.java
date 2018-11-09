@@ -19,6 +19,19 @@ package org.apache.maven.plugins.changes;
  * under the License.
  */
 
+import java.io.IOException;
+import java.io.Writer;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import org.apache.maven.doxia.util.HtmlTools;
+import org.apache.maven.plugins.changes.model.Release;
+
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -27,22 +40,6 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.feed.synd.SyndFeedImpl;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedOutput;
-
-import java.io.IOException;
-import java.io.Writer;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
-import org.apache.maven.doxia.util.HtmlTools;
-
-import org.apache.maven.plugins.changes.model.Release;
 
 /**
  * @author ltheussl

@@ -19,9 +19,9 @@ package org.apache.maven.plugins.jira;
  * under the License.
  */
 
-import org.apache.maven.plugin.logging.Log;
-
 import java.util.List;
+
+import org.apache.maven.plugin.logging.Log;
 
 /**
  * An interface for building a search query for JIRA.

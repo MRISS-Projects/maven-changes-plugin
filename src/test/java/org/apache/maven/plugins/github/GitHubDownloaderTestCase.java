@@ -19,10 +19,11 @@ package org.apache.maven.plugins.github;
  * under the License.
  */
 
+import static org.mockito.Matchers.any;
+
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -138,7 +139,9 @@ public class GitHubDownloaderTestCase extends TestCase
     {
         MavenProject mavenProject = new MavenProject();
         mavenProject.setIssueManagement( issueManagement );
+        // CHECKSTYLE_OFF: MagicNumber
         return new GitHubDownloader( mavenProject, "https", 80, true, false );
+        // CHECKSTYLE_OFF
     }
 
     private IssueManagement newGitHubIssueManagement()

@@ -24,8 +24,6 @@ import java.util.List;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.issues.Issue;
-import org.apache.maven.plugins.jira.AbstractJiraDownloader;
-import org.apache.maven.plugins.jira.JiraXML;
 import org.xml.sax.InputSource;
 
 /**

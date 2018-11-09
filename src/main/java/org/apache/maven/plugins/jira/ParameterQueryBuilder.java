@@ -19,12 +19,12 @@ package org.apache.maven.plugins.jira;
  * under the License.
  */
 
-import org.apache.maven.plugin.logging.Log;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.apache.maven.plugin.logging.Log;
 
 /**
  * JIRA 3.x way of constructing a search query based on URL parameters.

@@ -22,7 +22,6 @@ package org.apache.maven.plugins.announcement;
 import java.io.File;
 import java.io.FileReader;
 
-import org.apache.maven.plugins.announcement.AnnouncementMojo;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
@@ -31,12 +30,10 @@ import org.codehaus.plexus.util.IOUtil;
  * @author Olivier Lamy
  * @version $Id$
  */
-public class AnnouncementMojoTest
-    extends AbstractMojoTestCase
+public class AnnouncementMojoTest extends AbstractMojoTestCase
 {
 
-    public void testAnnounceGeneration()
-        throws Exception
+    public void testAnnounceGeneration() throws Exception
     {
         File pom = new File( getBasedir(), "/src/test/unit/plugin-config.xml" );
         AnnouncementMojo mojo = (AnnouncementMojo) lookupMojo( "announcement-generate", pom );
@@ -58,7 +55,7 @@ public class AnnouncementMojoTest
         setVariableValueToObject( mojo, "version", "1.1" );
         setVariableValueToObject( mojo, "template", "announcement.vm" );
         setVariableValueToObject( mojo, "templateDirectory",
-                                  "/src/main/resources/org/apache/maven/plugins/announcement/" );
+                "/src/main/resources/org/apache/maven/plugins/announcement/" );
         setVariableValueToObject( mojo, "basedir", getBasedir() );
         setVariableValueToObject( mojo, "introduction", "Nice library" );
         mojo.execute();

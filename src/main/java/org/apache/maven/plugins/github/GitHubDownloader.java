@@ -1,14 +1,5 @@
 package org.apache.maven.plugins.github;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -28,6 +19,15 @@ import java.util.Map;
  * under the License.
  */
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.issues.Issue;
 import org.apache.maven.project.MavenProject;
@@ -41,6 +41,7 @@ import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.eclipse.egit.github.core.Label;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.IssueService;
+
 
 /**
  * @since 2.8
