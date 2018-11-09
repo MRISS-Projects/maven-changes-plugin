@@ -48,21 +48,39 @@ public class GitHubTextListMojoTestCase extends AbstractMojoTestCase
 
     /**
      * Regular test
+     * @throws Exception 
      */
-    public void testExecute()
+    public void testExecute() throws Exception
     {
         testPom( "pom1" );
     }
 
     /**
      * No Opened Issues
+     * @throws Exception 
      */
-    public void testExecuteNoOpenedIssues()
+    public void testExecuteNoOpenedIssues() throws Exception
     {
         testPom( "pom2" );
     }
 
-    private void testPom( String testPomName )
+    /**
+     * Remove snapshot suffix
+     */
+    public void testExecuteRemoveSnapshotSuffix()
+    {
+        try
+        {
+            testPom( "pom3" );
+            fail();
+        }
+        catch ( Exception e )
+        {
+            assertNotNull( e );
+        }
+    }
+
+    private void testPom( String testPomName ) throws Exception
     {
         File testPom = new File( getBasedir(), "target/test-classes/poms/" + testPomName + ".xml" );
         try
@@ -77,6 +95,7 @@ public class GitHubTextListMojoTestCase extends AbstractMojoTestCase
         catch ( Exception e )
         {
             e.printStackTrace();
+            throw e;
         }
     }
 
