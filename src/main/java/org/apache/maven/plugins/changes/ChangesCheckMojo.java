@@ -79,7 +79,7 @@ public class ChangesCheckMojo
     /***
      * If "-SNAPSHOT" suffix should be removed when searching for issues.
      * 
-     * @since 2.12.13
+     * @since 2.12.3
      */
     @Parameter( property = "changes.removeSnapshotSuffix", defaultValue = "true" )
     private boolean removeSnapshotSuffix;    
