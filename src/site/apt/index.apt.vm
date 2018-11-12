@@ -55,7 +55,7 @@ ${project.name}
 
   * {{{./github-report-mojo.html}changes:github-report}} create a report from issues downloaded from {{{http://github.com/}GitHub}}.
 
-  * {{{./github-text-list-mojo}changes:github-text-list}} set a property with a text version (apt or markdown) of the issues from {{{http://github.com/}GitHub}}.
+  * {{{./github-text-list-mojo.html}changes:github-text-list}} set a property with a text version (apt or markdown) of the issues from {{{http://github.com/}GitHub}}.
 
   []
 
