@@ -125,6 +125,8 @@ public class GitHubMojo extends AbstractChangesReport
      * If you only want to show issues for the current version in the report. The current version being used is
      * <code>${project.version}</code> minus any "-SNAPSHOT" suffix, if <code>removeSnapshotSuffix</code> is set to
      * <code>true</code>.
+     * 
+     * @since 2.12.13
      */
     @Parameter( defaultValue = "false" )
     private boolean onlyCurrentVersion;
