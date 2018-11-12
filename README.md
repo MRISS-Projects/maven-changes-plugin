@@ -8,7 +8,7 @@
  <!--- with the License.  You may obtain a copy of the License at --->
 
  <!---   http://www.apache.org/licenses/LICENSE-2.0 --->
- <!---
+
  <!--- Unless required by applicable law or agreed to in writing, --->
  <!--- software distributed under the License is distributed on an --->
  <!--- "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY --->
@@ -32,7 +32,7 @@ new additions:
    as a boolean to allow mojo to include issues in those versions. A issue to add this to the
    original maven changes plug-in as opened, and is described 
    [here](https://issues.apache.org/jira/browse/MCHANGES-388). Documentation on how to use the flag
-   can be found at the mojo documentation [here]().
+   can be found at the mojo documentation [here](https://mriss-projects.github.io/maven-changes-plugin/github-report-mojo.html#removeSnapshotSuffix).
 2. **A new mojo to generate na issue list in text format for [APT](https://maven.apache.org/doxia/references/apt-format.html)and [Markdown](https://guides.github.com/features/mastering-markdown/)**: This use case is useful if you have a README file for a project 
    with specific instructions and want to automatically
    insert a list of closed issues and a releases history at the end of the file. Alternative ways
@@ -41,7 +41,7 @@ new additions:
    to the issue tracking system (tested just with github, so far), get the issues, produce a table
    using APT or Markdown format and set a build property with the resulting table. Thus, one might
    put a maven property following the standard `${my.property}` in a README file, filter it and will
-   have the final README with the list. The mojo usage documentation can be found [here]().
+   have the final README with the list. The mojo usage documentation can be found [here](https://mriss-projects.github.io/maven-changes-plugin/github-text-list-mojo.html).
 
 ## Discussion on New Mojo to Generate Issue List in Text Format
 
@@ -228,7 +228,7 @@ your project.
 
 The README.md file content below contains a property ```issues.text.list``` which is the default
 property name where the final issue list in markdown format will be set. This is configurable and
-can be set to another name. See the new mojo configuration instructions [here](). 
+can be set to another name. See the new mojo configuration instructions [here](https://mriss-projects.github.io/maven-changes-plugin/github-text-list-mojo.html#issueListPropertyName). 
 
 ```
 # My README

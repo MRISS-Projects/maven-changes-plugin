@@ -52,8 +52,10 @@ ${project.name}
   * {{{./jira-report-mojo.html}changes:jira-report}} create a report from issues downloaded from {{{http://www.atlassian.com/software/jira/}JIRA}}.
 
   * {{{./trac-report-mojo.html}changes:trac-report}} create a report from issues downloaded from {{{http://trac.edgewall.org/}Trac}}.
-  
+
   * {{{./github-report-mojo.html}changes:github-report}} create a report from issues downloaded from {{{http://github.com/}GitHub}}.
+
+  * {{{./github-text-list-mojo.html}changes:github-text-list}} set a property with a text version (apt or markdown) of the issues from {{{http://github.com/}GitHub}}.
 
   []
 
@@ -101,3 +103,5 @@ ${project.name}
   * {{{./examples/using-a-custom-announcement-template.html}Using a Custom Announcement Template}}
 
   * {{{./examples/changes-file-validation.html}Validate Your <<<changes.xml>>> File}}
+
+  * {{{./examples/text-list.html}Generating Property With Text Format Issue List}}

@@ -52,7 +52,7 @@ under the License.
       <item name="Specifying the Mail Sender" href="examples/specifying-mail-sender.html"/>
       <item name="Using a Custom Announcement Template" href="examples/using-a-custom-announcement-template.html"/>
       <item name="Validate Your changes.xml File" href="examples/changes-file-validation.html"/>
-      <item name="Generating Property With Text Format Issue List" haref="examples/text-list.html />"
+      <item name="Generating Property With Text Format Issue List" href="examples/text-list.html" />
     </menu>
   </body>
 </project>

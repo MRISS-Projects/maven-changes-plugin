@@ -258,6 +258,8 @@ public class AnnouncementMojo
     
     /***
      * If "-SNAPSHOT" suffix should be removed when searching for issues.
+     * 
+     * @since 2.12.13
      */
     @Parameter( property = "changes.removeSnapshotSuffix", defaultValue = "true" )
     private boolean removeSnapshotSuffix;
