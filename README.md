@@ -210,15 +210,15 @@ your project.
             <id>mriss-repository</id>
             <layout>default</layout>
             <name>mriss-repository</name>
-            <url>TBD</url>
-        </repositor>
+            <url>https://raw.github.com/MRISS-Projects/maven-repo/master</url>
+        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>mriss-plugin-repository</id>
             <layout>default</layout>
-            <name>mriss-repository</name>
-            <url>TBD</url>
+            <name>mriss-plugin-repository</name>
+            <url>https://raw.github.com/MRISS-Projects/maven-repo/master</url>
         </pluginRepository>
     </pluginRepositories>
 </project>
@@ -266,4 +266,13 @@ the the variable replaced by a markdown table having the list of issues.
 
 ### Maven Repository Where to Find the Adapted Plugin Version
 
-TBD 
+The repository where to find the adapted versions is located at:
+`https://raw.github.com/MRISS-Projects/maven-repo/master`. The POM coordinates are:
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-changes-plugin</artifactId>
+    <version>2.12.3</version>
+</plugin>
+```
