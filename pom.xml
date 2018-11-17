@@ -433,6 +433,7 @@
                             <exclude>.checkstyle</exclude>
                             <exclude>eclipse/**</exclude>
                             <exclude>**/*.md.html</exclude>
+                            <exclude>jacoco-badge/**</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
@@ -503,6 +504,48 @@
                         <goals>
                             <goal>generate-metadata</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.2</version>
+                <configuration>
+                    <excludes>
+                        <!-- Any exclusions you require, *.class -->
+                    </excludes>
+                </configuration>
+                <executions>
+                    <!-- Ask JaCoCo to generate a test report from surefire tests -->
+                    <execution>
+                        <id>prepare-code-coverage</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.sigpwned</groupId>
+                <artifactId>jacoco-badge-maven-plugin</artifactId>
+                <version>0.1.4</version>
+                <executions>
+                    <execution>
+                        <id>generate-jacoco-badge</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>badge</goal> <!-- Generate a badge from a unified JaCoCo report -->
+                        </goals>
+                        <configuration>
+                            <!-- What coverage level is considered passing? Optional, default 70. -->
+                            <passing>70</passing>
+                            <!-- Legal values: instruction, branch, line, method. Optional, default instruction. -->
+                            <metric>instruction</metric>
+                            <badgeFile>jacoco-badge/jacoco.svg</badgeFile>
+                            <reportFile>${project.reporting.outputDirectory}/jacoco/jacoco.csv</reportFile>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -631,8 +674,44 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-scm-plugin</artifactId>
+                        <version>1.9.5</version>
+                        <executions>
+                            <execution>
+                                <id>commit-jacoco-svg</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>checkin</goal>
+                                </goals>
+                                <configuration>
+                                    <basedir>${basedir}/jacoco-badge</basedir>
+                                    <includes>jacoco.svg</includes>
+                                    <message>Jacoco coverage badge</message>
+                                </configuration>
+                                <inherited>false</inherited>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
+            <reporting>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <reportSets>
+                            <reportSet>
+                                <reports>
+                                    <!-- select non-aggregate reports -->
+                                    <report>report</report>
+                                </reports>
+                            </reportSet>
+                        </reportSets>
+                    </plugin>
+                </plugins>
+            </reporting>
         </profile>
     </profiles>
 </project>
