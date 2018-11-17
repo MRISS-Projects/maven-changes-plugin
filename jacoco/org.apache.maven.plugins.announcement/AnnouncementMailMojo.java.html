@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnnouncementMailMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.announcement</a> &gt; <span class="el_source">AnnouncementMailMojo.java</span></div><h1>AnnouncementMailMojo.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.announcement;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
+import org.apache.maven.model.Developer;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Execute;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.announcement.mailsender.ProjectJavamailMailSender;
+import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.console.ConsoleLogger;
+import org.codehaus.plexus.mailsender.MailMessage;
+import org.codehaus.plexus.mailsender.MailSenderException;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.StringUtils;
+
+/**
+ * Goal which sends an announcement through email.
+ *
+ * @author aramirez@exist.com
+ * @version $Id$
+ * @since 2.0-beta-2
+ */
+@Mojo( name = &quot;announcement-mail&quot;, threadSafe = true )
+@Execute( goal = &quot;announcement-generate&quot; )
+<span class="nc" id="L57">public class AnnouncementMailMojo extends AbstractAnnouncementMojo</span>
+{
+    // =========================================
+    // announcement-mail goal fields
+    // =========================================
+
+    /**
+     * Possible senders.
+     */
+    @Parameter( property = &quot;project.developers&quot;, required = true, readonly = true )
+    private List&lt;Developer&gt; from;
+
+    /**
+     * The id of the developer sending the announcement mail. Only used if the &lt;tt&gt;mailSender&lt;/tt&gt; attribute is not set.
+     * In this case, this should match the id of one of the developers in the pom. If a matching developer is not found,
+     * then the first developer in the pom will be used.
+     */
+    @Parameter( property = &quot;changes.fromDeveloperId&quot; )
+    private String fromDeveloperId;
+
+    /**
+     * Mail content type to use.
+     *
+     * @since 2.1
+     */
+    @Parameter( defaultValue = &quot;text/plain&quot;, required = true )
+    private String mailContentType;
+
+    /**
+     * Defines the sender of the announcement email. This takes precedence over the list of developers specified in the
+     * POM. if the sender is not a member of the development team. Note that since this is a bean type, you cannot
+     * specify it from command level with
+     * 
+     * &lt;pre&gt;
+     * -D
+     * &lt;/pre&gt;
+     * 
+     * . Use
+     * 
+     * &lt;pre&gt;
+     * -Dchanges.sender='Your Name &amp;lt;you@domain&gt;'
+     * &lt;/pre&gt;
+     * 
+     * instead.
+     */
+    @Parameter( property = &quot;changes.mailSender&quot; )
+    private MailSender mailSender;
+
+    /**
+     * Defines the sender of the announcement. This takes precedence over both ${changes.mailSender} and the list of
+     * developers in the POM.
+     * &lt;p/&gt;
+     * This parameter parses an email address in standard RFC822 format, e.g.
+     * 
+     * &lt;pre&gt;
+     * -Dchanges.sender='Your Name &amp;lt;you@domain&gt;'
+     * &lt;/pre&gt;
+     * 
+     * .
+     *
+     * @since 2.7
+     */
+    @Parameter( property = &quot;changes.sender&quot; )
+    private String senderString;
+
+    /**
+     * The password used to send the email.
+     */
+    @Parameter( property = &quot;changes.password&quot; )
+    private String password;
+
+    /**
+     */
+    @Parameter( defaultValue = &quot;${project}&quot;, readonly = true, required = true )
+    private MavenProject project;
+
+    /**
+     * Smtp Server.
+     */
+    @Parameter( property = &quot;changes.smtpHost&quot;, required = true )
+    private String smtpHost;
+
+    /**
+     * Port.
+     */
+    @Parameter( property = &quot;changes.smtpPort&quot;, defaultValue = &quot;25&quot;, required = true )
+    private int smtpPort;
+
+    /**
+     * If the email should be sent in SSL mode.
+     */
+    @Parameter( property = &quot;changes.sslMode&quot;, defaultValue = &quot;false&quot; )
+    private boolean sslMode;
+
+    /**
+     * If the option startTls should be used.
+     *
+     * @since 2.10
+     */
+    @Parameter( property = &quot;changes.startTls&quot;, defaultValue = &quot;false&quot; )
+    private boolean startTls;
+
+    /**
+     * Subject for the email.
+     */
+    // CHECKSTYLE_OFF: LineLength
+    @Parameter( property = &quot;changes.subject&quot;, defaultValue = &quot;[ANNOUNCEMENT] - ${project.name} ${project.version} released&quot;, required = true )
+    private String subject;
+    // CHECKSTYLE_ON: LineLength
+
+    /**
+     * The file that contains the generated announcement.
+     *
+     * @since 2.10
+     */
+    @Parameter( property = &quot;changes.announcementFile&quot;, defaultValue = &quot;announcement.vm&quot;, required = true )
+    private String announcementFile;
+
+    /**
+     * Directory where the generated announcement file exists.
+     *
+     * @since 2.10
+     */
+    @Parameter( defaultValue = &quot;${project.build.directory}/announcement&quot;, required = true )
+    private File announcementDirectory;
+
+    /**
+     * The encoding used in the announcement template.
+     *
+     * @since 2.10
+     */
+    @Parameter( property = &quot;changes.templateEncoding&quot;, defaultValue = &quot;${project.build.sourceEncoding}&quot; )
+    private String templateEncoding;
+
+    /**
+     * Directory which contains the template for announcement email.
+     *
+     * @deprecated Starting with version 2.10 this parameter is no longer used. You must use
+     *             {@link #announcementDirectory} instead.
+     */
+    @Parameter
+    private File templateOutputDirectory;
+
+    /**
+     * Recipient email address.
+     */
+    @Parameter( required = true )
+    private List&lt;Object&gt; toAddresses;
+
+    /**
+     * Recipient cc email address.
+     *
+     * @since 2.5
+     */
+    @Parameter
+    private List&lt;Object&gt; ccAddresses;
+
+    /**
+     * Recipient bcc email address.
+     *
+     * @since 2.5
+     */
+    @Parameter
+    private List&lt;Object&gt; bccAddresses;
+
+    /**
+     * The username used to send the email.
+     */
+    @Parameter( property = &quot;changes.username&quot; )
+    private String username;
+
+<span class="nc" id="L228">    private ProjectJavamailMailSender mailer = new ProjectJavamailMailSender();</span>
+
+    public void execute() throws MojoExecutionException
+    {
+        // Fail build fast if it is using deprecated parameters
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        if ( templateOutputDirectory != null )</span>
+        {
+<span class="nc" id="L235">            throw new MojoExecutionException( &quot;You are using the old parameter 'templateOutputDirectory'. &quot;</span>
+                + &quot;You must use 'announcementDirectory' instead.&quot; );
+        }
+
+        // Run only at the execution root
+<span class="nc bnc" id="L240" title="All 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+        {
+<span class="nc" id="L242">            getLog().info( &quot;Skipping the announcement mail in this project because it's not the Execution Root&quot; );</span>
+        }
+        else
+        {
+<span class="nc" id="L246">            File file = new File( announcementDirectory, announcementFile );</span>
+
+<span class="nc" id="L248">            ConsoleLogger logger = new ConsoleLogger( Logger.LEVEL_INFO, &quot;base&quot; );</span>
+
+<span class="nc bnc" id="L250" title="All 2 branches missed.">            if ( getLog().isDebugEnabled() )</span>
+            {
+<span class="nc" id="L252">                logger.setThreshold( Logger.LEVEL_DEBUG );</span>
+            }
+
+<span class="nc" id="L255">            mailer.enableLogging( logger );</span>
+
+<span class="nc" id="L257">            mailer.setSmtpHost( getSmtpHost() );</span>
+
+<span class="nc" id="L259">            mailer.setSmtpPort( getSmtpPort() );</span>
+
+<span class="nc" id="L261">            mailer.setSslMode( sslMode, startTls );</span>
+
+<span class="nc bnc" id="L263" title="All 2 branches missed.">            if ( username != null )</span>
+            {
+<span class="nc" id="L265">                mailer.setUsername( username );</span>
+            }
+
+<span class="nc bnc" id="L268" title="All 2 branches missed.">            if ( password != null )</span>
+            {
+<span class="nc" id="L270">                mailer.setPassword( password );</span>
+            }
+
+<span class="nc" id="L273">            mailer.initialize();</span>
+
+<span class="nc bnc" id="L275" title="All 2 branches missed.">            if ( getLog().isDebugEnabled() )</span>
+            {
+<span class="nc" id="L277">                getLog().debug( &quot;fromDeveloperId: &quot; + getFromDeveloperId() );</span>
+            }
+
+<span class="nc bnc" id="L280" title="All 2 branches missed.">            if ( file.isFile() )</span>
+            {
+<span class="nc" id="L282">                getLog().info( &quot;Connecting to Host: &quot; + getSmtpHost() + &quot;:&quot; + getSmtpPort() );</span>
+
+<span class="nc" id="L284">                sendMessage();</span>
+            }
+            else
+            {
+<span class="nc" id="L288">                throw new MojoExecutionException( &quot;Announcement file &quot; + file + &quot; not found...&quot; );</span>
+            }
+        }
+<span class="nc" id="L291">    }</span>
+
+    /**
+     * Send the email.
+     *
+     * @throws MojoExecutionException if the mail could not be sent
+     */
+    protected void sendMessage()
+        throws MojoExecutionException
+    {
+<span class="nc" id="L301">        File file = new File( announcementDirectory, announcementFile );</span>
+<span class="nc" id="L302">        String email = &quot;&quot;;</span>
+<span class="nc" id="L303">        final MailSender ms = getActualMailSender();</span>
+<span class="nc" id="L304">        final String fromName = ms.getName();</span>
+<span class="nc" id="L305">        final String fromAddress = ms.getEmail();</span>
+<span class="nc bnc" id="L306" title="All 4 branches missed.">        if ( fromAddress == null || fromAddress.equals( &quot;&quot; ) )</span>
+        {
+<span class="nc" id="L308">            throw new MojoExecutionException( &quot;Invalid mail sender: name and email is mandatory (&quot; + ms + &quot;).&quot; );</span>
+        }
+<span class="nc" id="L310">        getLog().info( &quot;Using this sender for email announcement: &quot; + fromAddress + &quot; &lt; &quot; + fromName + &quot; &gt; &quot; );</span>
+        try
+        {
+<span class="nc" id="L313">            MailMessage mailMsg = new MailMessage();</span>
+<span class="nc" id="L314">            mailMsg.setSubject( getSubject() );</span>
+<span class="nc" id="L315">            mailMsg.setContent( readAnnouncement( file ) );</span>
+<span class="nc" id="L316">            mailMsg.setContentType( this.mailContentType );</span>
+<span class="nc" id="L317">            mailMsg.setFrom( fromAddress, fromName );</span>
+
+<span class="nc bnc" id="L319" title="All 2 branches missed.">            for ( Object o1 : getToAddresses() )</span>
+            {
+<span class="nc" id="L321">                email = o1.toString();</span>
+<span class="nc" id="L322">                getLog().info( &quot;Sending mail to &quot; + email + &quot;...&quot; );</span>
+<span class="nc" id="L323">                mailMsg.addTo( email, &quot;&quot; );</span>
+<span class="nc" id="L324">            }</span>
+
+<span class="nc bnc" id="L326" title="All 2 branches missed.">            if ( getCcAddresses() != null )</span>
+            {
+<span class="nc bnc" id="L328" title="All 2 branches missed.">                for ( Object o : getCcAddresses() )</span>
+                {
+<span class="nc" id="L330">                    email = o.toString();</span>
+<span class="nc" id="L331">                    getLog().info( &quot;Sending cc mail to &quot; + email + &quot;...&quot; );</span>
+<span class="nc" id="L332">                    mailMsg.addCc( email, &quot;&quot; );</span>
+<span class="nc" id="L333">                }</span>
+            }
+
+<span class="nc bnc" id="L336" title="All 2 branches missed.">            if ( getBccAddresses() != null )</span>
+            {
+<span class="nc bnc" id="L338" title="All 2 branches missed.">                for ( Object o : getBccAddresses() )</span>
+                {
+<span class="nc" id="L340">                    email = o.toString();</span>
+<span class="nc" id="L341">                    getLog().info( &quot;Sending bcc mail to &quot; + email + &quot;...&quot; );</span>
+<span class="nc" id="L342">                    mailMsg.addBcc( email, &quot;&quot; );</span>
+<span class="nc" id="L343">                }</span>
+            }
+
+<span class="nc" id="L346">            mailer.send( mailMsg );</span>
+<span class="nc" id="L347">            getLog().info( &quot;Sent...&quot; );</span>
+        }
+<span class="nc" id="L349">        catch ( MailSenderException e )</span>
+        {
+<span class="nc" id="L351">            throw new MojoExecutionException( &quot;Failed to send email &lt; &quot; + email + &quot; &gt;&quot;, e );</span>
+<span class="nc" id="L352">        }</span>
+<span class="nc" id="L353">    }</span>
+
+    /**
+     * Read the content of the generated announcement file.
+     *
+     * @param file the file to be read
+     * @return Return the announcement text
+     * @throws MojoExecutionException if the file could not be found, or if the encoding is unsupported
+     */
+    protected String readAnnouncement( File file )
+        throws MojoExecutionException
+    {
+<span class="nc" id="L365">        InputStreamReader reader = null;</span>
+        try
+        {
+<span class="nc bnc" id="L368" title="All 2 branches missed.">            if ( StringUtils.isEmpty( templateEncoding ) )</span>
+            {
+<span class="nc" id="L370">                templateEncoding = ReaderFactory.FILE_ENCODING;</span>
+<span class="nc" id="L371">                getLog().warn( &quot;File encoding has not been set, using platform encoding '&quot; + templateEncoding</span>
+                                   + &quot;', i.e. build is platform dependent!&quot; );
+
+            }
+
+<span class="nc" id="L376">            reader = new InputStreamReader( new FileInputStream( file ), templateEncoding );</span>
+<span class="nc" id="L377">            final String announcement = IOUtil.toString( reader );</span>
+<span class="nc" id="L378">            reader.close();</span>
+<span class="nc" id="L379">            reader = null;</span>
+<span class="nc" id="L380">            return announcement;</span>
+        }
+<span class="nc" id="L382">        catch ( FileNotFoundException fnfe )</span>
+        {
+<span class="nc" id="L384">            throw new MojoExecutionException( &quot;File not found. &quot; + file );</span>
+        }
+<span class="nc" id="L386">        catch ( UnsupportedEncodingException uee )</span>
+        {
+<span class="nc" id="L388">            throw new MojoExecutionException( &quot;Unsupported encoding: '&quot; + templateEncoding + &quot;'&quot; );</span>
+        }
+<span class="nc" id="L390">        catch ( IOException ioe )</span>
+        {
+<span class="nc" id="L392">            throw new MojoExecutionException( &quot;Failed to read the announcement file.&quot;, ioe );</span>
+        }
+        finally
+        {
+<span class="nc" id="L396">            IOUtil.close( reader );</span>
+        }
+    }
+
+    /**
+     * Returns the identify of the mail sender according to the plugin's configuration:
+     * &lt;ul&gt;
+     * &lt;li&gt;if the &lt;tt&gt;mailSender&lt;/tt&gt; parameter is set, it is returned&lt;/li&gt;
+     * &lt;li&gt;if no &lt;tt&gt;fromDeveloperId&lt;/tt&gt; is set, the first developer in the list is returned&lt;/li&gt;
+     * &lt;li&gt;if a &lt;tt&gt;fromDeveloperId&lt;/tt&gt; is set, the developer with that id is returned&lt;/li&gt;
+     * &lt;li&gt;if the developers list is empty or if the specified id does not exist, an exception is thrown&lt;/li&gt;
+     * &lt;/ul&gt;
+     *
+     * @return the mail sender to use
+     * @throws MojoExecutionException if the mail sender could not be retrieved
+     */
+    protected MailSender getActualMailSender()
+        throws MojoExecutionException
+    {
+<span class="nc bnc" id="L415" title="All 2 branches missed.">        if ( senderString != null )</span>
+        {
+            try
+            {
+<span class="nc" id="L419">                InternetAddress ia = new InternetAddress( senderString, true );</span>
+<span class="nc" id="L420">                return new MailSender( ia.getPersonal(), ia.getAddress() );</span>
+            }
+<span class="nc" id="L422">            catch ( AddressException e )</span>
+            {
+<span class="nc" id="L424">                throw new MojoExecutionException( &quot;Invalid value for change.sender: &quot;, e );</span>
+            }
+        }
+<span class="nc bnc" id="L427" title="All 4 branches missed.">        if ( mailSender != null &amp;&amp; mailSender.getEmail() != null )</span>
+        {
+<span class="nc" id="L429">            return mailSender;</span>
+        }
+<span class="nc bnc" id="L431" title="All 4 branches missed.">        else if ( from == null || from.isEmpty() )</span>
+        {
+<span class="nc" id="L433">            throw new MojoExecutionException( &quot;The &lt;developers&gt; section in your pom should not be empty. &quot;</span>
+                + &quot;Add a &lt;developer&gt; entry or set the mailSender parameter.&quot; );
+        }
+<span class="nc bnc" id="L436" title="All 2 branches missed.">        else if ( fromDeveloperId == null )</span>
+        {
+<span class="nc" id="L438">            final Developer dev = from.get( 0 );</span>
+<span class="nc" id="L439">            return new MailSender( dev.getName(), dev.getEmail() );</span>
+        }
+        else
+        {
+<span class="nc bnc" id="L443" title="All 2 branches missed.">            for ( Developer developer : from )</span>
+            {
+<span class="nc bnc" id="L445" title="All 2 branches missed.">                if ( fromDeveloperId.equals( developer.getId() ) )</span>
+                {
+<span class="nc" id="L447">                    return new MailSender( developer.getName(), developer.getEmail() );</span>
+                }
+<span class="nc" id="L449">            }</span>
+<span class="nc" id="L450">            throw new MojoExecutionException( &quot;Missing developer with id '&quot; + fromDeveloperId</span>
+                + &quot;' in the &lt;developers&gt; section in your pom.&quot; );
+        }
+    }
+
+    // ================================
+    // announcement-mail accessors
+    // ================================
+
+    public List&lt;Object&gt; getBccAddresses()
+    {
+<span class="nc" id="L461">        return bccAddresses;</span>
+    }
+
+    public void setBccAddresses( List&lt;Object&gt; bccAddresses )
+    {
+<span class="nc" id="L466">        this.bccAddresses = bccAddresses;</span>
+<span class="nc" id="L467">    }</span>
+
+    public List&lt;Object&gt; getCcAddresses()
+    {
+<span class="nc" id="L471">        return ccAddresses;</span>
+    }
+
+    public void setCcAddresses( List&lt;Object&gt; ccAddresses )
+    {
+<span class="nc" id="L476">        this.ccAddresses = ccAddresses;</span>
+<span class="nc" id="L477">    }</span>
+
+    public List&lt;Developer&gt; getFrom()
+    {
+<span class="nc" id="L481">        return from;</span>
+    }
+
+    public void setFrom( List&lt;Developer&gt; from )
+    {
+<span class="nc" id="L486">        this.from = from;</span>
+<span class="nc" id="L487">    }</span>
+
+    public String getFromDeveloperId()
+    {
+<span class="nc" id="L491">        return fromDeveloperId;</span>
+    }
+
+    public void setFromDeveloperId( String fromDeveloperId )
+    {
+<span class="nc" id="L496">        this.fromDeveloperId = fromDeveloperId;</span>
+<span class="nc" id="L497">    }</span>
+
+    public MailSender getMailSender()
+    {
+<span class="nc" id="L501">        return mailSender;</span>
+    }
+
+    public void setMailSender( MailSender mailSender )
+    {
+<span class="nc" id="L506">        this.mailSender = mailSender;</span>
+<span class="nc" id="L507">    }</span>
+
+    public String getPassword()
+    {
+<span class="nc" id="L511">        return password;</span>
+    }
+
+    public void setPassword( String password )
+    {
+<span class="nc" id="L516">        this.password = password;</span>
+<span class="nc" id="L517">    }</span>
+
+    public MavenProject getProject()
+    {
+<span class="nc" id="L521">        return project;</span>
+    }
+
+    public void setProject( MavenProject project )
+    {
+<span class="nc" id="L526">        this.project = project;</span>
+<span class="nc" id="L527">    }</span>
+
+    public String getSmtpHost()
+    {
+<span class="nc" id="L531">        return smtpHost;</span>
+    }
+
+    public void setSmtpHost( String smtpHost )
+    {
+<span class="nc" id="L536">        this.smtpHost = smtpHost;</span>
+<span class="nc" id="L537">    }</span>
+
+    public int getSmtpPort()
+    {
+<span class="nc" id="L541">        return smtpPort;</span>
+    }
+
+    public void setSmtpPort( int smtpPort )
+    {
+<span class="nc" id="L546">        this.smtpPort = smtpPort;</span>
+<span class="nc" id="L547">    }</span>
+
+    public boolean isSslMode()
+    {
+<span class="nc" id="L551">        return sslMode;</span>
+    }
+
+    public void setSslMode( boolean sslMode )
+    {
+<span class="nc" id="L556">        this.sslMode = sslMode;</span>
+<span class="nc" id="L557">    }</span>
+
+    public boolean isStartTls()
+    {
+<span class="nc" id="L561">        return startTls;</span>
+    }
+
+    public void setStartTls( boolean startTls )
+    {
+<span class="nc" id="L566">        this.startTls = startTls;</span>
+<span class="nc" id="L567">    }</span>
+
+    public String getSubject()
+    {
+<span class="nc" id="L571">        return subject;</span>
+    }
+
+    public void setSubject( String subject )
+    {
+<span class="nc" id="L576">        this.subject = subject;</span>
+<span class="nc" id="L577">    }</span>
+
+    public String getAnnouncementFile()
+    {
+<span class="nc" id="L581">        return announcementFile;</span>
+    }
+
+    public void setAnnouncementFile( String announcementFile )
+    {
+<span class="nc" id="L586">        this.announcementFile = announcementFile;</span>
+<span class="nc" id="L587">    }</span>
+
+    public File getAnnouncementDirectory()
+    {
+<span class="nc" id="L591">        return announcementDirectory;</span>
+    }
+
+    public void setAnnouncementDirectory( File announcementDirectory )
+    {
+<span class="nc" id="L596">        this.announcementDirectory = announcementDirectory;</span>
+<span class="nc" id="L597">    }</span>
+
+    public List&lt;Object&gt; getToAddresses()
+    {
+<span class="nc" id="L601">        return toAddresses;</span>
+    }
+
+    public void setToAddresses( List&lt;Object&gt; toAddresses )
+    {
+<span class="nc" id="L606">        this.toAddresses = toAddresses;</span>
+<span class="nc" id="L607">    }</span>
+
+    public String getUsername()
+    {
+<span class="nc" id="L611">        return username;</span>
+    }
+
+    public void setUsername( String username )
+    {
+<span class="nc" id="L616">        this.username = username;</span>
+<span class="nc" id="L617">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

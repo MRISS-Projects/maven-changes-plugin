@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>XmlValidationHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.changes.schema</a> &gt; <span class="el_source">XmlValidationHandler.java</span></div><h1>XmlValidationHandler.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.changes.schema;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
+
+/**
+ * @author Olivier Lamy
+ * @since 28 juil. 2008
+ * @version $Id$
+ */
+public class XmlValidationHandler
+    extends DefaultHandler
+{
+   
+<span class="fc" id="L39">    private boolean parsingError = false;</span>
+
+<span class="fc" id="L41">    private List&lt;SAXParseException&gt; errors = new ArrayList&lt;SAXParseException&gt;();</span>
+
+<span class="fc" id="L43">    private List&lt;SAXParseException&gt; fatalErrors = new ArrayList&lt;SAXParseException&gt;();</span>
+
+<span class="fc" id="L45">    private List&lt;SAXParseException&gt; warnings = new ArrayList&lt;SAXParseException&gt;();</span>
+
+    private boolean failOnValidationError;
+
+    /**
+     * @param failOnValidationError If fail on validation error.
+     */
+    public XmlValidationHandler( boolean failOnValidationError )
+<span class="fc" id="L53">    {</span>
+<span class="fc" id="L54">        this.failOnValidationError = failOnValidationError;</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * @see org.xml.sax.ErrorHandler#error(org.xml.sax.SAXParseException)
+     */
+    public void error( SAXParseException excp )
+        throws SAXException
+    {
+<span class="fc" id="L63">        this.setErrorParsing( true );</span>
+<span class="fc" id="L64">        this.errors.add( excp );</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if ( this.failOnValidationError )</span>
+        {
+<span class="fc" id="L67">            throw new SAXException( excp.getMessage(), excp );</span>
+        }
+<span class="fc" id="L69">    }</span>
+
+    /**
+     * @see org.xml.sax.ErrorHandler#fatalError(org.xml.sax.SAXParseException)
+     */
+    public void fatalError( SAXParseException excp )
+        throws SAXException
+    {
+<span class="nc" id="L77">        this.fatalErrors.add( excp );</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if ( this.failOnValidationError )</span>
+        {
+<span class="nc" id="L80">            throw new SAXException( excp.getMessage(), excp );</span>
+        }
+<span class="nc" id="L82">    }</span>
+
+    /**
+     * @see org.xml.sax.ErrorHandler#warning(org.xml.sax.SAXParseException)
+     */
+    public void warning( SAXParseException excp )
+        throws SAXException
+    {
+<span class="nc" id="L90">        this.warnings.add( excp );</span>
+<span class="nc" id="L91">    }</span>
+
+    /**
+     * @see org.xml.sax.ContentHandler#startElement(String, String, String, Attributes)
+     */
+    public void startElement( String uri, String localName, String qName, Attributes attributes )
+        throws SAXException
+    {
+        // nothing
+<span class="nc" id="L100">    }</span>
+
+    /**
+     * @return Returns the errorParsing.
+     */
+    public boolean isErrorParsing()
+    {
+<span class="nc" id="L107">        return this.parsingError;</span>
+    }
+
+    /**
+     * @param error The errorParsing to set.
+     */
+    public void setErrorParsing( boolean error )
+    {
+<span class="fc" id="L115">        this.parsingError = error;</span>
+<span class="fc" id="L116">    }</span>
+
+    public List&lt;SAXParseException&gt; getErrors()
+    {
+<span class="fc" id="L120">        return errors;</span>
+    }
+
+    public void setErrors( List&lt;SAXParseException&gt; errors )
+    {
+<span class="nc" id="L125">        this.errors = errors;</span>
+<span class="nc" id="L126">    }</span>
+
+    public List&lt;SAXParseException&gt; getFatalErrors()
+    {
+<span class="nc" id="L130">        return fatalErrors;</span>
+    }
+
+    public void setFatalErrors( List&lt;SAXParseException&gt; fatalErrors )
+    {
+<span class="nc" id="L135">        this.fatalErrors = fatalErrors;</span>
+<span class="nc" id="L136">    }</span>
+
+    public List&lt;SAXParseException&gt; getWarnings()
+    {
+<span class="nc" id="L140">        return warnings;</span>
+    }
+
+    public void setWarnings( List&lt;SAXParseException&gt; warnings )
+    {
+<span class="nc" id="L145">        this.warnings = warnings;</span>
+<span class="nc" id="L146">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

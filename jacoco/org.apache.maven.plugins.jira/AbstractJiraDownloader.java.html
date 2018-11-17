@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractJiraDownloader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.jira</a> &gt; <span class="el_source">AbstractJiraDownloader.java</span></div><h1>AbstractJiraDownloader.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.jira;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugins.issues.Issue;
+import org.apache.maven.plugins.issues.IssueUtils;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Proxy;
+import org.apache.maven.settings.Settings;
+import org.apache.maven.wagon.proxy.ProxyInfo;
+import org.apache.maven.wagon.proxy.ProxyUtils;
+
+/**
+ * Abstract API, more or less, to retrieving issue information from JIRA. Intended to have subclasses for the old (RSS)
+ * and new (REST) ways of doing things.
+ *
+ * @author mfranken@xebia.com
+ * @author jruiz@exist.com
+ * @version $Id$
+ */
+<span class="fc" id="L45">public abstract class AbstractJiraDownloader</span>
+{
+    protected static final String UTF_8 = &quot;UTF-8&quot;;
+
+    /** Log for debug output. */
+    protected Log log;
+
+    /** Output file for xml document. */
+    protected File output;
+
+    /** The maximum number of entries to show. */
+    protected int nbEntriesMax;
+
+    /** The filter to apply to query to JIRA. */
+    protected String filter;
+
+    /** Ids of fix versions to show, as comma separated string. */
+    protected String fixVersionIds;
+
+    /** Ids of status to show, as comma separated string. */
+    protected String statusIds;
+
+    /** Ids of resolution to show, as comma separated string. */
+    protected String resolutionIds;
+
+    /** Ids of priority to show, as comma separated string. */
+    protected String priorityIds;
+
+    /** The component to show. */
+    protected String component;
+
+    /** Ids of types to show, as comma separated string. */
+    protected String typeIds;
+
+    /** Column names to sort by, as comma separated string. */
+    protected String sortColumnNames;
+
+    /** The username to log into JIRA. */
+    protected String jiraUser;
+
+    /** The password to log into JIRA. */
+    protected String jiraPassword;
+
+    /** The username to log into webserver. */
+    protected String webUser;
+
+    /** The password to log into webserver. */
+    protected String webPassword;
+
+    /** The maven project. */
+    protected MavenProject project;
+
+    /** The maven settings. */
+    protected Settings settings;
+
+    /**
+     * Use JQL, JIRA query language, instead of URL parameter based queries. Note that this is down here to make it
+     * easier for the mojo to deal with both new and old flavors.
+     */
+    protected boolean useJql;
+
+    /** Filter the JIRA query based on the current version */
+    protected boolean onlyCurrentVersion;
+
+    /** The versionPrefix to apply to the POM version */
+    protected String versionPrefix;
+
+    /** The pattern used to parse dates from the JIRA xml file. */
+    protected String jiraDatePattern;
+
+    protected String proxyHost;
+
+    protected int proxyPort;
+
+    protected String proxyUser;
+
+    protected String proxyPass;
+
+    protected int connectionTimeout;
+
+    protected int receiveTimout;
+
+    /**
+     * Execute the query on the JIRA server.
+     *
+     * @throws Exception on error
+     */
+    public abstract void doExecute()
+        throws Exception;
+
+    /**
+     * Check to see if we think that JIRA authentication is needed.
+     *
+     * @return &lt;code&gt;true&lt;/code&gt; if jiraUser and jiraPassword are set, otherwise &lt;code&gt;false&lt;/code&gt;
+     */
+    protected boolean isJiraAuthenticationConfigured()
+    {
+<span class="nc bnc" id="L142" title="All 6 branches missed.">        return ( jiraUser != null ) &amp;&amp; ( jiraUser.length() &gt; 0 ) &amp;&amp; ( jiraPassword != null );</span>
+    }
+
+    protected void getProxyInfo( String jiraUrl )
+    {
+        // see whether there is any proxy defined in maven
+<span class="nc" id="L148">        Proxy proxy = null;</span>
+
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if ( project == null )</span>
+        {
+<span class="nc" id="L152">            getLog().error( &quot;No project set. No proxy info available.&quot; );</span>
+
+<span class="nc" id="L154">            return;</span>
+        }
+
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        if ( settings != null )</span>
+        {
+<span class="nc" id="L159">            proxy = settings.getActiveProxy();</span>
+        }
+
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if ( proxy != null )</span>
+        {
+
+<span class="nc" id="L165">            ProxyInfo proxyInfo = new ProxyInfo();</span>
+<span class="nc" id="L166">            proxyInfo.setNonProxyHosts( proxy.getNonProxyHosts() );</span>
+
+            // Get the host out of the JIRA URL
+<span class="nc" id="L169">            URL url = null;</span>
+            try
+            {
+<span class="nc" id="L172">                url = new URL( jiraUrl );</span>
+            }
+<span class="nc" id="L174">            catch ( MalformedURLException e )</span>
+            {
+<span class="nc" id="L176">                getLog().error( &quot;Invalid JIRA URL: &quot; + jiraUrl + &quot;. &quot; + e.getMessage() );</span>
+<span class="nc" id="L177">            }</span>
+<span class="nc" id="L178">            String jiraHost = null;</span>
+<span class="nc bnc" id="L179" title="All 2 branches missed.">            if ( url != null )</span>
+            {
+<span class="nc" id="L181">                jiraHost = url.getHost();</span>
+            }
+
+<span class="nc bnc" id="L184" title="All 2 branches missed.">            if ( ProxyUtils.validateNonProxyHosts( proxyInfo, jiraHost ) )</span>
+            {
+<span class="nc" id="L186">                return;</span>
+            }
+
+<span class="nc" id="L189">            proxyHost = settings.getActiveProxy().getHost();</span>
+<span class="nc" id="L190">            proxyPort = settings.getActiveProxy().getPort();</span>
+<span class="nc" id="L191">            proxyUser = settings.getActiveProxy().getUsername();</span>
+<span class="nc" id="L192">            proxyPass = settings.getActiveProxy().getPassword();</span>
+        }
+<span class="nc" id="L194">    }</span>
+
+    /**
+     * Override this method if you need to get issues for a specific Fix For.
+     *
+     * @return A Fix For id or &lt;code&gt;null&lt;/code&gt; if you don't have that need
+     */
+    protected String getFixFor()
+    {
+<span class="nc bnc" id="L203" title="All 4 branches missed.">        if ( onlyCurrentVersion &amp;&amp; useJql )</span>
+        {
+            // Let JIRA do the filtering of the current version instead of the JIRA mojo.
+            // This way JIRA returns less issues and we do not run into the &quot;nbEntriesMax&quot; limit that easily.
+
+<span class="nc bnc" id="L208" title="All 2 branches missed.">            String version = ( versionPrefix == null ? &quot;&quot; : versionPrefix ) + project.getVersion();</span>
+
+            // Remove &quot;-SNAPSHOT&quot; from the end of the version, if it's there
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            if ( version.endsWith( IssueUtils.SNAPSHOT_SUFFIX ) )</span>
+            {
+<span class="nc" id="L213">                return version.substring( 0, version.length() - IssueUtils.SNAPSHOT_SUFFIX.length() );</span>
+            }
+            else
+            {
+<span class="nc" id="L217">                return version;</span>
+            }
+        }
+        else
+        {
+<span class="nc" id="L222">            return null;</span>
+        }
+    }
+
+    public abstract List&lt;Issue&gt; getIssueList()
+        throws MojoExecutionException;
+
+    public void setJiraDatePattern( String jiraDatePattern )
+    {
+<span class="fc" id="L231">        this.jiraDatePattern = jiraDatePattern;</span>
+<span class="fc" id="L232">    }</span>
+
+    /**
+     * Set the output file for the log.
+     *
+     * @param thisOutput the output file
+     */
+    public void setOutput( File thisOutput )
+    {
+<span class="fc" id="L241">        this.output = thisOutput;</span>
+<span class="fc" id="L242">    }</span>
+
+    public File getOutput()
+    {
+<span class="nc" id="L246">        return this.output;</span>
+    }
+
+    /**
+     * Sets the project.
+     *
+     * @param thisProject The project to set
+     */
+    public void setMavenProject( Object thisProject )
+    {
+<span class="fc" id="L256">        this.project = (MavenProject) thisProject;</span>
+<span class="fc" id="L257">    }</span>
+
+    /**
+     * Sets the maximum number of Issues to show.
+     *
+     * @param nbEntries The maximum number of Issues
+     */
+    public void setNbEntries( final int nbEntries )
+    {
+<span class="fc" id="L266">        nbEntriesMax = nbEntries;</span>
+<span class="fc" id="L267">    }</span>
+
+    /**
+     * Sets the statusIds.
+     *
+     * @param thisStatusIds The id(s) of the status to show, as comma separated string
+     */
+    public void setStatusIds( String thisStatusIds )
+    {
+<span class="fc" id="L276">        statusIds = thisStatusIds;</span>
+<span class="fc" id="L277">    }</span>
+
+    /**
+     * Sets the priorityIds.
+     *
+     * @param thisPriorityIds The id(s) of the priority to show, as comma separated string
+     */
+    public void setPriorityIds( String thisPriorityIds )
+    {
+<span class="fc" id="L286">        priorityIds = thisPriorityIds;</span>
+<span class="fc" id="L287">    }</span>
+
+    /**
+     * Sets the resolutionIds.
+     *
+     * @param thisResolutionIds The id(s) of the resolution to show, as comma separated string
+     */
+    public void setResolutionIds( String thisResolutionIds )
+    {
+<span class="fc" id="L296">        resolutionIds = thisResolutionIds;</span>
+<span class="fc" id="L297">    }</span>
+
+    /**
+     * Sets the sort column names.
+     *
+     * @param thisSortColumnNames The column names to sort by
+     */
+    public void setSortColumnNames( String thisSortColumnNames )
+    {
+<span class="fc" id="L306">        sortColumnNames = thisSortColumnNames;</span>
+<span class="fc" id="L307">    }</span>
+
+    /**
+     * Sets the password for authentication against the webserver.
+     *
+     * @param thisWebPassword The password of the webserver
+     */
+    public void setWebPassword( String thisWebPassword )
+    {
+<span class="fc" id="L316">        this.webPassword = thisWebPassword;</span>
+<span class="fc" id="L317">    }</span>
+
+    /**
+     * Sets the username for authentication against the webserver.
+     *
+     * @param thisWebUser The username of the webserver
+     */
+    public void setWebUser( String thisWebUser )
+    {
+<span class="fc" id="L326">        this.webUser = thisWebUser;</span>
+<span class="fc" id="L327">    }</span>
+
+    /**
+     * Sets the password to log into a secured JIRA.
+     *
+     * @param thisJiraPassword The password for JIRA
+     */
+    public void setJiraPassword( final String thisJiraPassword )
+    {
+<span class="fc" id="L336">        this.jiraPassword = thisJiraPassword;</span>
+<span class="fc" id="L337">    }</span>
+
+    /**
+     * Sets the username to log into a secured JIRA.
+     *
+     * @param thisJiraUser The username for JIRA
+     */
+    public void setJiraUser( String thisJiraUser )
+    {
+<span class="fc" id="L346">        this.jiraUser = thisJiraUser;</span>
+<span class="fc" id="L347">    }</span>
+
+    /**
+     * Sets the filter to apply to query to JIRA.
+     *
+     * @param thisFilter The filter to query JIRA
+     */
+    public void setFilter( String thisFilter )
+    {
+<span class="fc" id="L356">        this.filter = thisFilter;</span>
+<span class="fc" id="L357">    }</span>
+
+    /**
+     * Sets the component(s) to apply to query JIRA.
+     *
+     * @param theseComponents The id(s) of components to show, as comma separated string
+     */
+    public void setComponent( String theseComponents )
+    {
+<span class="fc" id="L366">        this.component = theseComponents;</span>
+<span class="fc" id="L367">    }</span>
+
+    /**
+     * Sets the fix version id(s) to apply to query JIRA.
+     *
+     * @param theseFixVersionIds The id(s) of fix versions to show, as comma separated string
+     */
+    public void setFixVersionIds( String theseFixVersionIds )
+    {
+<span class="fc" id="L376">        this.fixVersionIds = theseFixVersionIds;</span>
+<span class="fc" id="L377">    }</span>
+
+    /**
+     * Sets the typeIds.
+     *
+     * @param theseTypeIds The id(s) of the types to show, as comma separated string
+     */
+    public void setTypeIds( String theseTypeIds )
+    {
+<span class="fc" id="L386">        typeIds = theseTypeIds;</span>
+<span class="fc" id="L387">    }</span>
+
+    public void setLog( Log log )
+    {
+<span class="fc" id="L391">        this.log = log;</span>
+<span class="fc" id="L392">    }</span>
+
+    protected Log getLog()
+    {
+<span class="nc" id="L396">        return log;</span>
+    }
+
+    public void setSettings( Settings settings )
+    {
+<span class="fc" id="L401">        this.settings = settings;</span>
+<span class="fc" id="L402">    }</span>
+
+    public boolean isUseJql()
+    {
+<span class="nc" id="L406">        return useJql;</span>
+    }
+
+    public void setUseJql( boolean useJql )
+    {
+<span class="fc" id="L411">        this.useJql = useJql;</span>
+<span class="fc" id="L412">    }</span>
+
+    public boolean isOnlyCurrentVersion()
+    {
+<span class="nc" id="L416">        return onlyCurrentVersion;</span>
+    }
+
+    public void setOnlyCurrentVersion( boolean onlyCurrentVersion )
+    {
+<span class="fc" id="L421">        this.onlyCurrentVersion = onlyCurrentVersion;</span>
+<span class="fc" id="L422">    }</span>
+
+    public String getVersionPrefix()
+    {
+<span class="nc" id="L426">        return versionPrefix;</span>
+    }
+
+    public void setVersionPrefix( String versionPrefix )
+    {
+<span class="fc" id="L431">        this.versionPrefix = versionPrefix;</span>
+<span class="fc" id="L432">    }</span>
+
+    public void setConnectionTimeout( int connectionTimeout )
+    {
+<span class="nc" id="L436">        this.connectionTimeout = connectionTimeout;</span>
+<span class="nc" id="L437">    }</span>
+
+    public void setReceiveTimout( int receiveTimout )
+    {
+<span class="nc" id="L441">        this.receiveTimout = receiveTimout;</span>
+<span class="nc" id="L442">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

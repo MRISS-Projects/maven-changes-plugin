@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TracDownloader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.trac</a> &gt; <span class="el_source">TracDownloader.java</span></div><h1>TracDownloader.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.trac;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.apache.maven.plugins.issues.Issue;
+import org.apache.maven.project.MavenProject;
+import org.apache.xmlrpc.XmlRpcException;
+import org.apache.xmlrpc.client.XmlRpcClient;
+import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.apache.xmlrpc.client.XmlRpcCommonsTransportFactory;
+import org.codehaus.plexus.util.StringUtils;
+
+/**
+ * Get issues from a Trac installation.
+ *
+ * @author Dennis Lundberg
+ * @version $Id$
+ * @since 2.4
+ */
+<span class="nc" id="L48">public class TracDownloader</span>
+{
+    /** The Maven project. */
+    private MavenProject project;
+
+    /** The Trac query for searching for tickets. */
+    private String query;
+
+    /** The password for authentication into a private Trac installation. */
+    private String tracPassword;
+
+    /** The username for authentication into a private Trac installation. */
+    private String tracUser;
+
+    private Issue createIssue( Object[] ticketObj )
+    {
+<span class="nc" id="L64">        Issue issue = new Issue();</span>
+
+<span class="nc" id="L66">        issue.setId( String.valueOf( ticketObj[0] ) );</span>
+
+<span class="nc" id="L68">        issue.setKey( String.valueOf( ticketObj[0] ) );</span>
+
+<span class="nc" id="L70">        issue.setLink( getUrl() + &quot;/ticket/&quot; + String.valueOf( ticketObj[0] ) );</span>
+
+<span class="nc" id="L72">        issue.setCreated( parseDate( String.valueOf( ticketObj[1] ) ) );</span>
+
+<span class="nc" id="L74">        issue.setUpdated( parseDate( String.valueOf( ticketObj[2] ) ) );</span>
+
+        @SuppressWarnings( &quot;unchecked&quot; )
+<span class="nc" id="L77">        Map&lt;String, String&gt; attributes = (Map&lt;String, String&gt;) ticketObj[3];</span>
+
+<span class="nc" id="L79">        issue.setType( attributes.get( &quot;type&quot; ) );</span>
+
+<span class="nc" id="L81">        issue.setSummary( attributes.get( &quot;summary&quot; ) );</span>
+
+<span class="nc" id="L83">        issue.setStatus( attributes.get( &quot;status&quot; ) );</span>
+
+<span class="nc" id="L85">        issue.setResolution( attributes.get( &quot;resolution&quot; ) );</span>
+
+<span class="nc" id="L87">        issue.setAssignee( attributes.get( &quot;owner&quot; ) );</span>
+
+<span class="nc" id="L89">        issue.addFixVersion( attributes.get( &quot;milestone&quot; ) );</span>
+
+<span class="nc" id="L91">        issue.setPriority( attributes.get( &quot;priority&quot; ) );</span>
+
+<span class="nc" id="L93">        issue.setReporter( attributes.get( &quot;reporter&quot; ) );</span>
+
+<span class="nc" id="L95">        issue.addComponent( attributes.get( &quot;component&quot; ) );</span>
+
+<span class="nc" id="L97">        return issue;</span>
+    }
+
+    public List&lt;Issue&gt; getIssueList()
+        throws MalformedURLException, XmlRpcException
+    {
+        // Create and configure an XML-RPC client
+<span class="nc" id="L104">        XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();</span>
+
+        try
+        {
+<span class="nc" id="L108">            config.setServerURL( new URL( getUrl() + &quot;/login/xmlrpc&quot; ) );</span>
+        }
+<span class="nc" id="L110">        catch ( MalformedURLException e )</span>
+        {
+<span class="nc" id="L112">            throw new MalformedURLException( &quot;The Trac URL is incorrect.&quot; );</span>
+<span class="nc" id="L113">        }</span>
+<span class="nc" id="L114">        config.setBasicUserName( tracUser );</span>
+<span class="nc" id="L115">        config.setBasicPassword( tracPassword );</span>
+
+<span class="nc" id="L117">        XmlRpcClient client = new XmlRpcClient();</span>
+
+<span class="nc" id="L119">        client.setConfig( config );</span>
+
+<span class="nc" id="L121">        client.setTransportFactory( new XmlRpcCommonsTransportFactory( client ) );</span>
+
+        // Fetch issues
+<span class="nc" id="L124">        String qstr = &quot;&quot;;</span>
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if ( !StringUtils.isEmpty( query ) )</span>
+        {
+<span class="nc" id="L128">            qstr = query;</span>
+        }
+
+<span class="nc" id="L131">        Object[] params = new Object[] { qstr };</span>
+        Object[] queryResult;
+<span class="nc" id="L133">        ArrayList&lt;Issue&gt; issueList = new ArrayList&lt;Issue&gt;();</span>
+        try
+        {
+<span class="nc" id="L136">            queryResult = (Object[]) client.execute( &quot;ticket.query&quot;, params );</span>
+
+<span class="nc bnc" id="L138" title="All 2 branches missed.">            for ( Object aQueryResult : queryResult )</span>
+            {
+<span class="nc" id="L140">                params = new Object[] { aQueryResult };</span>
+                Object[] ticketGetResult;
+<span class="nc" id="L142">                ticketGetResult = (Object[]) client.execute( &quot;ticket.get&quot;, params );</span>
+<span class="nc" id="L143">                issueList.add( createIssue( ticketGetResult ) );</span>
+            }
+        }
+<span class="nc" id="L146">        catch ( XmlRpcException e )</span>
+        {
+<span class="nc" id="L148">            throw new XmlRpcException( &quot;XmlRpc Error.&quot;, e );</span>
+<span class="nc" id="L149">        }</span>
+<span class="nc" id="L150">        return issueList;</span>
+    }
+
+    private String getUrl()
+    {
+
+<span class="nc" id="L156">        String url = project.getIssueManagement().getUrl();</span>
+
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if ( url.endsWith( &quot;/&quot; ) )</span>
+        {
+<span class="nc" id="L160">            url = url.substring( 0, url.length() - 1 );</span>
+        }
+
+<span class="nc" id="L163">        return url;</span>
+    }
+
+    public void setProject( MavenProject project )
+    {
+<span class="nc" id="L168">        this.project = project;</span>
+<span class="nc" id="L169">    }</span>
+
+    public void setQuery( String query )
+    {
+<span class="nc" id="L173">        this.query = query;</span>
+<span class="nc" id="L174">    }</span>
+
+    public void setTracPassword( String tracPassword )
+    {
+<span class="nc" id="L178">        this.tracPassword = tracPassword;</span>
+<span class="nc" id="L179">    }</span>
+
+    public void setTracUser( String tracUser )
+    {
+<span class="nc" id="L183">        this.tracUser = tracUser;</span>
+<span class="nc" id="L184">    }</span>
+
+    private Date parseDate( String timeCreated )
+        throws RuntimeException
+    {
+        try
+        {
+<span class="nc" id="L191">            long millis = Long.parseLong( timeCreated );</span>
+<span class="nc" id="L192">            Calendar cld = Calendar.getInstance();</span>
+<span class="nc" id="L193">            cld.setTimeInMillis( millis * 1000L );</span>
+<span class="nc" id="L194">            return cld.getTime();</span>
+        }
+<span class="nc" id="L196">        catch ( NumberFormatException e )</span>
+        {
+<span class="nc" id="L198">            SimpleDateFormat format = new SimpleDateFormat( &quot;EEE MMM dd HH:mm:ss z yyyy&quot;, Locale.ENGLISH );</span>
+            try
+            {
+<span class="nc" id="L201">                return format.parse( timeCreated );</span>
+            }
+<span class="nc" id="L203">            catch ( ParseException e1 )</span>
+            {
+<span class="nc" id="L205">                throw new RuntimeException( &quot;Failed to parse date '&quot; + timeCreated + &quot;' as a date.&quot;, e1 );</span>
+            }
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

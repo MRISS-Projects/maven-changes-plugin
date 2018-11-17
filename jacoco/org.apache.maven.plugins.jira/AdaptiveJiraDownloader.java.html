@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AdaptiveJiraDownloader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.jira</a> &gt; <span class="el_source">AdaptiveJiraDownloader.java</span></div><h1>AdaptiveJiraDownloader.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.jira;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.util.List;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.issues.Issue;
+
+/**
+ * Jira downloader that uses REST or RSS, depending. This code is not very attractive. However, JIRA has supported REST
+ * for a very long time, and so the fallback is only relevant for people with very old copies of JIRA.
+ */
+<span class="nc" id="L31">public class AdaptiveJiraDownloader</span>
+    extends AbstractJiraDownloader
+{
+    private AbstractJiraDownloader effectiveDownloader;
+
+    private boolean forceClassic;
+
+    public void doExecute()
+        throws Exception
+    {
+<span class="nc" id="L41">        effectiveDownloader = new RestJiraDownloader();</span>
+<span class="nc" id="L42">        copySettings( effectiveDownloader );</span>
+        try
+        {
+<span class="nc" id="L45">            effectiveDownloader.doExecute();</span>
+        }
+<span class="nc" id="L47">        catch ( RestJiraDownloader.NoRest nre )</span>
+        {
+<span class="nc" id="L49">            getLog().info( &quot;Falling back to RSS for issue download: &quot; + nre.getMessage() );</span>
+<span class="nc" id="L50">            effectiveDownloader = new ClassicJiraDownloader();</span>
+<span class="nc" id="L51">            copySettings( effectiveDownloader );</span>
+<span class="nc" id="L52">            effectiveDownloader.doExecute();</span>
+<span class="nc" id="L53">        }</span>
+<span class="nc" id="L54">    }</span>
+
+    private void copySettings( AbstractJiraDownloader target )
+    {
+<span class="nc" id="L58">        target.setLog( getLog() );</span>
+<span class="nc" id="L59">        target.setMavenProject( project );</span>
+<span class="nc" id="L60">        target.setOutput( output );</span>
+<span class="nc" id="L61">        target.setNbEntries( nbEntriesMax );</span>
+<span class="nc" id="L62">        target.setComponent( component );</span>
+<span class="nc" id="L63">        target.setFixVersionIds( fixVersionIds );</span>
+<span class="nc" id="L64">        target.setStatusIds( statusIds );</span>
+<span class="nc" id="L65">        target.setResolutionIds( resolutionIds );</span>
+<span class="nc" id="L66">        target.setPriorityIds( priorityIds );</span>
+<span class="nc" id="L67">        target.setSortColumnNames( sortColumnNames );</span>
+<span class="nc" id="L68">        target.setFilter( filter );</span>
+<span class="nc" id="L69">        target.setJiraDatePattern( jiraDatePattern );</span>
+<span class="nc" id="L70">        target.setJiraUser( jiraUser );</span>
+<span class="nc" id="L71">        target.setJiraPassword( jiraPassword );</span>
+<span class="nc" id="L72">        target.setTypeIds( typeIds );</span>
+<span class="nc" id="L73">        target.setWebUser( webUser );</span>
+<span class="nc" id="L74">        target.setWebPassword( webPassword );</span>
+<span class="nc" id="L75">        target.setSettings( settings );</span>
+<span class="nc" id="L76">        target.setUseJql( useJql );</span>
+<span class="nc" id="L77">        target.setOnlyCurrentVersion( onlyCurrentVersion );</span>
+<span class="nc" id="L78">        target.setVersionPrefix( versionPrefix );</span>
+<span class="nc" id="L79">        target.setConnectionTimeout( connectionTimeout );</span>
+<span class="nc" id="L80">        target.setReceiveTimout( receiveTimout );</span>
+<span class="nc" id="L81">    }</span>
+
+    public List&lt;Issue&gt; getIssueList()
+        throws MojoExecutionException
+    {
+<span class="nc" id="L86">        return effectiveDownloader.getIssueList();</span>
+    }
+
+    public boolean isForceClassic()
+    {
+<span class="nc" id="L91">        return forceClassic;</span>
+    }
+
+    public void setForceClassic( boolean forceClassic )
+    {
+<span class="nc" id="L96">        this.forceClassic = forceClassic;</span>
+<span class="nc" id="L97">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

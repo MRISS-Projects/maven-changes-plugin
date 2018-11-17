@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParameterQueryBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.jira</a> &gt; <span class="el_source">ParameterQueryBuilder.java</span></div><h1>ParameterQueryBuilder.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.jira;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.apache.maven.plugin.logging.Log;
+
+/**
+ * JIRA 3.x way of constructing a search query based on URL parameters.
+ * 
+ * @author ton.swieb@finalist.com
+ * @version $Id$
+ * @since 2.8
+ */
+public class ParameterQueryBuilder
+    implements JiraQueryBuilder
+{
+<span class="nc" id="L39">    private String filter = &quot;&quot;;</span>
+
+    /** Log for debug output. */
+    private Log log;
+
+<span class="nc" id="L44">    private StringBuilder query = new StringBuilder();</span>
+
+    /** Mapping containing all allowed JIRA priority values. */
+<span class="nc" id="L47">    private final Map&lt;String, String&gt; priorityMap = new HashMap&lt;String, String&gt;( 8 );</span>
+
+    /** Mapping containing all allowed JIRA resolution values. */
+<span class="nc" id="L50">    private final Map&lt;String, String&gt; resolutionMap = new HashMap&lt;String, String&gt;( 8 );</span>
+
+    /** Mapping containing all allowed JIRA status values. */
+<span class="nc" id="L53">    private final Map&lt;String, String&gt; statusMap = new HashMap&lt;String, String&gt;( 8 );</span>
+
+    /** Mapping containing all allowed JIRA type values. */
+<span class="nc" id="L56">    private final Map&lt;String, String&gt; typeMap = new HashMap&lt;String, String&gt;( 8 );</span>
+
+    public ParameterQueryBuilder( Log log )
+<span class="nc" id="L59">    {</span>
+<span class="nc" id="L60">        this.log = log;</span>
+
+<span class="nc" id="L62">        priorityMap.put( &quot;Blocker&quot;, &quot;1&quot; );</span>
+<span class="nc" id="L63">        priorityMap.put( &quot;Critical&quot;, &quot;2&quot; );</span>
+<span class="nc" id="L64">        priorityMap.put( &quot;Major&quot;, &quot;3&quot; );</span>
+<span class="nc" id="L65">        priorityMap.put( &quot;Minor&quot;, &quot;4&quot; );</span>
+<span class="nc" id="L66">        priorityMap.put( &quot;Trivial&quot;, &quot;5&quot; );</span>
+
+<span class="nc" id="L68">        resolutionMap.put( &quot;Unresolved&quot;, &quot;-1&quot; );</span>
+<span class="nc" id="L69">        resolutionMap.put( &quot;Fixed&quot;, &quot;1&quot; );</span>
+<span class="nc" id="L70">        resolutionMap.put( &quot;Won't Fix&quot;, &quot;2&quot; );</span>
+<span class="nc" id="L71">        resolutionMap.put( &quot;Duplicate&quot;, &quot;3&quot; );</span>
+<span class="nc" id="L72">        resolutionMap.put( &quot;Incomplete&quot;, &quot;4&quot; );</span>
+<span class="nc" id="L73">        resolutionMap.put( &quot;Cannot Reproduce&quot;, &quot;5&quot; );</span>
+
+<span class="nc" id="L75">        statusMap.put( &quot;Open&quot;, &quot;1&quot; );</span>
+<span class="nc" id="L76">        statusMap.put( &quot;In Progress&quot;, &quot;3&quot; );</span>
+<span class="nc" id="L77">        statusMap.put( &quot;Reopened&quot;, &quot;4&quot; );</span>
+<span class="nc" id="L78">        statusMap.put( &quot;Resolved&quot;, &quot;5&quot; );</span>
+<span class="nc" id="L79">        statusMap.put( &quot;Closed&quot;, &quot;6&quot; );</span>
+
+<span class="nc" id="L81">        typeMap.put( &quot;Bug&quot;, &quot;1&quot; );</span>
+<span class="nc" id="L82">        typeMap.put( &quot;New Feature&quot;, &quot;2&quot; );</span>
+<span class="nc" id="L83">        typeMap.put( &quot;Task&quot;, &quot;3&quot; );</span>
+<span class="nc" id="L84">        typeMap.put( &quot;Improvement&quot;, &quot;4&quot; );</span>
+<span class="nc" id="L85">        typeMap.put( &quot;Wish&quot;, &quot;5&quot; );</span>
+<span class="nc" id="L86">        typeMap.put( &quot;Test&quot;, &quot;6&quot; );</span>
+<span class="nc" id="L87">        typeMap.put( &quot;Sub-task&quot;, &quot;7&quot; );</span>
+<span class="nc" id="L88">    }</span>
+
+    public String build()
+    {
+        // If the user has defined a filter - use that
+<span class="nc bnc" id="L93" title="All 4 branches missed.">        if ( ( this.filter != null ) &amp;&amp; ( this.filter.length() &gt; 0 ) )</span>
+        {
+<span class="nc" id="L95">            return this.filter;</span>
+        }
+        else
+        {
+<span class="nc" id="L99">            return query.toString();</span>
+        }
+    }
+
+    public JiraQueryBuilder components( String components )
+    {
+        // add components
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if ( components != null )</span>
+        {
+<span class="nc" id="L108">            String[] componentsArr = components.split( &quot;,&quot; );</span>
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            for ( String component : componentsArr )</span>
+            {
+<span class="nc" id="L112">                component = component.trim();</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                if ( component.length() &gt; 0 )</span>
+                {
+<span class="nc" id="L115">                    query.append( &quot;&amp;component=&quot; ).append( component );</span>
+                }
+            }
+        }
+<span class="nc" id="L119">        return this;</span>
+    }
+
+    public JiraQueryBuilder components( List&lt;String&gt; components )
+    {
+        // add components
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if ( components != null )</span>
+        {
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            for ( String component : components )</span>
+            {
+<span class="nc" id="L129">                component = component.trim();</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">                if ( component.length() &gt; 0 )</span>
+                {
+<span class="nc" id="L132">                    query.append( &quot;&amp;component=&quot; ).append( component );</span>
+                }
+<span class="nc" id="L134">            }</span>
+        }
+<span class="nc" id="L136">        return this;</span>
+    }
+
+    public JiraQueryBuilder filter( String filter )
+    {
+<span class="nc" id="L141">        this.filter = filter;</span>
+<span class="nc" id="L142">        return this;</span>
+    }
+
+    /**
+     * This method has no effect in this implementation.
+     */
+    public JiraQueryBuilder fixVersion( String fixVersion )
+    {
+<span class="nc" id="L150">        return this;</span>
+    }
+
+    public JiraQueryBuilder fixVersionIds( String fixVersionIds )
+    {
+        // add fix versions
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if ( fixVersionIds != null )</span>
+        {
+<span class="nc" id="L158">            String[] fixVersions = fixVersionIds.split( &quot;,&quot; );</span>
+
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            for ( String fixVersion : fixVersions )</span>
+            {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                if ( fixVersion.length() &gt; 0 )</span>
+                {
+<span class="nc" id="L164">                    query.append( &quot;&amp;fixfor=&quot; ).append( fixVersion.trim() );</span>
+                }
+            }
+        }
+<span class="nc" id="L168">        return this;</span>
+    }
+
+    public JiraQueryBuilder fixVersionIds( List&lt;String&gt; fixVersionIds )
+    {
+<span class="nc" id="L173">        throw new RuntimeException( &quot;fixVersionIds(List) not supported for very old parameter queries.&quot; );</span>
+    }
+
+    public Log getLog()
+    {
+<span class="nc" id="L178">        return log;</span>
+    }
+
+    public JiraQueryBuilder priorityIds( String priorityIds )
+    {
+        // get the Priority Ids
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        if ( priorityIds != null )</span>
+        {
+<span class="nc" id="L186">            String[] prios = priorityIds.split( &quot;,&quot; );</span>
+
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            for ( String prio : prios )</span>
+            {
+<span class="nc" id="L190">                prio = prio.trim();</span>
+<span class="nc" id="L191">                String priorityParam = priorityMap.get( prio );</span>
+
+<span class="nc bnc" id="L193" title="All 2 branches missed.">                if ( priorityParam != null )</span>
+                {
+<span class="nc" id="L195">                    query.append( &quot;&amp;priorityIds=&quot; ).append( priorityParam );</span>
+                }
+            }
+        }
+<span class="nc" id="L199">        return this;</span>
+    }
+
+    public JiraQueryBuilder priorityIds( List&lt;String&gt; priorityIds )
+    {
+<span class="nc" id="L204">        throw new RuntimeException( &quot;priorityIds(List) not supported for old parameter queries.&quot; );</span>
+    }
+
+    /**
+     * This method has no effect in this implementation.
+     */
+    public JiraQueryBuilder project( String project )
+    {
+<span class="nc" id="L212">        return this;</span>
+    }
+
+    public JiraQueryBuilder resolutionIds( String resolutionIds )
+    {
+        // get the Resolution Ids
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        if ( resolutionIds != null )</span>
+        {
+<span class="nc" id="L220">            String[] resos = resolutionIds.split( &quot;,&quot; );</span>
+
+<span class="nc bnc" id="L222" title="All 2 branches missed.">            for ( String reso : resos )</span>
+            {
+<span class="nc" id="L224">                reso = reso.trim();</span>
+<span class="nc" id="L225">                String resoParam = resolutionMap.get( reso );</span>
+
+<span class="nc bnc" id="L227" title="All 2 branches missed.">                if ( resoParam != null )</span>
+                {
+<span class="nc" id="L229">                    query.append( &quot;&amp;resolutionIds=&quot; ).append( resoParam );</span>
+                }
+            }
+        }
+<span class="nc" id="L233">        return this;</span>
+    }
+
+    public JiraQueryBuilder resolutionIds( List&lt;String&gt; resolutionIds )
+    {
+<span class="nc" id="L238">        throw new RuntimeException( &quot;resolutionIds(List) not supported for old ParameterQueryBuilder&quot; );</span>
+    }
+
+    public JiraQueryBuilder sortColumnNames( String sortColumnNames )
+    {
+        // get the Sort order
+<span class="nc" id="L244">        int validSortColumnNames = 0;</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        if ( sortColumnNames != null )</span>
+        {
+<span class="nc" id="L247">            String[] sortColumnNamesArray = sortColumnNames.split( &quot;,&quot; );</span>
+            // N.B. Add in reverse order (it's the way JIRA 3 likes it!!)
+<span class="nc bnc" id="L249" title="All 2 branches missed.">            for ( int i = sortColumnNamesArray.length - 1; i &gt;= 0; i-- )</span>
+            {
+<span class="nc" id="L251">                String lowerColumnName = sortColumnNamesArray[i].trim().toLowerCase( Locale.ENGLISH );</span>
+<span class="nc" id="L252">                boolean descending = false;</span>
+<span class="nc" id="L253">                String fieldName = null;</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">                if ( lowerColumnName.endsWith( &quot;desc&quot; ) )</span>
+                {
+<span class="nc" id="L256">                    descending = true;</span>
+<span class="nc" id="L257">                    lowerColumnName = lowerColumnName.substring( 0, lowerColumnName.length() - 4 ).trim();</span>
+                }
+<span class="nc bnc" id="L259" title="All 2 branches missed.">                else if ( lowerColumnName.endsWith( &quot;asc&quot; ) )</span>
+                {
+<span class="nc" id="L261">                    descending = false;</span>
+<span class="nc" id="L262">                    lowerColumnName = lowerColumnName.substring( 0, lowerColumnName.length() - 3 ).trim();</span>
+                }
+
+<span class="nc bnc" id="L265" title="All 2 branches missed.">                if ( &quot;key&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L267">                    fieldName = &quot;issuekey&quot;;</span>
+                }
+<span class="nc bnc" id="L269" title="All 2 branches missed.">                else if ( &quot;summary&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L271">                    fieldName = lowerColumnName;</span>
+                }
+<span class="nc bnc" id="L273" title="All 2 branches missed.">                else if ( &quot;status&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L275">                    fieldName = lowerColumnName;</span>
+                }
+<span class="nc bnc" id="L277" title="All 2 branches missed.">                else if ( &quot;resolution&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L279">                    fieldName = lowerColumnName;</span>
+                }
+<span class="nc bnc" id="L281" title="All 2 branches missed.">                else if ( &quot;assignee&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L283">                    fieldName = lowerColumnName;</span>
+                }
+<span class="nc bnc" id="L285" title="All 2 branches missed.">                else if ( &quot;reporter&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L287">                    fieldName = lowerColumnName;</span>
+                }
+<span class="nc bnc" id="L289" title="All 2 branches missed.">                else if ( &quot;type&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L291">                    fieldName = &quot;issuetype&quot;;</span>
+                }
+<span class="nc bnc" id="L293" title="All 2 branches missed.">                else if ( &quot;priority&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L295">                    fieldName = lowerColumnName;</span>
+                }
+<span class="nc bnc" id="L297" title="All 2 branches missed.">                else if ( &quot;version&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L299">                    fieldName = &quot;versions&quot;;</span>
+                }
+<span class="nc bnc" id="L301" title="All 2 branches missed.">                else if ( &quot;fix version&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L303">                    fieldName = &quot;fixVersions&quot;;</span>
+                }
+<span class="nc bnc" id="L305" title="All 2 branches missed.">                else if ( &quot;component&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L307">                    fieldName = &quot;components&quot;;</span>
+                }
+<span class="nc bnc" id="L309" title="All 2 branches missed.">                else if ( &quot;created&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L311">                    fieldName = lowerColumnName;</span>
+                }
+<span class="nc bnc" id="L313" title="All 2 branches missed.">                else if ( &quot;updated&quot;.equals( lowerColumnName ) )</span>
+                {
+<span class="nc" id="L315">                    fieldName = lowerColumnName;</span>
+                }
+<span class="nc bnc" id="L317" title="All 2 branches missed.">                if ( fieldName != null )</span>
+                {
+<span class="nc" id="L319">                    query.append( &quot;&amp;sorter/field=&quot; );</span>
+<span class="nc" id="L320">                    query.append( fieldName );</span>
+<span class="nc" id="L321">                    query.append( &quot;&amp;sorter/order=&quot; );</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">                    query.append( descending ? &quot;DESC&quot; : &quot;ASC&quot; );</span>
+<span class="nc" id="L323">                    validSortColumnNames++;</span>
+                }
+                else
+                {
+                    // Error in the configuration
+<span class="nc" id="L328">                    getLog().error( &quot;maven-changes-plugin: The configured value '&quot; + lowerColumnName</span>
+                        + &quot;' for sortColumnNames is not correct.&quot; );
+                }
+            }
+<span class="nc bnc" id="L332" title="All 2 branches missed.">            if ( validSortColumnNames == 0 )</span>
+            {
+                // Error in the configuration
+<span class="nc" id="L335">                getLog().error( &quot;maven-changes-plugin: None of the configured sortColumnNames '&quot; + sortColumnNames</span>
+                    + &quot;' are correct.&quot; );
+            }
+        }
+<span class="nc" id="L339">        return this;</span>
+    }
+
+    public JiraQueryBuilder statusIds( String statusIds )
+    {
+        // get the Status Ids
+<span class="nc bnc" id="L345" title="All 2 branches missed.">        if ( statusIds != null )</span>
+        {
+<span class="nc" id="L347">            String[] stats = statusIds.split( &quot;,&quot; );</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">            for ( String stat : stats )</span>
+            {
+<span class="nc" id="L350">                stat = stat.trim();</span>
+<span class="nc" id="L351">                String statusParam = statusMap.get( stat );</span>
+
+<span class="nc bnc" id="L353" title="All 2 branches missed.">                if ( statusParam != null )</span>
+                {
+<span class="nc" id="L355">                    query.append( &quot;&amp;statusIds=&quot; ).append( statusParam );</span>
+                }
+                else
+                {
+                    // if it's numeric we can handle it too.
+                    try
+                    {
+<span class="nc" id="L362">                        Integer.parseInt( stat );</span>
+<span class="nc" id="L363">                        query.append( &quot;&amp;statusIds=&quot; ).append( stat );</span>
+                    }
+<span class="nc" id="L365">                    catch ( NumberFormatException nfe )</span>
+                    {
+<span class="nc" id="L367">                        getLog().error( &quot;maven-changes-plugin: invalid statusId &quot; + stat );</span>
+<span class="nc" id="L368">                    }</span>
+                }
+            }
+        }
+<span class="nc" id="L372">        return this;</span>
+    }
+
+    public JiraQueryBuilder statusIds( List&lt;String&gt; statusIds )
+    {
+<span class="nc" id="L377">        throw new RuntimeException( &quot;statusIds(List) not supported for old parameter queries.&quot; );</span>
+    }
+
+    public JiraQueryBuilder typeIds( String typeIds )
+    {
+        // get the Type Ids
+<span class="nc bnc" id="L383" title="All 2 branches missed.">        if ( typeIds != null )</span>
+        {
+<span class="nc" id="L385">            String[] types = typeIds.split( &quot;,&quot; );</span>
+
+<span class="nc bnc" id="L387" title="All 2 branches missed.">            for ( String type : types )</span>
+            {
+<span class="nc" id="L389">                String typeParam = typeMap.get( type.trim() );</span>
+
+<span class="nc bnc" id="L391" title="All 2 branches missed.">                if ( typeParam != null )</span>
+                {
+<span class="nc" id="L393">                    query.append( &quot;&amp;type=&quot; ).append( typeParam );</span>
+                }
+            }
+        }
+<span class="nc" id="L397">        return this;</span>
+    }
+
+    public JiraQueryBuilder typeIds( List&lt;String&gt; typeIds )
+    {
+<span class="nc" id="L402">        throw new RuntimeException( &quot;typeIds(List) not supported for old ParameterQueryBuilder&quot; );</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

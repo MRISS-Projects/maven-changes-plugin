@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClassicJiraDownloader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.jira</a> &gt; <span class="el_source">ClassicJiraDownloader.java</span></div><h1>ClassicJiraDownloader.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.jira;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.StatusLine;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.issues.Issue;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.StringUtils;
+
+/**
+ * Gets relevant issues for a JIRA report via HTTP/RSS.
+ *
+ * @author mfranken@xebia.com
+ * @author jruiz@exist.com
+ * @version $Id$
+ */
+public final class ClassicJiraDownloader
+    extends AbstractJiraDownloader
+{
+    public ClassicJiraDownloader()
+<span class="nc" id="L60">    {</span>
+<span class="nc" id="L61">    }</span>
+
+    /**
+     * Execute the query on the JIRA server.
+     *
+     * @throws Exception on error
+     */
+    public void doExecute()
+        throws Exception
+    {
+        try
+        {
+<span class="nc" id="L73">            HttpClient client = new HttpClient();</span>
+
+            // MCHANGES-89 Allow circular redirects
+<span class="nc" id="L76">            HttpClientParams clientParams = client.getParams();</span>
+<span class="nc" id="L77">            clientParams.setBooleanParameter( HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, true );</span>
+<span class="nc" id="L78">            clientParams.setCookiePolicy( CookiePolicy.BROWSER_COMPATIBILITY ); // MCHANGES-237</span>
+
+<span class="nc" id="L80">            HttpState state = new HttpState();</span>
+
+<span class="nc" id="L82">            HostConfiguration hc = new HostConfiguration();</span>
+
+<span class="nc" id="L84">            client.setHostConfiguration( hc );</span>
+
+<span class="nc" id="L86">            client.setState( state );</span>
+
+<span class="nc" id="L88">            String baseUrl = JiraHelper.getBaseUrl( project.getIssueManagement().getUrl() );</span>
+
+<span class="nc" id="L90">            getLog().debug( &quot;JIRA lives at: &quot; + baseUrl );</span>
+            // Here we only need the host part of the URL
+<span class="nc" id="L92">            determineProxy( baseUrl, client );</span>
+
+<span class="nc" id="L94">            prepareBasicAuthentication( client );</span>
+
+<span class="nc" id="L96">            boolean jiraAuthenticationSuccessful = false;</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if ( isJiraAuthenticationConfigured() )</span>
+            {
+                // Here we only need the parts up to and including the host part of the URL
+<span class="nc" id="L100">                jiraAuthenticationSuccessful = doJiraAuthentication( client, baseUrl );</span>
+            }
+
+<span class="nc bnc" id="L103" title="All 4 branches missed.">            if ( ( isJiraAuthenticationConfigured() &amp;&amp; jiraAuthenticationSuccessful )</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                || !isJiraAuthenticationConfigured() )</span>
+            {
+                String fullUrl;
+
+<span class="nc bnc" id="L108" title="All 2 branches missed.">                if ( useJql )</span>
+                {
+<span class="nc" id="L110">                    fullUrl = getJqlQueryURL();</span>
+                }
+                else
+                {
+<span class="nc" id="L114">                    fullUrl = getParameterBasedQueryURL( client );</span>
+                }
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                if ( log.isDebugEnabled() )</span>
+                {
+<span class="nc" id="L118">                    log.debug( &quot;download jira issues from url &quot; + fullUrl );</span>
+                }
+
+                // execute the GET
+<span class="nc" id="L122">                download( client, fullUrl );</span>
+            }
+        }
+<span class="nc" id="L125">        catch ( Exception e )</span>
+        {
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            if ( project.getIssueManagement() != null )</span>
+            {
+<span class="nc" id="L129">                getLog().error( &quot;Error accessing &quot; + project.getIssueManagement().getUrl(), e );</span>
+            }
+            else
+            {
+<span class="nc" id="L133">                getLog().error( &quot;Error accessing mock project issues&quot;, e );</span>
+            }
+<span class="nc" id="L135">        }</span>
+<span class="nc" id="L136">    }</span>
+
+    private String getJqlQueryURL()
+    {
+        // JQL is based on project names instead of project ID's
+<span class="nc" id="L141">        Map&lt;String, String&gt; urlMap = JiraHelper.getJiraUrlAndProjectName( project.getIssueManagement().getUrl() );</span>
+<span class="nc" id="L142">        String jiraUrl = urlMap.get( &quot;url&quot; );</span>
+<span class="nc" id="L143">        String jiraProject = urlMap.get( &quot;project&quot; );</span>
+
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if ( jiraProject == null )</span>
+        {
+<span class="nc" id="L147">            throw new RuntimeException( &quot;The issue management URL in the POM does not include a JIRA project name&quot; );</span>
+        }
+        else
+        {
+            // CHECKSTYLE_OFF: LineLength
+            // create the URL for getting the proper issues from JIRA
+<span class="nc" id="L153">            String jqlQuery =</span>
+<span class="nc" id="L154">                new JqlQueryBuilder( log ).project( jiraProject ).fixVersion( getFixFor() ).fixVersionIds( fixVersionIds ).statusIds( statusIds ).priorityIds( priorityIds ).resolutionIds( resolutionIds ).components( component ).typeIds( typeIds ).sortColumnNames( sortColumnNames ).build();</span>
+
+<span class="nc" id="L156">            String url =</span>
+                new UrlBuilder( jiraUrl,
+<span class="nc" id="L158">                                &quot;sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml&quot; ).addParameter( &quot;tempMax&quot;,</span>
+<span class="nc" id="L159">                                                                                                              nbEntriesMax ).addParameter( &quot;reset&quot;,</span>
+<span class="nc" id="L160">                                                                                                                                           &quot;true&quot; ).addParameter( &quot;jqlQuery&quot;,</span>
+<span class="nc" id="L161">                                                                                                                                                                  jqlQuery ).build();</span>
+
+            // CHECKSTYLE_ON: LineLength
+<span class="nc" id="L164">            return url;</span>
+        }
+    }
+
+    private String getParameterBasedQueryURL( HttpClient client )
+    {
+<span class="nc" id="L170">        Map&lt;String, String&gt; urlMap = JiraHelper.getJiraUrlAndProjectId( project.getIssueManagement().getUrl() );</span>
+<span class="nc" id="L171">        String jiraUrl = urlMap.get( &quot;url&quot; );</span>
+<span class="nc" id="L172">        String jiraId = urlMap.get( &quot;id&quot; );</span>
+
+<span class="nc bnc" id="L174" title="All 4 branches missed.">        if ( jiraId == null || jiraId.length() == 0 )</span>
+        {
+<span class="nc" id="L176">            log.debug( &quot;The JIRA URL &quot; + project.getIssueManagement().getUrl()</span>
+                + &quot; doesn't include a pid, trying to extract it from JIRA.&quot; );
+<span class="nc" id="L178">            jiraId = JiraHelper.getPidFromJira( log, project.getIssueManagement().getUrl(), client );</span>
+        }
+
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        if ( jiraId == null )</span>
+        {
+<span class="nc" id="L183">            throw new RuntimeException( &quot;The issue management URL in the POM does not include a pid,&quot;</span>
+                + &quot; and it was not possible to extract it from the page at that URL.&quot; );
+        }
+        else
+        {
+            // create the URL for getting the proper issues from JIRA
+<span class="nc" id="L189">            String fullURL = jiraUrl + &quot;/secure/IssueNavigator.jspa?view=rss&amp;pid=&quot; + jiraId;</span>
+
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            if ( getFixFor() != null )</span>
+            {
+<span class="nc" id="L193">                fullURL += &quot;&amp;fixfor=&quot; + getFixFor();</span>
+            }
+
+            // CHECKSTYLE_OFF: LineLength
+<span class="nc" id="L197">            String createdFilter =</span>
+<span class="nc" id="L198">                new ParameterQueryBuilder( log ).fixVersionIds( fixVersionIds ).statusIds( statusIds ).priorityIds( priorityIds ).resolutionIds( resolutionIds ).components( component ).typeIds( typeIds ).sortColumnNames( sortColumnNames ).filter( filter ).build();</span>
+            // CHECKSTYLE_ON: LineLength
+
+<span class="nc bnc" id="L201" title="All 2 branches missed.">            if ( createdFilter.charAt( 0 ) != '&amp;' )</span>
+            {
+<span class="nc" id="L203">                fullURL += &quot;&amp;&quot;;</span>
+            }
+<span class="nc" id="L205">            fullURL += createdFilter;</span>
+
+<span class="nc" id="L207">            fullURL += ( &quot;&amp;tempMax=&quot; + nbEntriesMax + &quot;&amp;reset=true&amp;decorator=none&quot; );</span>
+
+<span class="nc" id="L209">            return fullURL;</span>
+        }
+    }
+
+    /**
+     * Check and prepare for basic authentication.
+     *
+     * @param client The client to prepare
+     */
+    private void prepareBasicAuthentication( HttpClient client )
+    {
+<span class="nc bnc" id="L220" title="All 4 branches missed.">        if ( ( webUser != null ) &amp;&amp; ( webUser.length() &gt; 0 ) )</span>
+        {
+<span class="nc" id="L222">            client.getParams().setAuthenticationPreemptive( true );</span>
+
+<span class="nc" id="L224">            Credentials defaultcreds = new UsernamePasswordCredentials( webUser, webPassword );</span>
+
+<span class="nc" id="L226">            getLog().debug( &quot;Using username: &quot; + webUser + &quot; for Basic Authentication.&quot; );</span>
+
+<span class="nc" id="L228">            client.getState().setCredentials( new AuthScope( null, AuthScope.ANY_PORT, null, AuthScope.ANY_SCHEME ),</span>
+                                              defaultcreds );
+        }
+<span class="nc" id="L231">    }</span>
+
+    /**
+     * Authenticate against JIRA. This method relies on jiraUser and jiraPassword being set. You can check this by
+     * calling isJiraAuthenticationConfigured().
+     *
+     * @param client the HttpClient
+     * @param jiraUrl the JIRA installation
+     * @return &lt;code&gt;true&lt;/code&gt; if the authentication was successful, otherwise &lt;code&gt;false&lt;/code&gt;
+     */
+    private boolean doJiraAuthentication( HttpClient client, final String jiraUrl )
+    {
+        // log into JIRA if we have to
+        String loginUrl;
+
+<span class="nc" id="L246">        StringBuilder loginLink = new StringBuilder( jiraUrl );</span>
+
+<span class="nc" id="L248">        loginLink.append( &quot;/login.jsp?os_destination=/secure/&quot; );</span>
+
+        try
+        {
+<span class="nc" id="L252">            loginLink.append( &quot;&amp;os_username=&quot; ).append( URLEncoder.encode( jiraUser, UTF_8 ) );</span>
+
+<span class="nc" id="L254">            String password = null;</span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">            if ( jiraPassword != null )</span>
+            {
+<span class="nc" id="L257">                password = StringUtils.repeat( &quot;*&quot;, jiraPassword.length() );</span>
+            }
+<span class="nc" id="L259">            getLog().debug( &quot;Login URL: &quot; + loginLink + &quot;&amp;os_password=&quot; + password );</span>
+
+<span class="nc" id="L261">            loginLink.append( &quot;&amp;os_password=&quot; ).append( URLEncoder.encode( jiraPassword, UTF_8 ) );</span>
+
+<span class="nc" id="L263">            loginUrl = loginLink.toString();</span>
+
+            // execute the login
+<span class="nc" id="L266">            GetMethod loginGet = new GetMethod( loginUrl );</span>
+
+<span class="nc" id="L268">            client.executeMethod( loginGet );</span>
+
+<span class="nc bnc" id="L270" title="All 2 branches missed.">            if ( loginSucceeded( loginGet ) )</span>
+            {
+<span class="nc" id="L272">                getLog().debug( &quot;Successfully logged in into JIRA.&quot; );</span>
+<span class="nc" id="L273">                return true;</span>
+            }
+            else
+            {
+<span class="nc" id="L277">                getLog().warn( &quot;Was unable to login into JIRA: wrong username and/or password.&quot; );</span>
+            }
+        }
+<span class="nc" id="L280">        catch ( Exception e )</span>
+        {
+<span class="nc bnc" id="L282" title="All 2 branches missed.">            if ( getLog().isDebugEnabled() )</span>
+            {
+<span class="nc" id="L284">                getLog().error( &quot;Error trying to login into JIRA.&quot;, e );</span>
+            }
+            else
+            {
+<span class="nc" id="L288">                getLog().error( &quot;Error trying to login into JIRA. Cause is: &quot; + e.getLocalizedMessage() );</span>
+            }
+<span class="nc" id="L290">        }</span>
+<span class="nc" id="L291">        return false;</span>
+    }
+
+    /**
+     * Evaluate if the login attempt to JIRA was successful or not. We can't use the status code because JIRA returns
+     * 200 even if the login fails.
+     *
+     * @param loginGet The method that was executed
+     * @return &lt;code&gt;false&lt;/code&gt; if we find an error message in the response body, otherwise &lt;code&gt;true&lt;/code&gt;
+     * @todo There must be a nicer way to know whether we were able to login or not
+     */
+    private boolean loginSucceeded( GetMethod loginGet )
+        throws IOException
+    {
+<span class="nc" id="L305">        final String loginFailureResponse = &quot;your username and password are incorrect&quot;;</span>
+
+<span class="nc bnc" id="L307" title="All 2 branches missed.">        return !loginGet.getResponseBodyAsString().contains( loginFailureResponse );</span>
+    }
+
+    /**
+     * Setup proxy access if we have to.
+     *
+     * @param client the HttpClient
+     */
+    private void determineProxy( String jiraUrl, HttpClient client )
+    {
+        // see whether there is any proxy defined in maven
+
+<span class="nc" id="L319">        getProxyInfo( jiraUrl );</span>
+
+<span class="nc bnc" id="L321" title="All 2 branches missed.">        if ( proxyHost != null )</span>
+        {
+<span class="nc" id="L323">            client.getHostConfiguration().setProxy( proxyHost, proxyPort );</span>
+
+<span class="nc" id="L325">            getLog().debug( &quot;Using proxy: &quot; + proxyHost + &quot; at port &quot; + proxyPort );</span>
+
+<span class="nc bnc" id="L327" title="All 2 branches missed.">            if ( proxyUser != null )</span>
+            {
+<span class="nc" id="L329">                getLog().debug( &quot;Using proxy user: &quot; + proxyUser );</span>
+
+<span class="nc" id="L331">                client.getState().setProxyCredentials( new AuthScope( null, AuthScope.ANY_PORT, null,</span>
+                                                                      AuthScope.ANY_SCHEME ),
+                                                       new UsernamePasswordCredentials( proxyUser, proxyPass ) );
+            }
+        }
+<span class="nc" id="L336">    }</span>
+
+    /**
+     * Downloads the given link using the configured HttpClient, possibly following redirects.
+     *
+     * @param cl the HttpClient
+     * @param link the URL to JIRA
+     */
+    private void download( final HttpClient cl, final String link )
+    {
+<span class="nc" id="L346">        InputStream in = null;</span>
+<span class="nc" id="L347">        OutputStream out = null;</span>
+        try
+        {
+<span class="nc" id="L350">            GetMethod gm = new GetMethod( link );</span>
+
+<span class="nc" id="L352">            getLog().info( &quot;Downloading from JIRA at: &quot; + link );</span>
+
+<span class="nc" id="L354">            gm.setFollowRedirects( true );</span>
+
+<span class="nc" id="L356">            cl.executeMethod( gm );</span>
+
+<span class="nc" id="L358">            StatusLine sl = gm.getStatusLine();</span>
+
+<span class="nc bnc" id="L360" title="All 2 branches missed.">            if ( sl == null )</span>
+            {
+<span class="nc" id="L362">                getLog().error( &quot;Unknown error validating link: &quot; + link );</span>
+
+<span class="nc" id="L364">                return;</span>
+            }
+
+            // if we get a redirect, do so
+<span class="nc bnc" id="L368" title="All 2 branches missed.">            if ( gm.getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY )</span>
+            {
+<span class="nc" id="L370">                Header locationHeader = gm.getResponseHeader( &quot;Location&quot; );</span>
+
+<span class="nc bnc" id="L372" title="All 2 branches missed.">                if ( locationHeader == null )</span>
+                {
+<span class="nc" id="L374">                    getLog().warn( &quot;Site sent redirect, but did not set Location header&quot; );</span>
+                }
+                else
+                {
+<span class="nc" id="L378">                    String newLink = locationHeader.getValue();</span>
+
+<span class="nc" id="L380">                    getLog().debug( &quot;Following redirect to &quot; + newLink );</span>
+
+<span class="nc" id="L382">                    download( cl, newLink );</span>
+                }
+            }
+
+<span class="nc bnc" id="L386" title="All 2 branches missed.">            if ( gm.getStatusCode() == HttpStatus.SC_OK )</span>
+            {
+<span class="nc" id="L388">                in = gm.getResponseBodyAsStream();</span>
+
+<span class="nc bnc" id="L390" title="All 2 branches missed.">                if ( !output.getParentFile().exists() )</span>
+                {
+<span class="nc" id="L392">                    output.getParentFile().mkdirs();</span>
+                }
+
+                // write the response to file
+<span class="nc" id="L396">                out = new FileOutputStream( output );</span>
+<span class="nc" id="L397">                IOUtil.copy( in, out );</span>
+<span class="nc" id="L398">                out.close();</span>
+<span class="nc" id="L399">                out = null;</span>
+<span class="nc" id="L400">                in.close();</span>
+<span class="nc" id="L401">                in = null;</span>
+
+<span class="nc" id="L403">                getLog().debug( &quot;Downloading from JIRA was successful&quot; );</span>
+            }
+            else
+            {
+<span class="nc" id="L407">                getLog().warn( &quot;Downloading from JIRA failed. Received: [&quot; + gm.getStatusCode() + &quot;]&quot; );</span>
+            }
+        }
+<span class="nc" id="L410">        catch ( HttpException e )</span>
+        {
+<span class="nc bnc" id="L412" title="All 2 branches missed.">            if ( getLog().isDebugEnabled() )</span>
+            {
+<span class="nc" id="L414">                getLog().error( &quot;Error downloading issues from JIRA:&quot;, e );</span>
+            }
+            else
+            {
+<span class="nc" id="L418">                getLog().error( &quot;Error downloading issues from JIRA url: &quot; + e.getLocalizedMessage() );</span>
+
+            }
+        }
+<span class="nc" id="L422">        catch ( IOException e )</span>
+        {
+<span class="nc bnc" id="L424" title="All 2 branches missed.">            if ( getLog().isDebugEnabled() )</span>
+            {
+<span class="nc" id="L426">                getLog().error( &quot;Error downloading issues from JIRA:&quot;, e );</span>
+            }
+            else
+            {
+<span class="nc" id="L430">                getLog().error( &quot;Error downloading issues from JIRA. Cause is &quot; + e.getLocalizedMessage() );</span>
+            }
+        }
+        finally
+        {
+<span class="nc" id="L435">            IOUtil.close( out );</span>
+<span class="nc" id="L436">            IOUtil.close( in );</span>
+        }
+<span class="nc" id="L438">    }</span>
+
+    public List&lt;Issue&gt; getIssueList()
+        throws MojoExecutionException
+    {
+<span class="nc bnc" id="L443" title="All 2 branches missed.">        if ( output.isFile() )</span>
+        {
+<span class="nc" id="L445">            JiraXML jira = new JiraXML( log, jiraDatePattern );</span>
+<span class="nc" id="L446">            jira.parseXML( output );</span>
+<span class="nc" id="L447">            getLog().info( &quot;The JIRA version is '&quot; + jira.getJiraVersion() + &quot;'&quot; );</span>
+<span class="nc" id="L448">            return jira.getIssueList();</span>
+        }
+        else
+        {
+<span class="nc" id="L452">            getLog().warn( &quot;JIRA file &quot; + output.getPath() + &quot; doesn't exist.&quot; );</span>
+<span class="nc" id="L453">            return Collections.emptyList();</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

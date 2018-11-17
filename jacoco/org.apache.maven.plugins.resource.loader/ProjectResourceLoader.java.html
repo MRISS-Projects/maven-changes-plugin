@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProjectResourceLoader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.resource.loader</a> &gt; <span class="el_source">ProjectResourceLoader.java</span></div><h1>ProjectResourceLoader.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.resource.loader;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+
+import org.apache.commons.collections.ExtendedProperties;
+import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.runtime.resource.Resource;
+import org.apache.velocity.runtime.resource.loader.ResourceLoader;
+import org.apache.velocity.util.StringUtils;
+
+/**
+ * Resource Loader for external projects.
+ * 
+ * @version $Id$
+ */
+<span class="fc" id="L42">public class ProjectResourceLoader</span>
+    extends ResourceLoader
+{
+    /**
+     * The paths to search for templates.
+     */
+<span class="fc" id="L48">    private List&lt;String&gt; paths = null;</span>
+
+    /**
+     * Used to map the path that a template was found on so that we can properly check the modification times of the
+     * files.
+     */
+<span class="fc" id="L54">    private Hashtable&lt;String, String&gt; templatePaths = new Hashtable&lt;String, String&gt;();</span>
+
+    public void init( ExtendedProperties configuration )
+    {
+<span class="fc" id="L58">        rsvc.getLog().info( &quot;ProjectResourceLoader : initialization starting.&quot; );</span>
+
+<span class="fc" id="L60">        String separator = System.getProperty( &quot;file.separator&quot; );</span>
+
+<span class="fc" id="L62">        String path = System.getProperty( &quot;user.dir&quot; ) + separator + &quot;src&quot; + separator + &quot;main&quot; + separator</span>
+            + &quot;resources&quot; + separator;
+
+<span class="fc" id="L65">        rsvc.getLog().info( &quot;path :&quot; + path );</span>
+
+<span class="fc" id="L67">        paths = new ArrayList&lt;String&gt;();</span>
+
+<span class="fc" id="L69">        paths.add( path );</span>
+
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for ( String path1 : paths )</span>
+        {
+<span class="fc" id="L73">            rsvc.getLog().info( &quot;ProjectResourceLoader : adding path '&quot; + path1 + &quot;'&quot; );</span>
+<span class="fc" id="L74">        }</span>
+<span class="fc" id="L75">        rsvc.getLog().info( &quot;ProjectResourceLoader : initialization complete.&quot; );</span>
+<span class="fc" id="L76">    }</span>
+
+    /**
+     * Get an InputStream so that the Runtime can build a template with it.
+     *
+     * @param templateName name of template to get
+     * @return InputStream containing the template
+     * @throws ResourceNotFoundException if template not found in the file template path.
+     */
+    public synchronized InputStream getResourceStream( String templateName )
+        throws ResourceNotFoundException
+    {
+        /*
+         * Make sure we have a valid templateName.
+         */
+<span class="pc bpc" id="L91" title="2 of 4 branches missed.">        if ( templateName == null || templateName.length() == 0 )</span>
+        {
+            /*
+             * If we don't get a properly formed templateName then there's not much we can do. So we'll forget about
+             * trying to search any more paths for the template.
+             */
+<span class="nc" id="L97">            throw new ResourceNotFoundException( &quot;Need to specify a file name or file path!&quot; );</span>
+        }
+
+<span class="fc" id="L100">        String template = StringUtils.normalizePath( templateName );</span>
+<span class="pc bpc" id="L101" title="2 of 4 branches missed.">        if ( template == null || template.length() == 0 )</span>
+        {
+<span class="nc" id="L103">            String msg = &quot;Project Resource loader error : argument &quot; + template</span>
+                + &quot; contains .. and may be trying to access &quot; + &quot;content outside of template root.  Rejected.&quot;;
+
+<span class="nc" id="L106">            rsvc.getLog().error( &quot;ProjectResourceLoader : &quot; + msg );</span>
+
+<span class="nc" id="L108">            throw new ResourceNotFoundException( msg );</span>
+        }
+
+        /*
+         * if a / leads off, then just nip that :)
+         */
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if ( template.startsWith( &quot;/&quot; ) )</span>
+        {
+<span class="fc" id="L116">            template = template.substring( 1 );</span>
+        }
+
+        // MCHANGES-118 adding the basedir path
+<span class="fc" id="L120">        paths.add( (String) rsvc.getApplicationAttribute( &quot;baseDirectory&quot; ) );</span>
+
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        for ( String path : paths )</span>
+        {
+<span class="fc" id="L124">            InputStream inputStream = findTemplate( path, template );</span>
+
+<span class="fc bfc" id="L126" title="All 2 branches covered.">            if ( inputStream != null )</span>
+            {
+                /*
+                 * Store the path that this template came from so that we can check its modification time.
+                 */
+
+<span class="fc" id="L132">                templatePaths.put( templateName, path );</span>
+<span class="fc" id="L133">                return inputStream;</span>
+            }
+<span class="fc" id="L135">        }</span>
+
+        /*
+         * We have now searched all the paths for templates and we didn't find anything so throw an exception.
+         */
+<span class="nc" id="L140">        String msg = &quot;ProjectResourceLoader Error: cannot find resource &quot; + template;</span>
+
+<span class="nc" id="L142">        throw new ResourceNotFoundException( msg );</span>
+    }
+
+    /**
+     * Try to find a template given a normalized path.
+     * 
+     * @param path a normalized path
+     * @return InputStream input stream that will be parsed
+     */
+    private InputStream findTemplate( String path, String template )
+    {
+        try
+        {
+<span class="fc" id="L155">            File file = new File( path, template );</span>
+
+<span class="fc bfc" id="L157" title="All 2 branches covered.">            if ( file.canRead() )</span>
+            {
+<span class="fc" id="L159">                return new BufferedInputStream( new FileInputStream( file.getAbsolutePath() ) );</span>
+            }
+            else
+            {
+<span class="fc" id="L163">                return null;</span>
+            }
+        }
+<span class="nc" id="L166">        catch ( FileNotFoundException fnfe )</span>
+        {
+            /*
+             * log and convert to a general Velocity ResourceNotFoundException
+             */
+<span class="nc" id="L171">            return null;</span>
+        }
+    }
+
+    /**
+     * How to keep track of all the modified times across the paths. Note that a file might have appeared in a directory
+     * which is earlier in the path; so we should search the path and see if the file we find that way is the same as
+     * the one that we have cached.
+     */
+    public boolean isSourceModified( Resource resource )
+    {
+        /*
+         * we assume that the file needs to be reloaded; if we find the original file and it's unchanged, then we'll
+         * flip this.
+         */
+<span class="nc" id="L186">        boolean modified = true;</span>
+
+<span class="nc" id="L188">        String fileName = resource.getName();</span>
+<span class="nc" id="L189">        String path = templatePaths.get( fileName );</span>
+<span class="nc" id="L190">        File currentFile = null;</span>
+
+<span class="nc bnc" id="L192" title="All 4 branches missed.">        for ( int i = 0; currentFile == null &amp;&amp; i &lt; paths.size(); i++ )</span>
+        {
+<span class="nc" id="L194">            String testPath = paths.get( i );</span>
+<span class="nc" id="L195">            File testFile = new File( testPath, fileName );</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            if ( testFile.canRead() )</span>
+            {
+<span class="nc" id="L198">                currentFile = testFile;</span>
+            }
+        }
+<span class="nc" id="L201">        File file = new File( path, fileName );</span>
+<span class="nc bnc" id="L202" title="All 4 branches missed.">        if ( currentFile == null || !file.exists() )</span>
+        {
+            /*
+             * noop: if the file is missing now (either the cached file is gone, or the file can no longer be found)
+             * then we leave modified alone (it's set to true); a reload attempt will be done, which will either use a
+             * new template or fail with an appropriate message about how the file couldn't be found.
+             */
+        }
+<span class="nc bnc" id="L210" title="All 4 branches missed.">        else if ( currentFile.equals( file ) &amp;&amp; file.canRead() )</span>
+        {
+            /*
+             * if only if currentFile is the same as file and file.lastModified() is the same as
+             * resource.getLastModified(), then we should use the cached version.
+             */
+<span class="nc bnc" id="L216" title="All 2 branches missed.">            modified = ( file.lastModified() != resource.getLastModified() );</span>
+        }
+
+        /*
+         * rsvc.debug(&quot;isSourceModified for &quot; + fileName + &quot;: &quot; + modified);
+         */
+<span class="nc" id="L222">        return modified;</span>
+    }
+
+    public long getLastModified( Resource resource )
+    {
+<span class="fc" id="L227">        String path = templatePaths.get( resource.getName() );</span>
+<span class="fc" id="L228">        File file = new File( path, resource.getName() );</span>
+
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">        if ( file.canRead() )</span>
+        {
+<span class="fc" id="L232">            return file.lastModified();</span>
+        }
+        else
+        {
+<span class="nc" id="L236">            return 0;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

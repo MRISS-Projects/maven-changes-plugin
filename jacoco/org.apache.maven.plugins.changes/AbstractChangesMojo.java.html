@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractChangesMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.changes</a> &gt; <span class="el_source">AbstractChangesMojo.java</span></div><h1>AbstractChangesMojo.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.changes;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugins.annotations.Parameter;
+
+/**
+ * Abstract superclass for announcement mojos.
+ *
+ * @version $Id$
+ * @since 2.9
+ */
+<span class="fc" id="L32">public abstract class AbstractChangesMojo</span>
+    extends AbstractMojo
+{
+    /**
+     * The current project base directory.
+     *
+     * @since 2.1
+     */
+    @Parameter( property = &quot;basedir&quot;, required = true )
+    protected String basedir;
+
+    /**
+     * The Maven Session.
+     *
+     * @since 2.3
+     */
+    @Parameter( defaultValue = &quot;${session}&quot;, readonly = true, required = true )
+    protected MavenSession mavenSession;
+
+    /**
+     * This will cause the execution to be run only at the top of a given module tree. That is, run in the project
+     * contained in the same folder where the mvn execution was launched.
+     *
+     * @since 2.9
+     */
+    @Parameter( property = &quot;changes.runOnlyAtExecutionRoot&quot;, defaultValue = &quot;false&quot; )
+    protected boolean runOnlyAtExecutionRoot;
+
+    /**
+     * Returns &lt;code&gt;true&lt;/code&gt; if the current project is located at the Execution Root Directory (where mvn was
+     * launched).
+     *
+     * @return &lt;code&gt;true&lt;/code&gt; if the current project is at the Execution Root
+     */
+    protected boolean isThisTheExecutionRoot()
+    {
+<span class="nc" id="L68">        getLog().debug( &quot;Root Folder:&quot; + mavenSession.getExecutionRootDirectory() );</span>
+<span class="nc" id="L69">        getLog().debug( &quot;Current Folder:&quot; + basedir );</span>
+<span class="nc" id="L70">        boolean result = mavenSession.getExecutionRootDirectory().equalsIgnoreCase( basedir );</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if ( result )</span>
+        {
+<span class="nc" id="L73">            getLog().debug( &quot;This is the execution root.&quot; );</span>
+        }
+        else
+        {
+<span class="nc" id="L77">            getLog().debug( &quot;This is NOT the execution root.&quot; );</span>
+        }
+<span class="nc" id="L79">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

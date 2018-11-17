@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChangesValidatorMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.changes</a> &gt; <span class="el_source">ChangesValidatorMojo.java</span></div><h1>ChangesValidatorMojo.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.changes;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.File;
+import java.util.List;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.changes.schema.ChangesSchemaValidator;
+import org.apache.maven.plugins.changes.schema.SchemaValidatorException;
+import org.apache.maven.plugins.changes.schema.XmlValidationHandler;
+import org.xml.sax.SAXParseException;
+
+/**
+ * Goal which validate the &lt;code&gt;changes.xml&lt;/code&gt; file.
+ * 
+ * @author Olivier Lamy
+ * @version $Id$
+ * @since 2.1
+ */
+@Mojo( name = &quot;changes-validate&quot;, threadSafe = true )
+<span class="fc" id="L43">public class ChangesValidatorMojo</span>
+    extends AbstractChangesMojo
+{
+
+    /**
+     */
+    @Component( role = ChangesSchemaValidator.class, hint = &quot;default&quot; )
+    private ChangesSchemaValidator changesSchemaValidator;
+
+    /**
+     * The changes xsd version.
+     */
+    @Parameter( property = &quot;changes.xsdVersion&quot;, defaultValue = &quot;1.0.0&quot; )
+    private String changesXsdVersion;
+
+    /**
+     * Mojo failure if validation failed. If not and validation failed only a warning will be logged.
+     */
+    @Parameter( property = &quot;changes.validate.failed&quot;, defaultValue = &quot;false&quot; )
+    private boolean failOnError;
+
+    /**
+     * The path of the &lt;code&gt;changes.xml&lt;/code&gt; file that will be converted into an HTML report.
+     */
+    @Parameter( property = &quot;changes.xmlPath&quot;, defaultValue = &quot;src/changes/changes.xml&quot; )
+    private File xmlPath;
+
+    /**
+     * @see org.apache.maven.plugin.Mojo#execute()
+     */
+    public void execute()
+        throws MojoExecutionException, MojoFailureException
+    {
+        // Run only at the execution root
+<span class="pc bpc" id="L77" title="3 of 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+        {
+<span class="nc" id="L79">            getLog().info( &quot;Skipping the changes validate in this project because it's not the Execution Root&quot; );</span>
+        }
+        else
+        {
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">            if ( !xmlPath.exists() )</span>
+            {
+<span class="nc" id="L85">                getLog().warn( &quot;changes.xml file &quot; + xmlPath.getAbsolutePath() + &quot; does not exist.&quot; );</span>
+<span class="nc" id="L86">                return;</span>
+            }
+
+            try
+            {
+<span class="fc" id="L91">                XmlValidationHandler xmlValidationHandler =</span>
+<span class="fc" id="L92">                    changesSchemaValidator.validateXmlWithSchema( xmlPath, changesXsdVersion, failOnError );</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">                boolean hasErrors = !xmlValidationHandler.getErrors().isEmpty();</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">                if ( hasErrors )</span>
+                {
+<span class="fc" id="L96">                    logSchemaValidation( xmlValidationHandler.getErrors() );</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">                    if ( failOnError )</span>
+                    {
+<span class="nc" id="L99">                        throw new MojoExecutionException( &quot;changes.xml file &quot; + xmlPath.getAbsolutePath()</span>
+                            + &quot; is not valid, see previous errors.&quot; );
+                    }
+                    else
+                    {
+<span class="fc" id="L104">                        getLog().info( &quot; skip previous validation errors due to failOnError=false.&quot; );</span>
+                    }
+                }
+            }
+<span class="fc" id="L108">            catch ( SchemaValidatorException e )</span>
+            {
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                if ( failOnError )</span>
+                {
+<span class="fc" id="L112">                    throw new MojoExecutionException( &quot;failed to validate changes.xml file &quot; + xmlPath.getAbsolutePath()</span>
+<span class="fc" id="L113">                        + &quot;: &quot; + e.getMessage(), e );</span>
+                }
+<span class="fc" id="L115">            }</span>
+        }
+<span class="fc" id="L117">    }</span>
+
+    private void logSchemaValidation( List&lt;SAXParseException&gt; errors )
+    {
+<span class="fc" id="L121">        getLog().warn( &quot;failed to validate changes.xml file &quot; + xmlPath.getAbsolutePath() );</span>
+<span class="fc" id="L122">        getLog().warn( &quot;validation errors: &quot; );</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for ( SAXParseException error : errors )</span>
+        {
+<span class="fc" id="L125">            getLog().warn( error.getMessage() );</span>
+<span class="fc" id="L126">        }</span>
+<span class="fc" id="L127">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

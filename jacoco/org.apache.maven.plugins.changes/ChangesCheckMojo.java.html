@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChangesCheckMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.changes</a> &gt; <span class="el_source">ChangesCheckMojo.java</span></div><h1>ChangesCheckMojo.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.changes;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.changes.model.Release;
+
+/**
+ * Goal which checks that the changes.xml file has the necessary data to generate an announcement or a report for the
+ * current release.
+ *
+ * @author Justin Edelson
+ * @author Dennis Lundberg
+ * @since 2.4
+ */
+@Mojo( name = &quot;changes-check&quot;, threadSafe = true )
+<span class="nc" id="L42">public class ChangesCheckMojo</span>
+    extends AbstractChangesMojo
+{
+    /**
+     * The format that a correct release date should have. This value will be used as a pattern to try to parse a date.
+     */
+    @Parameter( property = &quot;changes.releaseDateFormat&quot;, defaultValue = &quot;yyyy-MM-dd&quot; )
+    private String releaseDateFormat;
+
+    /**
+     * The locale that a correct release date should have. This value will be used as a locale to try to parse a date.
+     *
+     * @since 2.10
+     */
+    @Parameter( property = &quot;changes.releaseDateLocale&quot; )
+    private String releaseDateLocale;
+
+    /**
+     * Version of the artifact.
+     */
+    @Parameter( property = &quot;changes.version&quot;, defaultValue = &quot;${project.version}&quot;, required = true )
+    private String version;
+
+    /**
+     * The path of the &lt;code&gt;changes.xml&lt;/code&gt; file that will be checked.
+     */
+    @Parameter( property = &quot;changes.xmlPath&quot;, defaultValue = &quot;src/changes/changes.xml&quot; )
+    private File xmlPath;
+
+    /**
+     * Flag controlling snapshot processing. If set, versions ending with &lt;code&gt;-SNAPSHOT&lt;/code&gt; won't be checked.
+     *
+     * @since 2.7
+     */
+    @Parameter( property = &quot;changes.skipSnapshots&quot;, defaultValue = &quot;false&quot; )
+    private boolean skipSnapshots;
+    
+    /***
+     * If &quot;-SNAPSHOT&quot; suffix should be removed when searching for issues.
+     * 
+     * @since 2.12.3
+     */
+    @Parameter( property = &quot;changes.removeSnapshotSuffix&quot;, defaultValue = &quot;true&quot; )
+    private boolean removeSnapshotSuffix;    
+
+    /**
+     * Check that the latest release contains a valid release date.
+     *
+     * @throws MojoExecutionException in case of errors.
+     */
+    public void execute()
+        throws MojoExecutionException
+    {
+        // Run only at the execution root
+<span class="nc bnc" id="L96" title="All 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+        {
+<span class="nc" id="L98">            getLog().info( &quot;Skipping the changes check in this project because it's not the Execution Root&quot; );</span>
+        }
+        else
+        {
+<span class="nc bnc" id="L102" title="All 4 branches missed.">            if ( this.version.endsWith( &quot;-SNAPSHOT&quot; ) &amp;&amp; this.skipSnapshots )</span>
+            {
+<span class="nc" id="L104">                getLog().info( &quot;Skipping snapshot version '&quot; + this.version + &quot;'.&quot; );</span>
+            }
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            else if ( xmlPath.exists() )</span>
+            {
+<span class="nc" id="L108">                ChangesXML xml = new ChangesXML( xmlPath, getLog() );</span>
+<span class="nc" id="L109">                ReleaseUtils releaseUtils = new ReleaseUtils( getLog() );</span>
+<span class="nc" id="L110">                Release release =</span>
+<span class="nc" id="L111">                    releaseUtils.getLatestRelease( releaseUtils.convertReleaseList( xml.getReleaseList() ), version, </span>
+                       removeSnapshotSuffix );
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                if ( !isValidDate( release.getDateRelease(), releaseDateFormat, releaseDateLocale ) )</span>
+                {
+<span class="nc" id="L116">                    throw new MojoExecutionException( &quot;The file &quot; + xmlPath.getAbsolutePath()</span>
+                        + &quot; has an invalid release date.&quot; );
+
+                }
+<span class="nc" id="L120">            }</span>
+            else
+            {
+<span class="nc" id="L123">                getLog().warn( &quot;The file &quot; + xmlPath.getAbsolutePath() + &quot; does not exist.&quot; );</span>
+            }
+        }
+<span class="nc" id="L126">    }</span>
+
+    /**
+     * Use the pattern to try to parse a Date from the given string. Kept for backward compatibility with existing unit
+     * tests.
+     *
+     * @param string A date as text
+     * @param pattern A pattern that can be used by {@link SimpleDateFormat}
+     * @return &lt;code&gt;true&lt;/code&gt; if the string can be parsed as a date using the pattern, otherwise &lt;code&gt;false&lt;/code&gt;
+     */
+    protected static boolean isValidDate( String string, String pattern )
+    {
+<span class="fc" id="L138">        return isValidDate( string, pattern, null );</span>
+    }
+
+    /**
+     * Use the pattern to try to parse a Date from the given string using the given Locale.
+     *
+     * @param string A date as text
+     * @param pattern A pattern that can be used by {@link SimpleDateFormat}
+     * @param locale A locale that can be used by {@link SimpleDateFormat}
+     * @return &lt;code&gt;true&lt;/code&gt; if the string can be parsed as a date using the pattern, otherwise &lt;code&gt;false&lt;/code&gt;
+     */
+    protected static boolean isValidDate( String string, String pattern, String locale )
+    {
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if ( StringUtils.isEmpty( string ) )</span>
+        {
+<span class="fc" id="L153">            return false;</span>
+        }
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        if ( StringUtils.isEmpty( pattern ) )</span>
+        {
+<span class="fc" id="L158">            return false;</span>
+        }
+
+        try
+        {
+<span class="fc" id="L163">            Locale usedLocale = null;</span>
+
+<span class="fc bfc" id="L165" title="All 2 branches covered.">            if ( StringUtils.isEmpty( locale ) )</span>
+            {
+                // No locale specified, use the default locale as default value
+                // The same behavior as before the locale parameter was added
+<span class="fc" id="L169">                usedLocale = Locale.getDefault();</span>
+            }
+            else
+            {
+                // Try to find the specified locale on this system
+<span class="fc" id="L174">                Locale[] locales = Locale.getAvailableLocales();</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">                for ( int i = 0; i &lt; locales.length; i++ )</span>
+                {
+<span class="fc bfc" id="L177" title="All 2 branches covered.">                    if ( locales[i].toString().equals( locale ) )</span>
+                    {
+<span class="fc" id="L179">                        usedLocale = locales[i];</span>
+<span class="fc" id="L180">                        break;</span>
+                    }
+                }
+
+<span class="fc bfc" id="L184" title="All 2 branches covered.">                if ( usedLocale == null )</span>
+                {
+                    // The use specified locale was not found on this system,
+                    // use the default locale as default value
+<span class="fc" id="L188">                    usedLocale = Locale.getDefault();</span>
+                }
+            }
+
+<span class="fc" id="L192">            SimpleDateFormat df = new SimpleDateFormat( pattern, usedLocale );</span>
+<span class="fc" id="L193">            df.parse( string );</span>
+<span class="fc" id="L194">            return true;</span>
+        }
+<span class="fc" id="L196">        catch ( ParseException e )</span>
+        {
+<span class="fc" id="L198">            return false;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

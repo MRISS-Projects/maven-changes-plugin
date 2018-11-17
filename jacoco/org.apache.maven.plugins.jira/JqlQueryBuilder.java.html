@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JqlQueryBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.jira</a> &gt; <span class="el_source">JqlQueryBuilder.java</span></div><h1>JqlQueryBuilder.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.jira;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.Locale;
+
+import org.apache.maven.plugin.logging.Log;
+
+/**
+ * Builder for a JIRA query using the JIRA query language. Only a limited set of JQL is supported.
+ *
+ * @author ton.swieb@finalist.com
+ * @version $Id$
+ * @since 2.8
+ */
+public class JqlQueryBuilder
+    implements JiraQueryBuilder
+{
+<span class="fc" id="L39">    private String filter = &quot;&quot;;</span>
+
+<span class="fc" id="L41">    private boolean urlEncode = true;</span>
+
+    /**
+     * Log for debug output.
+     */
+    private Log log;
+
+<span class="fc" id="L48">    private StringBuilder orderBy = new StringBuilder();</span>
+
+<span class="fc" id="L50">    private StringBuilder query = new StringBuilder();</span>
+
+    public JqlQueryBuilder( Log log )
+<span class="fc" id="L53">    {</span>
+<span class="fc" id="L54">        this.log = log;</span>
+<span class="fc" id="L55">    }</span>
+
+    public String build()
+    {
+        try
+        {
+            String jqlQuery;
+            // If the user has defined a filter - use that
+<span class="pc bpc" id="L63" title="2 of 4 branches missed.">            if ( ( this.filter != null ) &amp;&amp; ( this.filter.length() &gt; 0 ) )</span>
+            {
+<span class="nc" id="L65">                jqlQuery = filter;</span>
+            }
+            else
+            {
+<span class="fc" id="L69">                jqlQuery = query.toString() + orderBy.toString();</span>
+            }
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">            if ( urlEncode )</span>
+            {
+<span class="fc" id="L74">                getLog().debug( &quot;Encoding JQL query &quot; + jqlQuery );</span>
+<span class="fc" id="L75">                String encodedQuery = URLEncoder.encode( jqlQuery, &quot;UTF-8&quot; );</span>
+<span class="fc" id="L76">                getLog().debug( &quot;Encoded JQL query &quot; + encodedQuery );</span>
+<span class="fc" id="L77">                return encodedQuery;</span>
+            }
+            else
+            {
+<span class="nc" id="L81">                return jqlQuery;</span>
+            }
+        }
+<span class="nc" id="L84">        catch ( UnsupportedEncodingException e )</span>
+        {
+<span class="nc" id="L86">            getLog().error( &quot;Unable to encode JQL query with UTF-8&quot;, e );</span>
+<span class="nc" id="L87">            throw new RuntimeException( e );</span>
+        }
+    }
+
+    public JiraQueryBuilder components( String components )
+    {
+<span class="nc" id="L93">        addCommaSeparatedValues( &quot;component&quot;, components );</span>
+<span class="nc" id="L94">        return this;</span>
+    }
+
+    public JiraQueryBuilder components( List&lt;String&gt; components )
+    {
+<span class="nc" id="L99">        addValues( &quot;component&quot;, components );</span>
+<span class="nc" id="L100">        return this;</span>
+    }
+
+    public JiraQueryBuilder filter( String filter )
+    {
+<span class="nc" id="L105">        this.filter = filter;</span>
+<span class="nc" id="L106">        return this;</span>
+    }
+
+    /**
+     * When both {@link #fixVersion(String)} and {@link #fixVersionIds(String)} are used then you will probably end up
+     * with a JQL query that is valid, but returns nothing. Unless they both only reference the same fixVersion
+     *
+     * @param fixVersion a single fix version
+     * @return the builder.
+     */
+    public JiraQueryBuilder fixVersion( String fixVersion )
+    {
+<span class="fc" id="L118">        addSingleValue( &quot;fixVersion&quot;, fixVersion );</span>
+<span class="fc" id="L119">        return this;</span>
+    }
+
+    /**
+     * When both {@link #fixVersion(String)} and {@link #fixVersionIds(String)} are used then you will probably end up
+     * with a JQL query that is valid, but returns nothing. Unless they both only reference the same fixVersion
+     *
+     * @param fixVersionIds a comma-separated list of version ids.
+     * @return the builder.
+     */
+    public JiraQueryBuilder fixVersionIds( String fixVersionIds )
+    {
+<span class="nc" id="L131">        addCommaSeparatedValues( &quot;fixVersion&quot;, fixVersionIds );</span>
+<span class="nc" id="L132">        return this;</span>
+    }
+
+    /**
+     * Add a sequence of version IDs already in a list.
+     * 
+     * @param fixVersionIds the version ids.
+     * @return the builder.
+     */
+    public JiraQueryBuilder fixVersionIds( List&lt;String&gt; fixVersionIds )
+    {
+<span class="nc" id="L143">        addValues( &quot;fixVersion&quot;, fixVersionIds );</span>
+<span class="nc" id="L144">        return this;</span>
+    }
+
+    public Log getLog()
+    {
+<span class="fc" id="L149">        return log;</span>
+    }
+
+    public JiraQueryBuilder priorityIds( String priorityIds )
+    {
+<span class="fc" id="L154">        addCommaSeparatedValues( &quot;priority&quot;, priorityIds );</span>
+<span class="fc" id="L155">        return this;</span>
+    }
+
+    public JiraQueryBuilder priorityIds( List&lt;String&gt; priorityIds )
+    {
+<span class="nc" id="L160">        addValues( &quot;priority&quot;, priorityIds );</span>
+<span class="nc" id="L161">        return this;</span>
+    }
+
+    public JiraQueryBuilder project( String project )
+    {
+<span class="fc" id="L166">        addSingleValue( &quot;project&quot;, project );</span>
+<span class="fc" id="L167">        return this;</span>
+    }
+
+    public JiraQueryBuilder resolutionIds( String resolutionIds )
+    {
+<span class="nc" id="L172">        addCommaSeparatedValues( &quot;resolution&quot;, resolutionIds );</span>
+<span class="nc" id="L173">        return this;</span>
+    }
+
+    public JiraQueryBuilder resolutionIds( List&lt;String&gt; resolutionIds )
+    {
+<span class="nc" id="L178">        addValues( &quot;resolution&quot;, resolutionIds );</span>
+<span class="nc" id="L179">        return this;</span>
+    }
+
+    public JiraQueryBuilder sortColumnNames( String sortColumnNames )
+    {
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">        if ( sortColumnNames != null )</span>
+        {
+<span class="fc" id="L186">            orderBy.append( &quot; ORDER BY &quot; );</span>
+
+<span class="fc" id="L188">            String[] sortColumnNamesArray = sortColumnNames.split( &quot;,&quot; );</span>
+
+<span class="fc bfc" id="L190" title="All 2 branches covered.">            for ( int i = 0; i &lt; sortColumnNamesArray.length - 1; i++ )</span>
+            {
+<span class="fc" id="L192">                addSingleSortColumn( sortColumnNamesArray[i] );</span>
+<span class="fc" id="L193">                orderBy.append( &quot;, &quot; );</span>
+            }
+<span class="fc" id="L195">            addSingleSortColumn( sortColumnNamesArray[sortColumnNamesArray.length - 1] );</span>
+        }
+<span class="fc" id="L197">        return this;</span>
+    }
+
+    public JiraQueryBuilder statusIds( String statusIds )
+    {
+<span class="fc" id="L202">        addCommaSeparatedValues( &quot;status&quot;, statusIds );</span>
+<span class="fc" id="L203">        return this;</span>
+    }
+
+    public JiraQueryBuilder statusIds( List&lt;String&gt; statusIds )
+    {
+<span class="nc" id="L208">        addValues( &quot;status&quot;, statusIds );</span>
+<span class="nc" id="L209">        return this;</span>
+    }
+
+    public JiraQueryBuilder typeIds( String typeIds )
+    {
+<span class="nc" id="L214">        addCommaSeparatedValues( &quot;type&quot;, typeIds );</span>
+<span class="nc" id="L215">        return this;</span>
+    }
+
+    public JiraQueryBuilder typeIds( List&lt;String&gt; typeIds )
+    {
+<span class="nc" id="L220">        addValues( &quot;type&quot;, typeIds );</span>
+<span class="nc" id="L221">        return this;</span>
+    }
+
+    public JiraQueryBuilder urlEncode( boolean doEncoding )
+    {
+<span class="nc" id="L226">        urlEncode = doEncoding;</span>
+<span class="nc" id="L227">        return this;</span>
+    }
+
+    public boolean urlEncode()
+    {
+<span class="nc" id="L232">        return urlEncode;</span>
+    }
+
+    /* --------------------------------------------------------------------- */
+    /* Private methods */
+    /* --------------------------------------------------------------------- */
+
+    private void addCommaSeparatedValues( String key, String values )
+    {
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">        if ( values != null )</span>
+        {
+<span class="fc bfc" id="L243" title="All 2 branches covered.">            if ( query.length() &gt; 0 )</span>
+            {
+<span class="fc" id="L245">                query.append( &quot; AND &quot; );</span>
+            }
+
+<span class="fc" id="L248">            query.append( key ).append( &quot; in (&quot; );</span>
+
+<span class="fc" id="L250">            String[] valuesArr = values.split( &quot;,&quot; );</span>
+
+<span class="fc bfc" id="L252" title="All 2 branches covered.">            for ( int i = 0; i &lt; ( valuesArr.length - 1 ); i++ )</span>
+            {
+<span class="fc" id="L254">                trimAndQuoteValue( valuesArr[i] );</span>
+<span class="fc" id="L255">                query.append( &quot;, &quot; );</span>
+            }
+<span class="fc" id="L257">            trimAndQuoteValue( valuesArr[valuesArr.length - 1] );</span>
+<span class="fc" id="L258">            query.append( &quot;)&quot; );</span>
+        }
+<span class="fc" id="L260">    }</span>
+
+    private void addValues( String key, List&lt;String&gt; values )
+    {
+<span class="nc bnc" id="L264" title="All 4 branches missed.">        if ( values != null &amp;&amp; values.size() &gt; 0 )</span>
+        {
+<span class="nc bnc" id="L266" title="All 2 branches missed.">            if ( query.length() &gt; 0 )</span>
+            {
+<span class="nc" id="L268">                query.append( &quot; AND &quot; );</span>
+            }
+
+<span class="nc" id="L271">            query.append( key ).append( &quot; in (&quot; );</span>
+
+<span class="nc bnc" id="L273" title="All 2 branches missed.">            for ( int i = 0; i &lt; ( values.size() - 1 ); i++ )</span>
+            {
+<span class="nc" id="L275">                trimAndQuoteValue( values.get( i ) );</span>
+<span class="nc" id="L276">                query.append( &quot;, &quot; );</span>
+            }
+<span class="nc" id="L278">            trimAndQuoteValue( values.get( values.size() - 1 ) );</span>
+<span class="nc" id="L279">            query.append( &quot;)&quot; );</span>
+        }
+<span class="nc" id="L281">    }</span>
+
+    private void addSingleSortColumn( String name )
+    {
+<span class="fc" id="L285">        boolean descending = false;</span>
+<span class="fc" id="L286">        name = name.trim().toLowerCase( Locale.ENGLISH );</span>
+<span class="fc bfc" id="L287" title="All 2 branches covered.">        if ( name.endsWith( &quot;desc&quot; ) )</span>
+        {
+<span class="fc" id="L289">            descending = true;</span>
+<span class="fc" id="L290">            name = name.substring( 0, name.length() - 4 ).trim();</span>
+        }
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        else if ( name.endsWith( &quot;asc&quot; ) )</span>
+        {
+<span class="fc" id="L294">            descending = false;</span>
+<span class="fc" id="L295">            name = name.substring( 0, name.length() - 3 ).trim();</span>
+        }
+        // Strip any spaces from the column name, or it will trip up JIRA's JQL parser
+<span class="fc" id="L298">        name = name.replaceAll( &quot; &quot;, &quot;&quot; );</span>
+<span class="fc" id="L299">        orderBy.append( name );</span>
+<span class="fc bfc" id="L300" title="All 2 branches covered.">        orderBy.append( descending ? &quot; DESC&quot; : &quot; ASC&quot; );</span>
+<span class="fc" id="L301">    }</span>
+
+    private void addSingleValue( String key, String value )
+    {
+<span class="pc bpc" id="L305" title="1 of 2 branches missed.">        if ( value != null )</span>
+        {
+<span class="fc bfc" id="L307" title="All 2 branches covered.">            if ( query.length() &gt; 0 )</span>
+            {
+<span class="fc" id="L309">                query.append( &quot; AND &quot; );</span>
+            }
+<span class="fc" id="L311">            query.append( key ).append( &quot; = &quot; );</span>
+<span class="fc" id="L312">            trimAndQuoteValue( value );</span>
+        }
+<span class="fc" id="L314">    }</span>
+
+    private void trimAndQuoteValue( String value )
+    {
+<span class="fc" id="L318">        String trimmedValue = value.trim();</span>
+<span class="fc bfc" id="L319" title="All 4 branches covered.">        if ( trimmedValue.contains( &quot; &quot; ) || trimmedValue.contains( &quot;.&quot; ) )</span>
+        {
+<span class="fc" id="L321">            query.append( &quot;\&quot;&quot; ).append( trimmedValue ).append( &quot;\&quot;&quot; );</span>
+        }
+        else
+        {
+<span class="fc" id="L325">            query.append( trimmedValue );</span>
+        }
+<span class="fc" id="L327">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

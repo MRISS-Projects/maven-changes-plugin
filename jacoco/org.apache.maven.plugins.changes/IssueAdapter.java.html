@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IssueAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.changes</a> &gt; <span class="el_source">IssueAdapter.java</span></div><h1>IssueAdapter.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.changes;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.maven.plugins.changes.model.Action;
+import org.apache.maven.plugins.changes.model.Release;
+import org.apache.maven.plugins.issues.Issue;
+import org.apache.maven.plugins.issues.IssueManagementSystem;
+
+/**
+ * An adapter that can adapt data models from other issue management system to the data models used in the changes.xml
+ * file.
+ *
+ * @author Dennis Lundberg
+ * @version $Id$
+ * @since 2.4
+ */
+public class IssueAdapter
+{
+    private static final String UNKNOWN_ISSUE_TYPE = &quot;&quot;;
+
+    private IssueManagementSystem ims;
+
+    /**
+     * Create a new adapter.
+     *
+     * @param ims The issue management system that has the data that should be adapted
+     */
+    public IssueAdapter( IssueManagementSystem ims )
+<span class="fc" id="L52">    {</span>
+<span class="fc" id="L53">        this.ims = ims;</span>
+<span class="fc" id="L54">    }</span>
+
+    private Map&lt;String, IssueType&gt; getIssueTypeMap()
+    {
+<span class="fc" id="L58">        return ims.getIssueTypeMap();</span>
+    }
+
+    /**
+     * Adapt a &lt;code&gt;List&lt;/code&gt; of &lt;code&gt;Issue&lt;/code&gt;s to a &lt;code&gt;List&lt;/code&gt; of &lt;code&gt;Release&lt;/code&gt;s.
+     *
+     * @param issues The issues
+     * @return A list of releases
+     */
+    public List&lt;Release&gt; getReleases( List&lt;Issue&gt; issues )
+    {
+        // A Map of releases keyed by fixVersion
+<span class="nc" id="L70">        Map&lt;String, Release&gt; releasesMap = new HashMap&lt;String, Release&gt;();</span>
+
+        // Loop through all issues looking for fixVersions
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        for ( Issue issue : issues )</span>
+        {
+            // Do NOT create a release for issues that lack a fixVersion
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if ( issue.getFixVersions() != null )</span>
+            {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                for ( String fixVersion : issue.getFixVersions() )</span>
+                {
+                    // Try to get a matching Release from the map
+<span class="nc" id="L81">                    Release release = releasesMap.get( fixVersion );</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                    if ( release == null )</span>
+                    {
+                        // Add a new Release to the Map if it wasn't there
+<span class="nc" id="L85">                        release = new Release();</span>
+<span class="nc" id="L86">                        release.setVersion( fixVersion );</span>
+<span class="nc" id="L87">                        releasesMap.put( fixVersion, release );</span>
+                    }
+
+                    // Add this issue as an Action to this release
+<span class="nc" id="L91">                    Action action = createAction( issue );</span>
+<span class="nc" id="L92">                    release.addAction( action );</span>
+<span class="nc" id="L93">                }</span>
+            }
+<span class="nc" id="L95">        }</span>
+
+        // Extract the releases from the Map to a List
+<span class="nc" id="L98">        List&lt;Release&gt; releasesList = new ArrayList&lt;Release&gt;();</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        for ( Release release : releasesMap.values() )</span>
+        {
+<span class="nc" id="L101">            releasesList.add( release );</span>
+<span class="nc" id="L102">        }</span>
+<span class="nc" id="L103">        return releasesList;</span>
+    }
+
+    /**
+     * Create an &lt;code&gt;Action&lt;/code&gt; from an issue.
+     *
+     * @param issue The issue to extract the information from
+     * @return An &lt;code&gt;Action&lt;/code&gt;
+     */
+    public Action createAction( Issue issue )
+    {
+<span class="fc" id="L114">        Action action = new Action();</span>
+
+        // @todo We need to add something like issue.getPresentationIdentifier() to be able to support other IMSes
+        // beside JIRA
+<span class="fc" id="L118">        action.setIssue( issue.getKey() );</span>
+
+        // Try to map the IMS-specific issue type to one that is used in a changes.xml file
+        IssueType type;
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if ( getIssueTypeMap().containsKey( issue.getType() ) )</span>
+        {
+<span class="fc" id="L124">            type = getIssueTypeMap().get( issue.getType() );</span>
+<span class="fc" id="L125">            action.setType( type.modelRepresentation() );</span>
+        }
+        else
+        {
+<span class="fc" id="L129">            action.setType( UNKNOWN_ISSUE_TYPE );</span>
+        }
+
+<span class="fc" id="L132">        action.setDev( issue.getAssignee() );</span>
+
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        action.setDueTo( issue.getReporter() == null ? &quot;&quot; : issue.getReporter() );</span>
+
+<span class="fc" id="L136">        action.setAction( issue.getSummary() );</span>
+<span class="fc" id="L137">        return action;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

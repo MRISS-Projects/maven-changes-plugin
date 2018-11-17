@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChangesReportGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.changes</a> &gt; <span class="el_source">ChangesReportGenerator.java</span></div><h1>ChangesReportGenerator.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.changes;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.doxia.sink.Sink;
+import org.apache.maven.doxia.sink.SinkEventAttributeSet;
+import org.apache.maven.doxia.sink.SinkEventAttributes;
+import org.apache.maven.doxia.util.HtmlTools;
+import org.apache.maven.plugins.changes.model.Action;
+import org.apache.maven.plugins.changes.model.Component;
+import org.apache.maven.plugins.changes.model.DueTo;
+import org.apache.maven.plugins.changes.model.FixedIssue;
+import org.apache.maven.plugins.changes.model.Release;
+import org.apache.maven.plugins.issues.AbstractIssuesReportGenerator;
+
+/**
+ * Generates a changes report.
+ *
+ * @version $Id$
+ */
+public class ChangesReportGenerator
+    extends AbstractIssuesReportGenerator
+{
+
+    /**
+     * The token in {@link #issueLinksPerSystem} denoting the base URL for the issue management.
+     */
+    private static final String URL_TOKEN = &quot;%URL%&quot;;
+
+    /**
+     * The token in {@link #issueLinksPerSystem} denoting the issue ID.
+     */
+    private static final String ISSUE_TOKEN = &quot;%ISSUE%&quot;;
+
+    static final String DEFAULT_ISSUE_SYSTEM_KEY = &quot;default&quot;;
+
+    private static final String NO_TEAMLIST = &quot;none&quot;;
+
+    /**
+     * The issue management system to use, for actions that do not specify a system.
+     *
+     * @since 2.4
+     */
+    private String system;
+
+    private String teamlist;
+
+    private String url;
+
+    private Map&lt;String, String&gt; issueLinksPerSystem;
+
+    private boolean addActionDate;
+
+    private boolean linkToFeed;
+
+    /**
+     * @since 2.4
+     */
+    private boolean escapeHTML;
+
+    /**
+     * @since 2.4
+     */
+    private List&lt;Release&gt; releaseList;
+
+    public ChangesReportGenerator()
+<span class="nc" id="L92">    {</span>
+<span class="nc" id="L93">        issueLinksPerSystem = new HashMap&lt;String, String&gt;();</span>
+<span class="nc" id="L94">    }</span>
+
+    public ChangesReportGenerator( List&lt;Release&gt; releaseList )
+    {
+<span class="nc" id="L98">        this();</span>
+<span class="nc" id="L99">        this.releaseList = releaseList;</span>
+<span class="nc" id="L100">    }</span>
+
+    public boolean isEscapeHTML()
+    {
+<span class="nc" id="L104">        return escapeHTML;</span>
+    }
+
+    public void setEscapeHTML( boolean escapeHTML )
+    {
+<span class="nc" id="L109">        this.escapeHTML = escapeHTML;</span>
+<span class="nc" id="L110">    }</span>
+
+    public String getSystem()
+    {
+<span class="nc" id="L114">        return system;</span>
+    }
+
+    public void setSystem( String system )
+    {
+<span class="nc" id="L119">        this.system = system;</span>
+<span class="nc" id="L120">    }</span>
+
+    public void setTeamlist( final String teamlist )
+    {
+<span class="nc" id="L124">        this.teamlist = teamlist;</span>
+<span class="nc" id="L125">    }</span>
+
+    public String getTeamlist()
+    {
+<span class="nc" id="L129">        return teamlist;</span>
+    }
+
+    public void setUrl( String url )
+    {
+<span class="nc" id="L134">        this.url = url;</span>
+<span class="nc" id="L135">    }</span>
+
+    public String getUrl()
+    {
+<span class="nc" id="L139">        return url;</span>
+    }
+
+    public Map&lt;String, String&gt; getIssueLinksPerSystem()
+    {
+<span class="nc" id="L144">        return issueLinksPerSystem;</span>
+    }
+
+    public void setIssueLinksPerSystem( Map&lt;String, String&gt; issueLinksPerSystem )
+    {
+<span class="nc bnc" id="L149" title="All 4 branches missed.">        if ( this.issueLinksPerSystem != null &amp;&amp; issueLinksPerSystem == null )</span>
+        {
+<span class="nc" id="L151">            return;</span>
+        }
+<span class="nc" id="L153">        this.issueLinksPerSystem = issueLinksPerSystem;</span>
+<span class="nc" id="L154">    }</span>
+
+    public boolean isAddActionDate()
+    {
+<span class="nc" id="L158">        return addActionDate;</span>
+    }
+
+    public void setAddActionDate( boolean addActionDate )
+    {
+<span class="nc" id="L163">        this.addActionDate = addActionDate;</span>
+<span class="nc" id="L164">    }</span>
+
+    public boolean isLinkToFeed()
+    {
+<span class="nc" id="L168">        return linkToFeed;</span>
+    }
+
+    public void setLinkToFeed( boolean generateLinkTofeed )
+    {
+<span class="nc" id="L173">        this.linkToFeed = generateLinkTofeed;</span>
+<span class="nc" id="L174">    }</span>
+
+    /**
+     * Checks whether links to the issues can be generated for the given system.
+     *
+     * @param system The issue management system
+     * @return &lt;code&gt;true&lt;/code&gt; if issue links can be generated, &lt;code&gt;false&lt;/code&gt; otherwise.
+     */
+    public boolean canGenerateIssueLinks( String system )
+    {
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        if ( !this.issueLinksPerSystem.containsKey( system ) )</span>
+        {
+<span class="nc" id="L186">            return false;</span>
+        }
+<span class="nc" id="L188">        String issueLink = this.issueLinksPerSystem.get( system );</span>
+
+        // If the issue link entry is blank then no links are possible
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if ( StringUtils.isBlank( issueLink ) )</span>
+        {
+<span class="nc" id="L193">            return false;</span>
+        }
+
+        // If the %URL% token is used then the issue management system URL must be set.
+<span class="nc bnc" id="L197" title="All 4 branches missed.">        if ( issueLink.contains( URL_TOKEN ) &amp;&amp; StringUtils.isBlank( getUrl() ) )</span>
+        {
+<span class="nc" id="L199">            return false;</span>
+        }
+<span class="nc" id="L201">        return true;</span>
+    }
+
+    public void doGenerateEmptyReport( ResourceBundle bundle, Sink sink, String message )
+    {
+<span class="nc" id="L206">        sinkBeginReport( sink, bundle );</span>
+
+<span class="nc" id="L208">        sink.text( message );</span>
+
+<span class="nc" id="L210">        sinkEndReport( sink );</span>
+<span class="nc" id="L211">    }</span>
+
+    public void doGenerateReport( ResourceBundle bundle, Sink sink )
+    {
+<span class="nc" id="L215">        sinkBeginReport( sink, bundle );</span>
+
+<span class="nc" id="L217">        constructReleaseHistory( sink, bundle, releaseList );</span>
+
+<span class="nc" id="L219">        constructReleases( sink, bundle, releaseList );</span>
+
+<span class="nc" id="L221">        sinkEndReport( sink );</span>
+<span class="nc" id="L222">    }</span>
+
+    /**
+     * Constructs table row for specified action with all calculated content (e.g. issue link).
+     *
+     * @param sink Sink
+     * @param bundle Resource bundle
+     * @param action Action to generate content for
+     */
+    private void constructAction( Sink sink, ResourceBundle bundle, Action action )
+    {
+<span class="nc" id="L233">        sink.tableRow();</span>
+
+<span class="nc" id="L235">        sinkShowTypeIcon( sink, action.getType() );</span>
+
+<span class="nc" id="L237">        sink.tableCell();</span>
+
+<span class="nc" id="L239">        String actionDescription = action.getAction();</span>
+
+<span class="nc bnc" id="L241" title="All 2 branches missed.">        if ( escapeHTML )</span>
+        {
+<span class="nc" id="L243">            sink.text( actionDescription );</span>
+        }
+        else
+        {
+<span class="nc" id="L247">            sink.rawText( actionDescription );</span>
+        }
+
+        // no null check needed classes from modello return a new ArrayList
+<span class="nc bnc" id="L251" title="All 4 branches missed.">        if ( StringUtils.isNotEmpty( action.getIssue() ) || ( !action.getFixedIssues().isEmpty() ) )</span>
+        {
+<span class="nc bnc" id="L253" title="All 4 branches missed.">            if ( StringUtils.isNotBlank( actionDescription ) &amp;&amp; !actionDescription.endsWith( &quot;.&quot; ) )</span>
+            {
+<span class="nc" id="L255">                sink.text( &quot;.&quot; );</span>
+            }
+<span class="nc" id="L257">            sink.text( &quot; &quot; + bundle.getString( &quot;report.changes.text.fixes&quot; ) + &quot; &quot; );</span>
+
+            // Try to get the issue management system specified in the changes.xml file
+<span class="nc" id="L260">            String system = action.getSystem();</span>
+            // Try to get the issue management system configured in the POM
+<span class="nc bnc" id="L262" title="All 2 branches missed.">            if ( StringUtils.isEmpty( system ) )</span>
+            {
+<span class="nc" id="L264">                system = this.system;</span>
+            }
+            // Use the default issue management system
+<span class="nc bnc" id="L267" title="All 2 branches missed.">            if ( StringUtils.isEmpty( system ) )</span>
+            {
+<span class="nc" id="L269">                system = DEFAULT_ISSUE_SYSTEM_KEY;</span>
+            }
+<span class="nc bnc" id="L271" title="All 2 branches missed.">            if ( !canGenerateIssueLinks( system ) )</span>
+            {
+<span class="nc" id="L273">                constructIssueText( action.getIssue(), sink, action.getFixedIssues() );</span>
+            }
+            else
+            {
+<span class="nc" id="L277">                constructIssueLink( action.getIssue(), system, sink, action.getFixedIssues() );</span>
+            }
+<span class="nc" id="L279">            sink.text( &quot;.&quot; );</span>
+        }
+
+<span class="nc bnc" id="L282" title="All 4 branches missed.">        if ( StringUtils.isNotEmpty( action.getDueTo() ) || ( !action.getDueTos().isEmpty() ) )</span>
+        {
+<span class="nc" id="L284">            constructDueTo( sink, action, bundle, action.getDueTos() );</span>
+        }
+
+<span class="nc" id="L287">        sink.tableCell_();</span>
+
+<span class="nc bnc" id="L289" title="All 2 branches missed.">        if ( NO_TEAMLIST.equals( teamlist ) )</span>
+        {
+<span class="nc" id="L291">            sinkCell( sink, action.getDev() );</span>
+        }
+        else
+        {
+<span class="nc" id="L295">            sinkCellLink( sink, action.getDev(), teamlist + &quot;#&quot; + action.getDev() );</span>
+        }
+
+<span class="nc bnc" id="L298" title="All 2 branches missed.">        if ( this.isAddActionDate() )</span>
+        {
+<span class="nc" id="L300">            sinkCell( sink, action.getDate() );</span>
+        }
+
+<span class="nc" id="L303">        sink.tableRow_();</span>
+<span class="nc" id="L304">    }</span>
+
+    /**
+     * Construct a text or link that mention the people that helped with an action.
+     *
+     * @param sink The sink
+     * @param action The action that was done
+     * @param bundle A resource bundle for i18n
+     * @param dueTos Other people that helped with an action
+     */
+    private void constructDueTo( Sink sink, Action action, ResourceBundle bundle, List&lt;DueTo&gt; dueTos )
+    {
+
+        // Create a Map with key : dueTo name, value : dueTo email
+<span class="nc" id="L318">        Map&lt;String, String&gt; namesEmailMap = new LinkedHashMap&lt;String, String&gt;();</span>
+
+        // Only add the dueTo specified as attributes, if it has either a dueTo or a dueToEmail
+<span class="nc bnc" id="L321" title="All 4 branches missed.">        if ( StringUtils.isNotEmpty( action.getDueTo() ) || StringUtils.isNotEmpty( action.getDueToEmail() ) )</span>
+        {
+<span class="nc" id="L323">            namesEmailMap.put( action.getDueTo(), action.getDueToEmail() );</span>
+        }
+
+<span class="nc bnc" id="L326" title="All 2 branches missed.">        for ( DueTo dueTo : dueTos )</span>
+        {
+<span class="nc" id="L328">            namesEmailMap.put( dueTo.getName(), dueTo.getEmail() );</span>
+<span class="nc" id="L329">        }</span>
+
+<span class="nc bnc" id="L331" title="All 2 branches missed.">        if ( namesEmailMap.isEmpty() )</span>
+        {
+<span class="nc" id="L333">            return;</span>
+        }
+
+<span class="nc" id="L336">        sink.text( &quot; &quot; + bundle.getString( &quot;report.changes.text.thanx&quot; ) + &quot; &quot; );</span>
+<span class="nc" id="L337">        int i = 0;</span>
+<span class="nc bnc" id="L338" title="All 2 branches missed.">        for ( String currentDueTo : namesEmailMap.keySet() )</span>
+        {
+<span class="nc" id="L340">            String currentDueToEmail = namesEmailMap.get( currentDueTo );</span>
+<span class="nc" id="L341">            i++;</span>
+
+<span class="nc bnc" id="L343" title="All 2 branches missed.">            if ( StringUtils.isNotEmpty( currentDueToEmail ) )</span>
+            {
+<span class="nc" id="L345">                sinkLink( sink, currentDueTo, &quot;mailto:&quot; + currentDueToEmail );</span>
+            }
+<span class="nc bnc" id="L347" title="All 2 branches missed.">            else if ( StringUtils.isNotEmpty( currentDueTo ) )</span>
+            {
+<span class="nc" id="L349">                sink.text( currentDueTo );</span>
+            }
+
+<span class="nc bnc" id="L352" title="All 2 branches missed.">            if ( i &lt; namesEmailMap.size() )</span>
+            {
+<span class="nc" id="L354">                sink.text( &quot;, &quot; );</span>
+            }
+<span class="nc" id="L356">        }</span>
+
+<span class="nc" id="L358">        sink.text( &quot;.&quot; );</span>
+<span class="nc" id="L359">    }</span>
+
+    /**
+     * Construct links to the issues that were solved by an action.
+     *
+     * @param issue The issue specified by attributes
+     * @param system The issue management system
+     * @param sink The sink
+     * @param fixes The List of issues specified as fixes elements
+     */
+    private void constructIssueLink( String issue, String system, Sink sink, List&lt;FixedIssue&gt; fixes )
+    {
+<span class="nc bnc" id="L371" title="All 2 branches missed.">        if ( StringUtils.isNotEmpty( issue ) )</span>
+        {
+<span class="nc" id="L373">            sink.link( parseIssueLink( issue, system ) );</span>
+
+<span class="nc" id="L375">            sink.text( issue );</span>
+
+<span class="nc" id="L377">            sink.link_();</span>
+
+<span class="nc bnc" id="L379" title="All 2 branches missed.">            if ( !fixes.isEmpty() )</span>
+            {
+<span class="nc" id="L381">                sink.text( &quot;, &quot; );</span>
+            }
+        }
+
+<span class="nc bnc" id="L385" title="All 2 branches missed.">        for ( Iterator&lt;FixedIssue&gt; iterator = fixes.iterator(); iterator.hasNext(); )</span>
+        {
+<span class="nc" id="L387">            FixedIssue fixedIssue = iterator.next();</span>
+<span class="nc" id="L388">            String currentIssueId = fixedIssue.getIssue();</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">            if ( StringUtils.isNotEmpty( currentIssueId ) )</span>
+            {
+<span class="nc" id="L391">                sink.link( parseIssueLink( currentIssueId, system ) );</span>
+
+<span class="nc" id="L393">                sink.text( currentIssueId );</span>
+
+<span class="nc" id="L395">                sink.link_();</span>
+            }
+
+<span class="nc bnc" id="L398" title="All 2 branches missed.">            if ( iterator.hasNext() )</span>
+            {
+<span class="nc" id="L400">                sink.text( &quot;, &quot; );</span>
+            }
+<span class="nc" id="L402">        }</span>
+<span class="nc" id="L403">    }</span>
+
+    /**
+     * Construct a text that references (but does not link to) the issues that were solved by an action.
+     *
+     * @param issue The issue specified by attributes
+     * @param sink The sink
+     * @param fixes The List of issues specified as fixes elements
+     */
+    private void constructIssueText( String issue, Sink sink, List&lt;FixedIssue&gt; fixes )
+    {
+<span class="nc bnc" id="L414" title="All 2 branches missed.">        if ( StringUtils.isNotEmpty( issue ) )</span>
+        {
+<span class="nc" id="L416">            sink.text( issue );</span>
+
+<span class="nc bnc" id="L418" title="All 2 branches missed.">            if ( !fixes.isEmpty() )</span>
+            {
+<span class="nc" id="L420">                sink.text( &quot;, &quot; );</span>
+            }
+        }
+
+<span class="nc bnc" id="L424" title="All 2 branches missed.">        for ( Iterator&lt;FixedIssue&gt; iterator = fixes.iterator(); iterator.hasNext(); )</span>
+        {
+<span class="nc" id="L426">            FixedIssue fixedIssue = iterator.next();</span>
+
+<span class="nc" id="L428">            String currentIssueId = fixedIssue.getIssue();</span>
+<span class="nc bnc" id="L429" title="All 2 branches missed.">            if ( StringUtils.isNotEmpty( currentIssueId ) )</span>
+            {
+<span class="nc" id="L431">                sink.text( currentIssueId );</span>
+            }
+
+<span class="nc bnc" id="L434" title="All 2 branches missed.">            if ( iterator.hasNext() )</span>
+            {
+<span class="nc" id="L436">                sink.text( &quot;, &quot; );</span>
+            }
+<span class="nc" id="L438">        }</span>
+<span class="nc" id="L439">    }</span>
+
+    private void constructReleaseHistory( Sink sink, ResourceBundle bundle, List&lt;Release&gt; releaseList )
+    {
+<span class="nc" id="L443">        sink.section2();</span>
+
+<span class="nc" id="L445">        sink.sectionTitle2();</span>
+<span class="nc" id="L446">        sink.text( bundle.getString( &quot;report.changes.label.releasehistory&quot; ) );</span>
+<span class="nc" id="L447">        sink.sectionTitle2_();</span>
+
+<span class="nc" id="L449">        sink.table();</span>
+
+<span class="nc" id="L451">        sink.tableRow();</span>
+
+<span class="nc" id="L453">        sinkHeader( sink, bundle.getString( &quot;report.issues.label.fixVersion&quot; ) );</span>
+
+<span class="nc" id="L455">        sinkHeader( sink, bundle.getString( &quot;report.changes.label.releaseDate&quot; ) );</span>
+
+<span class="nc" id="L457">        sinkHeader( sink, bundle.getString( &quot;report.changes.label.releaseDescription&quot; ) );</span>
+
+<span class="nc" id="L459">        sink.tableRow_();</span>
+
+<span class="nc bnc" id="L461" title="All 2 branches missed.">        for ( Release release : releaseList )</span>
+        {
+<span class="nc" id="L463">            sink.tableRow();</span>
+
+<span class="nc" id="L465">            sinkCellLink( sink, release.getVersion(), &quot;#&quot; + HtmlTools.encodeId( release.getVersion() ) );</span>
+
+<span class="nc" id="L467">            sinkCell( sink, release.getDateRelease() );</span>
+
+<span class="nc" id="L469">            sinkCell( sink, release.getDescription() );</span>
+
+<span class="nc" id="L471">            sink.tableRow_();</span>
+<span class="nc" id="L472">        }</span>
+
+<span class="nc" id="L474">        sink.table_();</span>
+
+        // MCHANGES-46
+<span class="nc bnc" id="L477" title="All 2 branches missed.">        if ( linkToFeed )</span>
+        {
+<span class="nc" id="L479">            sink.paragraph();</span>
+<span class="nc" id="L480">            sink.text( bundle.getString( &quot;report.changes.text.rssfeed&quot; ) );</span>
+<span class="nc" id="L481">            sink.nonBreakingSpace();</span>
+<span class="nc" id="L482">            sink.link( &quot;changes.rss&quot; );</span>
+<span class="nc" id="L483">            sinkFigure( sink, &quot;images/rss.png&quot;, &quot;rss feed&quot; );</span>
+<span class="nc" id="L484">            sink.link_();</span>
+<span class="nc" id="L485">            sink.paragraph_();</span>
+        }
+
+<span class="nc" id="L488">        sink.section2_();</span>
+<span class="nc" id="L489">    }</span>
+
+    /**
+     * Constructs document sections for each of specified releases.
+     *
+     * @param sink Sink
+     * @param bundle Resource bundle
+     * @param releaseList Releases to create content for
+     */
+    private void constructReleases( Sink sink, ResourceBundle bundle, List&lt;Release&gt; releaseList )
+    {
+<span class="nc bnc" id="L500" title="All 2 branches missed.">        for ( Release release : releaseList )</span>
+        {
+<span class="nc" id="L502">            constructRelease( sink, bundle, release );</span>
+<span class="nc" id="L503">        }</span>
+<span class="nc" id="L504">    }</span>
+
+    /**
+     * Constructs document section for specified release.
+     *
+     * @param sink Sink
+     * @param bundle Resource bundle
+     * @param release Release to create document section for
+     */
+    private void constructRelease( Sink sink, ResourceBundle bundle, Release release )
+    {
+<span class="nc" id="L515">        sink.section2();</span>
+
+<span class="nc bnc" id="L517" title="All 2 branches missed.">        final String date = ( release.getDateRelease() == null ) ? &quot;&quot; : &quot; \u2013 &quot; + release.getDateRelease();</span>
+
+<span class="nc" id="L519">        SinkEventAttributes attrs = new SinkEventAttributeSet();</span>
+<span class="nc" id="L520">        attrs.addAttribute( SinkEventAttributes.ID, HtmlTools.encodeId( release.getVersion() ) );</span>
+<span class="nc" id="L521">        sink.sectionTitle( Sink.SECTION_LEVEL_2, attrs );</span>
+<span class="nc" id="L522">        sink.text( bundle.getString( &quot;report.changes.label.release&quot; ) + &quot; &quot; + release.getVersion() + date );</span>
+<span class="nc" id="L523">        sink.sectionTitle_( Sink.SECTION_LEVEL_2 );</span>
+
+<span class="nc bnc" id="L525" title="All 2 branches missed.">        if ( isReleaseEmpty( release ) )</span>
+        {
+<span class="nc" id="L527">            sink.paragraph();</span>
+<span class="nc" id="L528">            sink.text( bundle.getString( &quot;report.changes.text.no.changes&quot; ) );</span>
+<span class="nc" id="L529">            sink.paragraph_();</span>
+        }
+        else
+        {
+<span class="nc" id="L533">            sink.table();</span>
+
+<span class="nc" id="L535">            sink.tableRow();</span>
+<span class="nc" id="L536">            sinkHeader( sink, bundle.getString( &quot;report.issues.label.type&quot; ) );</span>
+<span class="nc" id="L537">            sinkHeader( sink, bundle.getString( &quot;report.issues.label.summary&quot; ) );</span>
+<span class="nc" id="L538">            sinkHeader( sink, bundle.getString( &quot;report.issues.label.assignee&quot; ) );</span>
+<span class="nc bnc" id="L539" title="All 2 branches missed.">            if ( this.isAddActionDate() )</span>
+            {
+<span class="nc" id="L541">                sinkHeader( sink, bundle.getString( &quot;report.issues.label.updated&quot; ) );</span>
+            }
+<span class="nc" id="L543">            sink.tableRow_();</span>
+
+<span class="nc bnc" id="L545" title="All 2 branches missed.">            for ( Action action : release.getActions() )</span>
+            {
+<span class="nc" id="L547">                constructAction( sink, bundle, action );</span>
+<span class="nc" id="L548">            }</span>
+
+<span class="nc bnc" id="L550" title="All 2 branches missed.">            for ( Object o : release.getComponents() )</span>
+            {
+<span class="nc" id="L552">                Component component = (Component) o;</span>
+<span class="nc" id="L553">                constructComponent( sink, bundle, component );</span>
+<span class="nc" id="L554">            }</span>
+
+<span class="nc" id="L556">            sink.table_();</span>
+        }
+
+<span class="nc" id="L559">        sink.section2_();</span>
+<span class="nc" id="L560">    }</span>
+
+    /**
+     * Constructs table rows for specified release component. It will create header row for component name and action
+     * rows for all component issues.
+     *
+     * @param sink Sink
+     * @param bundle Resource bundle
+     * @param component Release component to generate content for.
+     */
+    private void constructComponent( Sink sink, ResourceBundle bundle, Component component )
+    {
+<span class="nc bnc" id="L572" title="All 2 branches missed.">        if ( !component.getActions().isEmpty() )</span>
+        {
+<span class="nc" id="L574">            sink.tableRow();</span>
+
+<span class="nc" id="L576">            sink.tableHeaderCell();</span>
+<span class="nc" id="L577">            sink.tableHeaderCell_();</span>
+
+<span class="nc" id="L579">            sink.tableHeaderCell();</span>
+<span class="nc" id="L580">            sink.text( component.getName() );</span>
+<span class="nc" id="L581">            sink.tableHeaderCell_();</span>
+
+<span class="nc" id="L583">            sink.tableHeaderCell();</span>
+<span class="nc" id="L584">            sink.tableHeaderCell_();</span>
+
+<span class="nc bnc" id="L586" title="All 2 branches missed.">            if ( isAddActionDate() )</span>
+            {
+<span class="nc" id="L588">                sink.tableHeaderCell();</span>
+<span class="nc" id="L589">                sink.tableHeaderCell_();</span>
+            }
+
+<span class="nc" id="L592">            sink.tableRow_();</span>
+
+<span class="nc bnc" id="L594" title="All 2 branches missed.">            for ( Action action : component.getActions() )</span>
+            {
+<span class="nc" id="L596">                constructAction( sink, bundle, action );</span>
+<span class="nc" id="L597">            }</span>
+        }
+<span class="nc" id="L599">    }</span>
+
+    /**
+     * Checks if specified release contains own issues or issues inside the child components.
+     *
+     * @param release Release to check
+     * @return &lt;code&gt;true&lt;/code&gt; if release doesn't contain any issues, &lt;code&gt;false&lt;/code&gt; otherwise
+     */
+    private boolean isReleaseEmpty( Release release )
+    {
+<span class="nc bnc" id="L609" title="All 2 branches missed.">        if ( !release.getActions().isEmpty() )</span>
+        {
+<span class="nc" id="L611">            return false;</span>
+        }
+
+<span class="nc bnc" id="L614" title="All 2 branches missed.">        for ( Object o : release.getComponents() )</span>
+        {
+<span class="nc" id="L616">            Component component = (Component) o;</span>
+<span class="nc bnc" id="L617" title="All 2 branches missed.">            if ( !component.getActions().isEmpty() )</span>
+            {
+<span class="nc" id="L619">                return false;</span>
+            }
+<span class="nc" id="L621">        }</span>
+
+<span class="nc" id="L623">        return true;</span>
+    }
+
+    /**
+     * Replace tokens in the issue link template with the real values.
+     *
+     * @param issue The issue identifier
+     * @param system The issue management system
+     * @return An interpolated issue link
+     */
+    private String parseIssueLink( String issue, String system )
+    {
+        String parseLink;
+<span class="nc" id="L636">        String issueLink = (String) this.issueLinksPerSystem.get( system );</span>
+<span class="nc" id="L637">        parseLink = issueLink.replaceFirst( ISSUE_TOKEN, issue );</span>
+<span class="nc bnc" id="L638" title="All 2 branches missed.">        if ( parseLink.contains( URL_TOKEN ) )</span>
+        {
+<span class="nc" id="L640">            String url = this.url.substring( 0, this.url.lastIndexOf( &quot;/&quot; ) );</span>
+<span class="nc" id="L641">            parseLink = parseLink.replaceFirst( URL_TOKEN, url );</span>
+        }
+
+<span class="nc" id="L644">        return parseLink;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

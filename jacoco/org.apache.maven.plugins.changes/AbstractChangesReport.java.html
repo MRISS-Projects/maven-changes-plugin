@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractChangesReport.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.changes</a> &gt; <span class="el_source">AbstractChangesReport.java</span></div><h1>AbstractChangesReport.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.changes;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.artifact.repository.ArtifactRepository;
+import org.apache.maven.doxia.sink.render.RenderingContext;
+import org.apache.maven.doxia.site.decoration.Body;
+import org.apache.maven.doxia.site.decoration.DecorationModel;
+import org.apache.maven.doxia.site.decoration.Skin;
+import org.apache.maven.doxia.siterenderer.Renderer;
+import org.apache.maven.doxia.siterenderer.RendererException;
+import org.apache.maven.doxia.siterenderer.SiteRenderingContext;
+import org.apache.maven.doxia.siterenderer.sink.SiteRendererSink;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.DefaultProjectBuildingRequest;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectBuildingRequest;
+import org.apache.maven.reporting.AbstractMavenReport;
+import org.apache.maven.reporting.MavenReportException;
+import org.apache.maven.shared.artifact.DefaultArtifactCoordinate;
+import org.apache.maven.shared.artifact.resolve.ArtifactResolver;
+import org.apache.maven.shared.artifact.resolve.ArtifactResolverException;
+import org.codehaus.plexus.i18n.I18N;
+import org.codehaus.plexus.util.ReaderFactory;
+
+/**
+ * Base class with the things that should be in AbstractMavenReport anyway. Note: This file was copied from r415312 of
+ * AbstractProjectInfoReport in maven-project-info-reports, as a work-around to MCHANGES-88.
+ *
+ * @author &lt;a href=&quot;mailto:brett@apache.org&quot;&gt;Brett Porter&lt;/a&gt;
+ */
+<span class="fc" id="L62">public abstract class AbstractChangesReport</span>
+    extends AbstractMavenReport
+{
+    /**
+     * The current project base directory.
+     *
+     * @since 2.10
+     */
+    @Parameter( property = &quot;basedir&quot;, required = true )
+    protected String basedir;
+
+    /**
+     * Report output directory. Note that this parameter is only relevant if the goal is run from the command line or
+     * from the default build lifecycle. If the goal is run indirectly as part of a site generation, the output
+     * directory configured in the Maven Site Plugin is used instead.
+     */
+    @Parameter( defaultValue = &quot;${project.reporting.outputDirectory}&quot; )
+    private File outputDirectory;
+
+    /**
+     * Report output encoding. Note that this parameter is only relevant if the goal is run from the command line or
+     * from the default build lifecycle. If the goal is run indirectly as part of a site generation, the output encoding
+     * configured in the Maven Site Plugin is used instead.
+     *
+     * @since 2.4
+     */
+    @Parameter( property = &quot;outputEncoding&quot;, defaultValue = &quot;${project.reporting.outputEncoding}&quot; )
+    private String outputEncoding;
+
+    /**
+     * This will cause the execution to be run only at the top of a given module tree. That is, run in the project
+     * contained in the same folder where the mvn execution was launched.
+     *
+     * @since 2.10
+     */
+    @Parameter( property = &quot;changes.runOnlyAtExecutionRoot&quot;, defaultValue = &quot;false&quot; )
+    protected boolean runOnlyAtExecutionRoot;
+
+    /**
+     * The Maven Session.
+     *
+     * @since 2.10
+     */
+    @Parameter( defaultValue = &quot;${session}&quot;, readonly = true, required = true )
+    protected MavenSession mavenSession;
+
+    /**
+     * Doxia Site Renderer.
+     */
+    @Component
+    protected Renderer siteRenderer;
+
+    /**
+     * The Maven Project.
+     */
+    @Parameter( defaultValue = &quot;${project}&quot;, readonly = true, required = true )
+    protected MavenProject project;
+
+    /**
+     */
+    @Component
+    protected ArtifactResolver resolver;
+
+    /**
+     * Local Repository.
+     */
+    @Parameter( property = &quot;localRepository&quot;, required = true, readonly = true )
+    protected ArtifactRepository localRepository;
+
+    /**
+     * Internationalization.
+     */
+    @Component
+    protected I18N i18n;
+
+    private File getSkinArtifactFile()
+        throws MojoExecutionException
+    {
+<span class="fc" id="L140">        Skin skin = Skin.getDefaultSkin();</span>
+<span class="fc" id="L141">        DefaultArtifactCoordinate coordinate = new DefaultArtifactCoordinate();</span>
+<span class="fc" id="L142">        coordinate.setGroupId( skin.getGroupId() );</span>
+<span class="fc" id="L143">        coordinate.setArtifactId( skin.getArtifactId() );</span>
+<span class="fc" id="L144">        coordinate.setVersion( skin.getVersion() );</span>
+<span class="fc" id="L145">        ProjectBuildingRequest pbr = new DefaultProjectBuildingRequest( mavenSession.getProjectBuildingRequest() );</span>
+<span class="fc" id="L146">        pbr.setRemoteRepositories( project.getRemoteArtifactRepositories() );</span>
+        try
+        {
+<span class="fc" id="L149">            return resolver.resolveArtifact( pbr, coordinate ).getArtifact().getFile();</span>
+        }
+<span class="nc" id="L151">        catch ( ArtifactResolverException e )</span>
+        {
+<span class="nc" id="L153">            throw new MojoExecutionException( &quot;Couldn't resolve the skin.&quot;, e );</span>
+        }
+    }
+
+    public void execute()
+        throws MojoExecutionException
+    {
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if ( !canGenerateReport() )</span>
+        {
+<span class="nc" id="L162">            return;</span>
+        }
+
+        // TODO: push to a helper? Could still be improved by taking more of the site information from the site plugin
+<span class="fc" id="L166">        Writer writer = null;</span>
+        try
+        {
+<span class="fc" id="L169">            DecorationModel model = new DecorationModel();</span>
+<span class="fc" id="L170">            model.setBody( new Body() );</span>
+<span class="fc" id="L171">            Map&lt;String, String&gt; attributes = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L172">            attributes.put( &quot;outputEncoding&quot;, getOutputEncoding() );</span>
+<span class="fc" id="L173">            Locale locale = Locale.getDefault();</span>
+<span class="fc" id="L174">            SiteRenderingContext siteContext = siteRenderer.createContextForSkin( getSkinArtifactFile(), attributes,</span>
+<span class="fc" id="L175">                                                                                  model, getName( locale ), locale );</span>
+<span class="fc" id="L176">            siteContext.setOutputEncoding( getOutputEncoding() );</span>
+
+<span class="fc" id="L178">            RenderingContext context = new RenderingContext( outputDirectory, getOutputName() + &quot;.html&quot; );</span>
+
+<span class="fc" id="L180">            SiteRendererSink sink = new SiteRendererSink( context );</span>
+<span class="fc" id="L181">            generate( sink, null, locale );</span>
+
+<span class="fc" id="L183">            outputDirectory.mkdirs();</span>
+
+<span class="fc" id="L185">            File file = new File( outputDirectory, getOutputName() + &quot;.html&quot; );</span>
+<span class="fc" id="L186">            writer = new OutputStreamWriter( new FileOutputStream( file ), getOutputEncoding() );</span>
+
+<span class="fc" id="L188">            siteRenderer.generateDocument( writer, sink, siteContext );</span>
+
+<span class="fc" id="L190">            writer.close();</span>
+<span class="fc" id="L191">            writer = null;</span>
+
+<span class="fc" id="L193">            siteRenderer.copyResources( siteContext, new File( project.getBasedir(), &quot;src/site/resources&quot; ),</span>
+                                        outputDirectory );
+        }
+<span class="nc" id="L196">        catch ( RendererException e )</span>
+        {
+<span class="nc" id="L198">            throw new MojoExecutionException( &quot;An error has occurred in &quot; + getName( Locale.ENGLISH )</span>
+                + &quot; report generation.&quot;, e );
+        }
+<span class="nc" id="L201">        catch ( IOException e )</span>
+        {
+<span class="nc" id="L203">            throw new MojoExecutionException( &quot;An error has occurred in &quot; + getName( Locale.ENGLISH )</span>
+                + &quot; report generation.&quot;, e );
+        }
+<span class="nc" id="L206">        catch ( MavenReportException e )</span>
+        {
+<span class="nc" id="L208">            throw new MojoExecutionException( &quot;An error has occurred in &quot; + getName( Locale.ENGLISH )</span>
+                + &quot; report generation.&quot;, e );
+        }
+        finally
+        {
+<span class="fc" id="L213">            IOUtils.closeQuietly( writer );</span>
+        }
+<span class="fc" id="L215">    }</span>
+
+    /**
+     * @see org.apache.maven.reporting.AbstractMavenReport#getOutputDirectory()
+     */
+    protected String getOutputDirectory()
+    {
+<span class="nc" id="L222">        return outputDirectory.getAbsolutePath();</span>
+    }
+
+    /**
+     * Get the effective reporting output file encoding.
+     *
+     * @return The effective reporting output file encoding, never &lt;code&gt;null&lt;/code&gt;.
+     * @since 2.4
+     */
+    protected String getOutputEncoding()
+    {
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">        return ( outputEncoding != null ) ? outputEncoding : ReaderFactory.UTF_8;</span>
+    }
+
+    /**
+     * @see org.apache.maven.reporting.AbstractMavenReport#getProject()
+     */
+    protected MavenProject getProject()
+    {
+<span class="nc" id="L241">        return project;</span>
+    }
+
+    /**
+     * @see org.apache.maven.reporting.AbstractMavenReport#getSiteRenderer()
+     */
+    protected Renderer getSiteRenderer()
+    {
+<span class="nc" id="L249">        return siteRenderer;</span>
+    }
+
+    /**
+     * Returns &lt;code&gt;true&lt;/code&gt; if the current project is located at the Execution Root Directory (where mvn was
+     * launched).
+     *
+     * @return &lt;code&gt;true&lt;/code&gt; if the current project is at the Execution Root
+     */
+    protected boolean isThisTheExecutionRoot()
+    {
+<span class="nc" id="L260">        getLog().debug( &quot;Root Folder:&quot; + mavenSession.getExecutionRootDirectory() );</span>
+<span class="nc" id="L261">        getLog().debug( &quot;Current Folder:&quot; + basedir );</span>
+<span class="nc" id="L262">        boolean result = mavenSession.getExecutionRootDirectory().equalsIgnoreCase( basedir );</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">        if ( result )</span>
+        {
+<span class="nc" id="L265">            getLog().debug( &quot;This is the execution root.&quot; );</span>
+        }
+        else
+        {
+<span class="nc" id="L269">            getLog().debug( &quot;This is NOT the execution root.&quot; );</span>
+        }
+<span class="nc" id="L271">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

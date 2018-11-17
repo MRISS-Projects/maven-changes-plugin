@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TracMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.trac</a> &gt; <span class="el_source">TracMojo.java</span></div><h1>TracMojo.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.trac;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.net.MalformedURLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.changes.AbstractChangesReport;
+import org.apache.maven.plugins.changes.ProjectUtils;
+import org.apache.maven.plugins.issues.Issue;
+import org.apache.maven.plugins.issues.IssuesReportGenerator;
+import org.apache.maven.plugins.issues.IssuesReportHelper;
+import org.apache.maven.reporting.MavenReportException;
+import org.apache.xmlrpc.XmlRpcException;
+
+/**
+ * Goal which downloads issues from the Issue Tracking System and generates a report.
+ *
+ * @author Noriko Kinugasa
+ * @version $Id$
+ * @since 2.1
+ */
+@Mojo( name = &quot;trac-report&quot;, threadSafe = true )
+<span class="nc" id="L47">public class TracMojo</span>
+    extends AbstractChangesReport
+{
+    /**
+     * Deprecated Trac columns.
+     */
+<span class="nc" id="L53">    private static final Map&lt;String, Integer&gt; DEPRECATED_TRAC_COLUMNS = new HashMap&lt;String, Integer&gt;();</span>
+
+    /**
+     * Valid Trac columns.
+     */
+<span class="nc" id="L58">    private static final Map&lt;String, Integer&gt; TRAC_COLUMNS = new HashMap&lt;String, Integer&gt;();</span>
+
+    static
+    {
+<span class="nc" id="L62">        DEPRECATED_TRAC_COLUMNS.put( &quot;changed&quot;, IssuesReportHelper.COLUMN_UPDATED );</span>
+<span class="nc" id="L63">        DEPRECATED_TRAC_COLUMNS.put( &quot;component&quot;, IssuesReportHelper.COLUMN_COMPONENT );</span>
+<span class="nc" id="L64">        DEPRECATED_TRAC_COLUMNS.put( &quot;created&quot;, IssuesReportHelper.COLUMN_CREATED );</span>
+<span class="nc" id="L65">        DEPRECATED_TRAC_COLUMNS.put( &quot;id&quot;, IssuesReportHelper.COLUMN_ID );</span>
+<span class="nc" id="L66">        DEPRECATED_TRAC_COLUMNS.put( &quot;milestone&quot;, IssuesReportHelper.COLUMN_FIX_VERSION );</span>
+<span class="nc" id="L67">        DEPRECATED_TRAC_COLUMNS.put( &quot;owner&quot;, IssuesReportHelper.COLUMN_ASSIGNEE );</span>
+<span class="nc" id="L68">        DEPRECATED_TRAC_COLUMNS.put( &quot;priority&quot;, IssuesReportHelper.COLUMN_PRIORITY );</span>
+<span class="nc" id="L69">        DEPRECATED_TRAC_COLUMNS.put( &quot;reporter&quot;, IssuesReportHelper.COLUMN_REPORTER );</span>
+<span class="nc" id="L70">        DEPRECATED_TRAC_COLUMNS.put( &quot;resolution&quot;, IssuesReportHelper.COLUMN_RESOLUTION );</span>
+<span class="nc" id="L71">        DEPRECATED_TRAC_COLUMNS.put( &quot;status&quot;, IssuesReportHelper.COLUMN_STATUS );</span>
+<span class="nc" id="L72">        DEPRECATED_TRAC_COLUMNS.put( &quot;summary&quot;, IssuesReportHelper.COLUMN_SUMMARY );</span>
+<span class="nc" id="L73">        DEPRECATED_TRAC_COLUMNS.put( &quot;type&quot;, IssuesReportHelper.COLUMN_TYPE );</span>
+
+<span class="nc" id="L75">        TRAC_COLUMNS.put( &quot;Assignee&quot;, IssuesReportHelper.COLUMN_ASSIGNEE );</span>
+<span class="nc" id="L76">        TRAC_COLUMNS.put( &quot;Component&quot;, IssuesReportHelper.COLUMN_COMPONENT );</span>
+<span class="nc" id="L77">        TRAC_COLUMNS.put( &quot;Created&quot;, IssuesReportHelper.COLUMN_CREATED );</span>
+<span class="nc" id="L78">        TRAC_COLUMNS.put( &quot;Fix Version&quot;, IssuesReportHelper.COLUMN_FIX_VERSION );</span>
+<span class="nc" id="L79">        TRAC_COLUMNS.put( &quot;Id&quot;, IssuesReportHelper.COLUMN_ID );</span>
+<span class="nc" id="L80">        TRAC_COLUMNS.put( &quot;Priority&quot;, IssuesReportHelper.COLUMN_PRIORITY );</span>
+<span class="nc" id="L81">        TRAC_COLUMNS.put( &quot;Reporter&quot;, IssuesReportHelper.COLUMN_REPORTER );</span>
+<span class="nc" id="L82">        TRAC_COLUMNS.put( &quot;Resolution&quot;, IssuesReportHelper.COLUMN_RESOLUTION );</span>
+<span class="nc" id="L83">        TRAC_COLUMNS.put( &quot;Status&quot;, IssuesReportHelper.COLUMN_STATUS );</span>
+<span class="nc" id="L84">        TRAC_COLUMNS.put( &quot;Summary&quot;, IssuesReportHelper.COLUMN_SUMMARY );</span>
+<span class="nc" id="L85">        TRAC_COLUMNS.put( &quot;Type&quot;, IssuesReportHelper.COLUMN_TYPE );</span>
+<span class="nc" id="L86">        TRAC_COLUMNS.put( &quot;Updated&quot;, IssuesReportHelper.COLUMN_UPDATED );</span>
+<span class="nc" id="L87">    }</span>
+
+    /**
+     * Sets the column names that you want to show in the report. The columns will appear in the report in the same
+     * order as you specify them here. Multiple values can be separated by commas.
+     * &lt;p&gt;
+     * Valid columns are: &lt;code&gt;Assignee&lt;/code&gt;, &lt;code&gt;Component&lt;/code&gt;, &lt;code&gt;Created&lt;/code&gt;, &lt;code&gt;Fix Version&lt;/code&gt;,
+     * &lt;code&gt;Id&lt;/code&gt;, &lt;code&gt;Priority&lt;/code&gt;, &lt;code&gt;Reporter&lt;/code&gt;, &lt;code&gt;Resolution&lt;/code&gt;, &lt;code&gt;Status&lt;/code&gt;,
+     * &lt;code&gt;Summary&lt;/code&gt;, &lt;code&gt;Type&lt;/code&gt; and &lt;code&gt;Updated&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @since 2.2
+     */
+    @Parameter( defaultValue = &quot;Id,Type,Summary,Assignee,Reporter,Priority,Status,Resolution,Created,Updated&quot; )
+    private String columnNames;
+
+    /**
+     * Defines the Trac query for searching ticket.
+     */
+    @Parameter( defaultValue = &quot;order=id&quot; )
+    private String query;
+
+    /**
+     * Defines the Trac password for authentication into a private Trac installation.
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String tracPassword;
+
+    /**
+     * Defines the Trac username for authentication into a private Trac installation.
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String tracUser;
+
+    /* --------------------------------------------------------------------- */
+    /* Public methods */
+    /* --------------------------------------------------------------------- */
+
+    /**
+     * @see org.apache.maven.reporting.AbstractMavenReport#canGenerateReport()
+     */
+    public boolean canGenerateReport()
+    {
+        // Run only at the execution root
+<span class="nc bnc" id="L131" title="All 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+        {
+<span class="nc" id="L133">            getLog().info( &quot;Skipping the Trac Report in this project because it's not the Execution Root&quot; );</span>
+<span class="nc" id="L134">            return false;</span>
+        }
+<span class="nc" id="L136">        String message = ProjectUtils.validateIssueManagement( project, &quot;Trac&quot;, &quot;Trac Report&quot; );</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if ( message != null )</span>
+        {
+<span class="nc" id="L139">            getLog().warn( message );</span>
+        }
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        return message == null;</span>
+    }
+
+    public void executeReport( Locale locale )
+        throws MavenReportException
+    {
+        // Validate parameters
+<span class="nc" id="L148">        List&lt;Integer&gt; columnIds =</span>
+<span class="nc" id="L149">            IssuesReportHelper.getColumnIds( columnNames, TRAC_COLUMNS, DEPRECATED_TRAC_COLUMNS, getLog() );</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if ( columnIds.size() == 0 )</span>
+        {
+            // This can happen if the user has configured column names and they are all invalid
+<span class="nc" id="L153">            throw new MavenReportException( &quot;maven-changes-plugin: None of the configured columnNames '&quot; + columnNames</span>
+                + &quot;' are valid.&quot; );
+        }
+
+        try
+        {
+            // Download issues
+<span class="nc" id="L160">            TracDownloader issueDownloader = new TracDownloader();</span>
+<span class="nc" id="L161">            configureIssueDownloader( issueDownloader );</span>
+
+<span class="nc" id="L163">            List&lt;Issue&gt; issueList = issueDownloader.getIssueList();</span>
+
+            // Generate the report
+<span class="nc" id="L166">            IssuesReportGenerator report = new IssuesReportGenerator( IssuesReportHelper.toIntArray( columnIds ) );</span>
+
+<span class="nc bnc" id="L168" title="All 2 branches missed.">            if ( issueList.isEmpty() )</span>
+            {
+<span class="nc" id="L170">                report.doGenerateEmptyReport( getBundle( locale ), getSink() );</span>
+<span class="nc" id="L171">                getLog().warn( &quot;No ticket has matched.&quot; );</span>
+            }
+            else
+            {
+<span class="nc" id="L175">                report.doGenerateReport( getBundle( locale ), getSink(), issueList );</span>
+            }
+        }
+<span class="nc" id="L178">        catch ( MalformedURLException e )</span>
+        {
+            // Rethrow this error so that the build fails
+<span class="nc" id="L181">            throw new MavenReportException( &quot;The Trac URL is incorrect.&quot; );</span>
+        }
+<span class="nc" id="L183">        catch ( XmlRpcException e )</span>
+        {
+            // Rethrow this error so that the build fails
+<span class="nc" id="L186">            throw new MavenReportException( &quot;XmlRpc Error.&quot;, e );</span>
+        }
+<span class="nc" id="L188">        catch ( Exception e )</span>
+        {
+<span class="nc" id="L190">            e.printStackTrace();</span>
+<span class="nc" id="L191">        }</span>
+<span class="nc" id="L192">    }</span>
+
+    public String getDescription( Locale locale )
+    {
+<span class="nc" id="L196">        return getBundle( locale ).getString( &quot;report.issues.description&quot; );</span>
+    }
+
+    public String getName( Locale locale )
+    {
+<span class="nc" id="L201">        return getBundle( locale ).getString( &quot;report.issues.name&quot; );</span>
+    }
+
+    public String getOutputName()
+    {
+<span class="nc" id="L206">        return &quot;trac-report&quot;;</span>
+    }
+
+    /* --------------------------------------------------------------------- */
+    /* Private methods */
+    /* --------------------------------------------------------------------- */
+
+    private ResourceBundle getBundle( Locale locale )
+    {
+<span class="nc" id="L215">        return ResourceBundle.getBundle( &quot;trac-report&quot;, locale, this.getClass().getClassLoader() );</span>
+    }
+
+    private void configureIssueDownloader( TracDownloader issueDownloader )
+    {
+<span class="nc" id="L220">        issueDownloader.setProject( project );</span>
+
+<span class="nc" id="L222">        issueDownloader.setQuery( query );</span>
+
+<span class="nc" id="L224">        issueDownloader.setTracPassword( tracPassword );</span>
+
+<span class="nc" id="L226">        issueDownloader.setTracUser( tracUser );</span>
+<span class="nc" id="L227">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

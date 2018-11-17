@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FeedGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.changes</a> &gt; <span class="el_source">FeedGenerator.java</span></div><h1>FeedGenerator.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.changes;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.IOException;
+import java.io.Writer;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import org.apache.maven.doxia.util.HtmlTools;
+import org.apache.maven.plugins.changes.model.Release;
+
+import com.sun.syndication.feed.synd.SyndContent;
+import com.sun.syndication.feed.synd.SyndContentImpl;
+import com.sun.syndication.feed.synd.SyndEntry;
+import com.sun.syndication.feed.synd.SyndEntryImpl;
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.feed.synd.SyndFeedImpl;
+import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.SyndFeedOutput;
+
+/**
+ * @author ltheussl
+ */
+public class FeedGenerator
+{
+    private final ResourceBundle rbundle;
+
+    private final SyndFeed feed;
+
+    private String link;
+
+    private String title;
+
+    private String author;
+
+    private DateFormat dateFormat;
+
+    /**
+     * Initialize feedGenerator for a given locale.
+     *
+     * @param locale a locale for i18n.
+     */
+    public FeedGenerator( final Locale locale )
+<span class="fc" id="L67">    {</span>
+<span class="fc" id="L68">        this.feed = new SyndFeedImpl();</span>
+<span class="fc" id="L69">        this.rbundle = ResourceBundle.getBundle( &quot;changes-report&quot;, locale, this.getClass().getClassLoader() );</span>
+<span class="fc" id="L70">    }</span>
+
+    /**
+     * The author of the feed.
+     *
+     * @return the author.
+     */
+    public String getAuthor()
+    {
+<span class="nc" id="L79">        return author;</span>
+    }
+
+    /**
+     * Set the author of the feed.
+     *
+     * @param author not null.
+     */
+    public void setAuthor( final String author )
+    {
+<span class="fc" id="L89">        this.author = author.trim(); // this also assures that author is not null.</span>
+<span class="fc" id="L90">    }</span>
+
+    /**
+     * The title of the feed.
+     *
+     * @return the title.
+     */
+    public String getTitle()
+    {
+<span class="nc" id="L99">        return title;</span>
+    }
+
+    /**
+     * Set the title of the feed.
+     *
+     * @param title not null.
+     */
+    public void setTitle( final String title )
+    {
+<span class="fc" id="L109">        this.title = title.trim(); // this also assures that title is not null.</span>
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * The DateFormat.
+     *
+     * @return may be null.
+     */
+    public DateFormat getDateFormat()
+    {
+<span class="nc" id="L119">        return dateFormat;</span>
+    }
+
+    /**
+     * Set the date format. This should match the date format used for the release dates in changes.xml.
+     *
+     * @param dateFormat may be null.
+     */
+    public void setDateFormat( final DateFormat dateFormat )
+    {
+<span class="fc" id="L129">        this.dateFormat = dateFormat;</span>
+<span class="fc" id="L130">    }</span>
+
+    /**
+     * The main link of the feed.
+     *
+     * @return the link.
+     */
+    public String getLink()
+    {
+<span class="nc" id="L139">        return link;</span>
+    }
+
+    /**
+     * Set the main link of the feed.
+     *
+     * @param link not null.
+     */
+    public void setLink( final String link )
+    {
+<span class="fc" id="L149">        this.link = link.trim(); // this also assures that link is not null.</span>
+<span class="fc" id="L150">    }</span>
+
+    /**
+     * Determine if a given feed type is supported. The currently supported values are:
+     * &lt;code&gt;&quot;rss_0.9&quot;, &quot;rss_0.91N&quot; (RSS 0.91 Netscape), &quot;rss_0.91U&quot; (RSS 0.91 Userland),
+     * &quot;rss_0.92&quot;, &quot;rss_0.93&quot;, &quot;rss_0.94&quot;, &quot;rss_1.0&quot;, &quot;rss_2.0&quot;, &quot;atom_0.3&quot;, &quot;atom_1.0&quot;&lt;/code&gt;.
+     *
+     * @param type the feed type to check. May be null.
+     * @return true if if the given type is supported by the rome library, false otherwise.
+     */
+    public boolean isSupportedFeedType( final String type )
+    {
+<span class="fc" id="L162">        return getSupportedFeedTypes().contains( type );</span>
+    }
+
+    /**
+     * A List of supported feed types.
+     *
+     * @return a List of supported feed types.
+     * @see #isSupportedFeedType(java.lang.String)
+     */
+    @SuppressWarnings( &quot;unchecked&quot; )
+    public List&lt;String&gt; getSupportedFeedTypes()
+    {
+<span class="fc" id="L174">        return feed.getSupportedFeedTypes();</span>
+    }
+
+    /**
+     * Extract a feed and export it to a Writer.
+     *
+     * @param releases the List of Releases. Only the last release is used in the feed.
+     * @param feedType The type of the feed to generate. See {@link #isSupportedFeedType(java.lang.String)} for
+     *            supported values.
+     * @param writer a Writer. Note that this is not flushed nor closed upon exit.
+     * @throws IOException if an error occurs during export.
+     */
+    public void export( final List&lt;Release&gt; releases, final String feedType, final Writer writer )
+        throws IOException
+    {
+<span class="fc" id="L189">        feed.setFeedType( feedType );</span>
+<span class="fc" id="L190">        feed.setTitle( title );</span>
+<span class="fc" id="L191">        feed.setAuthor( author );</span>
+<span class="fc" id="L192">        feed.setPublishedDate( new Date() );</span>
+<span class="fc" id="L193">        feed.setLink( link );</span>
+<span class="fc" id="L194">        feed.setDescription( rbundle.getString( &quot;report.changes.text.rssfeed.description&quot; ) );</span>
+<span class="fc" id="L195">        feed.setLanguage( rbundle.getLocale().getLanguage() );</span>
+        // feed.setCopyright( );
+        // feed.setEncoding();
+<span class="fc" id="L198">        feed.setEntries( getEntries( releases ) );</span>
+
+        try
+        {
+<span class="fc" id="L202">            new SyndFeedOutput().output( feed, writer );</span>
+        }
+<span class="fc" id="L204">        catch ( FeedException ex )</span>
+        {
+<span class="fc" id="L206">            IOException ioex = new IOException( ex.getMessage() );</span>
+<span class="fc" id="L207">            ioex.initCause( ex );</span>
+<span class="fc" id="L208">            throw ioex;</span>
+<span class="fc" id="L209">        }</span>
+<span class="fc" id="L210">    }</span>
+
+    private List&lt;SyndEntry&gt; getEntries( final List&lt;Release&gt; releases )
+    {
+<span class="fc" id="L214">        final List&lt;SyndEntry&gt; entries = new ArrayList&lt;SyndEntry&gt;( 1 );</span>
+
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        if ( releases.size() &gt; 0 )</span>
+        {
+<span class="fc" id="L218">            final Release release = releases.get( 0 ); // TODO: is this guaranteed to be the latest?</span>
+
+<span class="fc" id="L220">            final SyndEntry entry = new SyndEntryImpl();</span>
+<span class="fc" id="L221">            entry.setTitle( release.getVersion() );</span>
+<span class="fc" id="L222">            entry.setLink( link + &quot;#&quot; + HtmlTools.encodeId( release.getVersion() ) );</span>
+<span class="fc" id="L223">            entry.setDescription( getSyndContent( release ) );</span>
+<span class="fc" id="L224">            entry.setPublishedDate( getDate( release.getDateRelease(), dateFormat ) );</span>
+
+<span class="fc" id="L226">            entries.add( entry );</span>
+        }
+
+<span class="fc" id="L229">        return entries;</span>
+    }
+
+    private static SyndContent getSyndContent( final Release release )
+    {
+<span class="fc" id="L234">        final SyndContent syndContent = new SyndContentImpl();</span>
+<span class="fc" id="L235">        syndContent.setType( &quot;text/html&quot; );</span>
+
+<span class="fc" id="L237">        final StringBuilder sb = new StringBuilder( 512 );</span>
+
+<span class="fc" id="L239">        final String description = release.getDescription();</span>
+
+<span class="pc bpc" id="L241" title="3 of 4 branches missed.">        if ( description != null &amp;&amp; description.trim().length() &gt; 0 )</span>
+        {
+<span class="nc" id="L243">            sb.append( &quot;&lt;p&gt;&quot; ).append( description ).append( &quot;&lt;/p&gt;&quot; );</span>
+        }
+
+        // TODO: localize?
+<span class="fc" id="L247">        sb.append( &quot;&lt;p&gt;Version &quot; ).append( release.getVersion() ).append( &quot; is available with &quot; );</span>
+<span class="fc" id="L248">        sb.append( release.getActions().size() ).append( &quot; fixed issues.&lt;/p&gt;&quot; );</span>
+
+<span class="fc" id="L250">        syndContent.setValue( sb.toString() );</span>
+
+<span class="fc" id="L252">        return syndContent;</span>
+    }
+
+    private static Date getDate( final String dateRelease, final DateFormat dateFormat )
+    {
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">        if ( dateFormat == null )</span>
+        {
+<span class="fc" id="L259">            return new Date();</span>
+        }
+
+        try
+        {
+<span class="nc" id="L264">            return dateFormat.parse( dateRelease );</span>
+        }
+<span class="nc" id="L266">        catch ( ParseException ex )</span>
+        {
+<span class="nc" id="L268">            return new Date();</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

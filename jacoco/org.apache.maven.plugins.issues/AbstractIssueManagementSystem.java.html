@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractIssueManagementSystem.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.issues</a> &gt; <span class="el_source">AbstractIssueManagementSystem.java</span></div><h1>AbstractIssueManagementSystem.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.issues;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.changes.IssueType;
+
+/**
+ * Historically, this plugin started out working against an IMS-neutral XML file, and then added extensive support for
+ * JIRA with some small snippets of code for other issue management systems. This class is intended to start a cleaner
+ * modularity for support of multiple systems.&lt;br&gt;
+ * Initially, all it provides is a structure for mapping from per-IMS issue types to the three categories defined in
+ * {@link org.apache.maven.plugins.changes.IssueAdapter}. &lt;br&gt;
+ * Note that the map in here is &lt;strong&gt;not&lt;/strong&gt; immutable. It contains the default configuration for an IMS. Users
+ * are expected to add entries to the map via configuration to reflect their customizations.
+ *
+ * @version $Id$
+ */
+public abstract class AbstractIssueManagementSystem
+    implements IssueManagementSystem
+{
+    protected Map&lt;String, IssueType&gt; issueTypeMap;
+
+    protected AbstractIssueManagementSystem()
+<span class="fc" id="L45">    {</span>
+<span class="fc" id="L46">        issueTypeMap = new HashMap&lt;String, IssueType&gt;();</span>
+<span class="fc" id="L47">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.maven.plugins.issues.IssueManagementSystem#getIssueTypeMap()
+     */
+    public Map&lt;String, IssueType&gt; getIssueTypeMap()
+    {
+<span class="fc" id="L55">        return issueTypeMap;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.maven.plugins.issues.IssueManagementSystem#getName()
+     */
+    public abstract String getName();
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.maven.plugins.issues.IssueManagementSystem#applyConfiguration(java.util.Map)
+     */
+    public void applyConfiguration( Map&lt;String, String&gt; issueTypes )
+        throws MojoExecutionException
+    {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for ( Map.Entry&lt;String, String&gt; me : issueTypes.entrySet() )</span>
+        {
+<span class="fc" id="L73">            IssueType type = IssueType.lookupByKey( me.getKey() );</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">            if ( type == null )</span>
+            {
+<span class="fc" id="L76">                throw new MojoExecutionException( &quot;Invalid issue action &quot; + me.getKey() );</span>
+            }
+<span class="fc" id="L78">            String imsTypes = me.getValue();</span>
+<span class="fc" id="L79">            String[] imsTypeArray = imsTypes.split( &quot;,&quot; );</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            for ( String imsType : imsTypeArray )</span>
+            {
+<span class="fc" id="L82">                issueTypeMap.put( imsType, type );</span>
+            }
+<span class="fc" id="L84">        }</span>
+<span class="fc" id="L85">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

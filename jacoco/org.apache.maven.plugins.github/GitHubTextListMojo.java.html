@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GitHubTextListMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.github</a> &gt; <span class="el_source">GitHubTextListMojo.java</span></div><h1>GitHubTextListMojo.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.github;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.util.Collections;
+import java.util.Comparator;
+
+import java.util.List;
+import java.util.Locale;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.changes.textformater.IssueListFormater;
+import org.apache.maven.plugins.changes.textformater.IssueListFormatterFactory;
+import org.apache.maven.plugins.issues.Issue;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.reporting.MavenReportException;
+
+/**
+ * Mojo to format a list of issues from github in a text format. It will generate a apt or markdown text formatting
+ * style which can be set to a property. That property can then be inserted in another markdown or apt text file.
+ * 
+ * @author riss
+ * @since 2.12.3
+ *
+ */
+@Mojo( name = &quot;github-text-list&quot; )
+<span class="fc" id="L47">public class GitHubTextListMojo extends GitHubMojo</span>
+{
+
+    /**
+     * 
+     * 
+     * @author riss
+     *
+     */
+<span class="fc" id="L56">    public class IssueComparator implements Comparator&lt;Issue&gt;</span>
+    {
+
+        @Override
+        public int compare( Issue o1, Issue o2 )
+        {
+<span class="fc" id="L62">            int version1 = getVersion( o1 );</span>
+<span class="fc" id="L63">            int version2 = getVersion( o2 );</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">            if ( version1 &lt; version2 )</span>
+            {
+<span class="fc" id="L66">                return 1;</span>
+            }
+<span class="fc bfc" id="L68" title="All 2 branches covered.">            else if ( version1 &gt; version2 )</span>
+            {
+<span class="fc" id="L70">                return -1;</span>
+            }
+            else
+            {
+<span class="fc bfc" id="L74" title="All 2 branches covered.">                if ( o1.getUpdated().before( o2.getUpdated() ) )</span>
+                {
+<span class="fc" id="L76">                    return 1;</span>
+                }
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">                else if ( o1.getUpdated().after( o2.getUpdated() ) )</span>
+                {
+<span class="fc" id="L80">                    return -1;</span>
+                }
+                else
+                {
+<span class="nc" id="L84">                    return 0;</span>
+                }
+            }
+        }
+
+        private int getVersion( Issue o1 )
+        {
+<span class="fc" id="L91">            String version = o1.getVersion();</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">            if ( StringUtils.isEmpty( version ) )</span>
+            {
+<span class="fc" id="L94">                List&lt;String&gt; versions = o1.getFixVersions();</span>
+<span class="pc bpc" id="L95" title="1 of 4 branches missed.">                if ( versions != null &amp;&amp; !versions.isEmpty() )</span>
+                {
+<span class="fc" id="L97">                    version = versions.get( 0 );</span>
+                }
+                else
+                {
+<span class="fc" id="L101">                    return 0;</span>
+                }
+            }
+<span class="fc" id="L104">            version = version.replaceAll( &quot;-SNAPSHOT&quot;, &quot;&quot; );</span>
+<span class="fc" id="L105">            version = version.replaceAll( &quot;\\.&quot;, &quot;&quot; );</span>
+<span class="fc" id="L106">            return Integer.parseInt( version );</span>
+        }
+    }
+
+    /***
+     * The text formatter to be used to format issues. Accepted values are &lt;code&gt;apt&lt;/code&gt; or &lt;code&gt;markdown&lt;/code&gt;.
+     */
+    @Parameter( property = &quot;changes.text.list.formater&quot;, defaultValue = &quot;markdown&quot; )
+    private String textListFormater;
+
+    /***
+     * The name of the property to be set with the formatted result of issues, following the format defined at
+     * &lt;code&gt;textListFormater&lt;/code&gt;.
+     */
+    @Parameter( property = &quot;changes.issue.list.propert.name&quot;, defaultValue = &quot;issues.text.list&quot; )
+    private String issueListPropertyName;
+
+    /***
+     * The number of symbols used for sub-title leveling in case of version title separators. 
+     * In case of markdown the number of '#' characters used in the version sub-title.
+     */
+    @Parameter( property = &quot;subtitle.level.number&quot;, defaultValue = &quot;3&quot; )
+    private int subtitleLevelNumber;
+
+    @Override
+    protected void generateReport( Locale locale, List&lt;Integer&gt; columnIds, List&lt;Issue&gt; issueList )
+    {
+<span class="fc" id="L133">        Collections.sort( issueList, new IssueComparator() );</span>
+<span class="fc" id="L134">        IssueListFormater issueFormatter = IssueListFormatterFactory.getInstance()</span>
+<span class="fc" id="L135">                .getIssueListFormatter( textListFormater, true, project.getIssueManagement().getUrl(), &quot;&quot;, columnIds,</span>
+                        locale, subtitleLevelNumber );
+<span class="fc" id="L137">        project.getProperties().put( issueListPropertyName, issueFormatter.formatIssueList( issueList ) );</span>
+<span class="fc" id="L138">    }</span>
+
+    public MavenProject getMavenProject()
+    {
+<span class="fc" id="L142">        return project;</span>
+    }
+
+    @Override
+    public void execute() throws MojoExecutionException
+    {
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if ( !canGenerateReport() )</span>
+        {
+<span class="nc" id="L150">            return;</span>
+        }
+<span class="fc" id="L152">        Locale locale = Locale.getDefault();</span>
+        try
+        {
+<span class="fc" id="L155">            executeReport( locale );</span>
+        }
+<span class="fc" id="L157">        catch ( MavenReportException e )</span>
+        {
+<span class="fc" id="L159">            throw new MojoExecutionException(</span>
+<span class="fc" id="L160">                    &quot;An error has occurred in &quot; + getName( Locale.ENGLISH ) + &quot; report generation.&quot;, e );</span>
+<span class="fc" id="L161">        }</span>
+<span class="fc" id="L162">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

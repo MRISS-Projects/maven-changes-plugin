@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractIssuesReportGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.issues</a> &gt; <span class="el_source">AbstractIssuesReportGenerator.java</span></div><h1>AbstractIssuesReportGenerator.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.issues;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.util.ResourceBundle;
+
+import org.apache.maven.doxia.sink.Sink;
+import org.apache.maven.doxia.sink.SinkEventAttributeSet;
+import org.apache.maven.doxia.sink.SinkEventAttributes;
+import org.codehaus.plexus.util.StringUtils;
+
+/**
+ * An abstract super class that helps when generating a report on issues.
+ *
+ * @author Dennis Lundberg
+ * @version $Id$
+ * @since 2.4
+ */
+public abstract class AbstractIssuesReportGenerator
+{
+    protected String author;
+
+    protected String title;
+
+    public AbstractIssuesReportGenerator()
+<span class="fc" id="L43">    {</span>
+<span class="fc" id="L44">    }</span>
+
+    public String getAuthor()
+    {
+<span class="nc" id="L48">        return author;</span>
+    }
+
+    public void setAuthor( String author )
+    {
+<span class="nc" id="L53">        this.author = author;</span>
+<span class="nc" id="L54">    }</span>
+
+    public String getTitle()
+    {
+<span class="nc" id="L58">        return title;</span>
+    }
+
+    public void setTitle( String title )
+    {
+<span class="nc" id="L63">        this.title = title;</span>
+<span class="nc" id="L64">    }</span>
+
+    protected void sinkBeginReport( Sink sink, ResourceBundle bundle )
+    {
+<span class="fc" id="L68">        sink.head();</span>
+
+        String title;
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if ( this.title != null )</span>
+        {
+<span class="nc" id="L73">            title = this.title;</span>
+        }
+        else
+        {
+<span class="fc" id="L77">            title = bundle.getString( &quot;report.issues.header&quot; );</span>
+        }
+<span class="fc" id="L79">        sink.title();</span>
+<span class="fc" id="L80">        sink.text( title );</span>
+<span class="fc" id="L81">        sink.title_();</span>
+
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if ( StringUtils.isNotEmpty( author ) )</span>
+        {
+<span class="nc" id="L85">            sink.author();</span>
+<span class="nc" id="L86">            sink.text( author );</span>
+<span class="nc" id="L87">            sink.author_();</span>
+        }
+
+<span class="fc" id="L90">        sink.head_();</span>
+
+<span class="fc" id="L92">        sink.body();</span>
+
+<span class="fc" id="L94">        sink.section1();</span>
+
+<span class="fc" id="L96">        sink.sectionTitle1();</span>
+
+<span class="fc" id="L98">        sink.text( title );</span>
+
+<span class="fc" id="L100">        sink.sectionTitle1_();</span>
+<span class="fc" id="L101">    }</span>
+
+    protected void sinkCell( Sink sink, String text )
+    {
+<span class="fc" id="L105">        sink.tableCell();</span>
+
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if ( text != null )</span>
+        {
+<span class="fc" id="L109">            sink.text( text );</span>
+        }
+        else
+        {
+<span class="nc" id="L113">            sink.nonBreakingSpace();</span>
+        }
+
+<span class="fc" id="L116">        sink.tableCell_();</span>
+<span class="fc" id="L117">    }</span>
+
+    protected void sinkCellLink( Sink sink, String text, String link )
+    {
+<span class="nc" id="L121">        sink.tableCell();</span>
+
+<span class="nc" id="L123">        sinkLink( sink, text, link );</span>
+
+<span class="nc" id="L125">        sink.tableCell_();</span>
+<span class="nc" id="L126">    }</span>
+
+    protected void sinkEndReport( Sink sink )
+    {
+<span class="fc" id="L130">        sink.section1_();</span>
+
+<span class="fc" id="L132">        sink.body_();</span>
+
+<span class="fc" id="L134">        sink.flush();</span>
+
+<span class="fc" id="L136">        sink.close();</span>
+<span class="fc" id="L137">    }</span>
+
+    protected void sinkFigure( Sink sink, String image, String altText )
+    {
+<span class="nc" id="L141">        SinkEventAttributes attributes = new SinkEventAttributeSet();</span>
+<span class="nc" id="L142">        attributes.addAttribute( &quot;alt&quot;, altText );</span>
+<span class="nc" id="L143">        attributes.addAttribute( &quot;title&quot;, altText );</span>
+
+<span class="nc" id="L145">        sink.figureGraphics( image, attributes );</span>
+<span class="nc" id="L146">    }</span>
+
+    protected void sinkHeader( Sink sink, String header )
+    {
+<span class="fc" id="L150">        sink.tableHeaderCell();</span>
+
+<span class="fc" id="L152">        sink.text( header );</span>
+
+<span class="fc" id="L154">        sink.tableHeaderCell_();</span>
+<span class="fc" id="L155">    }</span>
+
+    protected void sinkLink( Sink sink, String text, String link )
+    {
+<span class="nc" id="L159">        sink.link( link );</span>
+
+<span class="nc" id="L161">        sink.text( text );</span>
+
+<span class="nc" id="L163">        sink.link_();</span>
+<span class="nc" id="L164">    }</span>
+
+    protected void sinkShowTypeIcon( Sink sink, String type )
+    {
+<span class="nc" id="L168">        String image = &quot;&quot;;</span>
+<span class="nc" id="L169">        String altText = &quot;&quot;;</span>
+
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        if ( type == null )</span>
+        {
+<span class="nc" id="L173">            image = &quot;images/icon_help_sml.gif&quot;;</span>
+<span class="nc" id="L174">            altText = &quot;Unknown&quot;;</span>
+        }
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        else if ( type.equals( &quot;fix&quot; ) )</span>
+        {
+<span class="nc" id="L178">            image = &quot;images/fix.gif&quot;;</span>
+<span class="nc" id="L179">            altText = &quot;Fix&quot;;</span>
+        }
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        else if ( type.equals( &quot;update&quot; ) )</span>
+        {
+<span class="nc" id="L183">            image = &quot;images/update.gif&quot;;</span>
+<span class="nc" id="L184">            altText = &quot;Update&quot;;</span>
+        }
+<span class="nc bnc" id="L186" title="All 2 branches missed.">        else if ( type.equals( &quot;add&quot; ) )</span>
+        {
+<span class="nc" id="L188">            image = &quot;images/add.gif&quot;;</span>
+<span class="nc" id="L189">            altText = &quot;Add&quot;;</span>
+        }
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        else if ( type.equals( &quot;remove&quot; ) )</span>
+        {
+<span class="nc" id="L193">            image = &quot;images/remove.gif&quot;;</span>
+<span class="nc" id="L194">            altText = &quot;Remove&quot;;</span>
+        }
+
+<span class="nc" id="L197">        sink.tableCell();</span>
+
+<span class="nc" id="L199">        sinkFigure( sink, image, altText );</span>
+
+<span class="nc" id="L201">        sink.tableCell_();</span>
+<span class="nc" id="L202">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Issue.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.issues</a> &gt; <span class="el_source">Issue.java</span></div><h1>Issue.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.issues;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * An issue.
+ *
+ * @author Dennis Lundberg
+ * @version $Id$
+ * @since 2.4
+ */
+public class Issue
+{
+    private String assignee;
+
+    private List&lt;String&gt; comments;
+
+    private List&lt;String&gt; components;
+
+    private Date created;
+
+    private List&lt;String&gt; fixVersions;
+
+    private String id;
+
+    private String key;
+
+    private String link;
+
+    private String priority;
+
+    private String reporter;
+
+    private String resolution;
+
+    private String status;
+
+    private String summary;
+
+    private String title;
+
+    private String type;
+
+    private Date updated;
+
+    private String version;
+
+    public Issue()
+<span class="fc" id="L70">    {</span>
+<span class="fc" id="L71">    }</span>
+
+    public String getAssignee()
+    {
+<span class="fc" id="L75">        return assignee;</span>
+    }
+
+    public void setAssignee( String assignee )
+    {
+<span class="fc" id="L80">        this.assignee = assignee;</span>
+<span class="fc" id="L81">    }</span>
+
+    public List&lt;String&gt; getComments()
+    {
+<span class="nc" id="L85">        return comments;</span>
+    }
+
+    public void addComment( String comment )
+    {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if ( comments == null )</span>
+        {
+<span class="fc" id="L92">            comments = new ArrayList&lt;String&gt;();</span>
+        }
+<span class="fc" id="L94">        comments.add( comment );</span>
+<span class="fc" id="L95">    }</span>
+
+    public List&lt;String&gt; getComponents()
+    {
+<span class="nc" id="L99">        return components;</span>
+    }
+
+    public void addComponent( String component )
+    {
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if ( components == null )</span>
+        {
+<span class="nc" id="L106">            components = new ArrayList&lt;String&gt;();</span>
+        }
+<span class="nc" id="L108">        components.add( component );</span>
+<span class="nc" id="L109">    }</span>
+
+    public Date getCreated()
+    {
+<span class="fc" id="L113">        return created;</span>
+    }
+
+    public void setCreated( Date created )
+    {
+<span class="fc" id="L118">        this.created = created;</span>
+<span class="fc" id="L119">    }</span>
+
+    public List&lt;String&gt; getFixVersions()
+    {
+<span class="fc" id="L123">        return fixVersions;</span>
+    }
+
+    public void addFixVersion( String fixVersion )
+    {
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        if ( fixVersions == null )</span>
+        {
+<span class="fc" id="L130">            fixVersions = new ArrayList&lt;String&gt;();</span>
+        }
+<span class="fc" id="L132">        fixVersions.add( fixVersion );</span>
+<span class="fc" id="L133">    }</span>
+
+    public String getId()
+    {
+<span class="fc" id="L137">        return id;</span>
+    }
+
+    public void setId( String id )
+    {
+<span class="fc" id="L142">        this.id = id;</span>
+<span class="fc" id="L143">    }</span>
+
+    public String getKey()
+    {
+<span class="fc" id="L147">        return key;</span>
+    }
+
+    public void setKey( String key )
+    {
+<span class="fc" id="L152">        this.key = key;</span>
+<span class="fc" id="L153">    }</span>
+
+    public String getLink()
+    {
+<span class="fc" id="L157">        return link;</span>
+    }
+
+    public void setLink( String link )
+    {
+<span class="fc" id="L162">        this.link = link;</span>
+<span class="fc" id="L163">    }</span>
+
+    public String getPriority()
+    {
+<span class="nc" id="L167">        return priority;</span>
+    }
+
+    public void setPriority( String priority )
+    {
+<span class="fc" id="L172">        this.priority = priority;</span>
+<span class="fc" id="L173">    }</span>
+
+    public String getReporter()
+    {
+<span class="fc" id="L177">        return reporter;</span>
+    }
+
+    public void setReporter( String reporter )
+    {
+<span class="fc" id="L182">        this.reporter = reporter;</span>
+<span class="fc" id="L183">    }</span>
+
+    public String getResolution()
+    {
+<span class="fc" id="L187">        return resolution;</span>
+    }
+
+    public void setResolution( String resolution )
+    {
+<span class="fc" id="L192">        this.resolution = resolution;</span>
+<span class="fc" id="L193">    }</span>
+
+    public String getStatus()
+    {
+<span class="fc" id="L197">        return status;</span>
+    }
+
+    public void setStatus( String status )
+    {
+<span class="fc" id="L202">        this.status = status;</span>
+<span class="fc" id="L203">    }</span>
+
+    public String getSummary()
+    {
+<span class="fc" id="L207">        return summary;</span>
+    }
+
+    public void setSummary( String summary )
+    {
+<span class="fc" id="L212">        this.summary = summary;</span>
+<span class="fc" id="L213">    }</span>
+
+    public String getTitle()
+    {
+<span class="fc" id="L217">        return title;</span>
+    }
+
+    public void setTitle( String title )
+    {
+<span class="fc" id="L222">        this.title = title;</span>
+<span class="fc" id="L223">    }</span>
+
+    public String getType()
+    {
+<span class="fc" id="L227">        return type;</span>
+    }
+
+    public void setType( String type )
+    {
+<span class="fc" id="L232">        this.type = type;</span>
+<span class="fc" id="L233">    }</span>
+
+    public Date getUpdated()
+    {
+<span class="fc" id="L237">        return updated;</span>
+    }
+
+    public void setUpdated( Date updated )
+    {
+<span class="fc" id="L242">        this.updated = updated;</span>
+<span class="fc" id="L243">    }</span>
+
+    public String getVersion()
+    {
+<span class="fc" id="L247">        return version;</span>
+    }
+
+    public void setVersion( String version )
+    {
+<span class="nc" id="L252">        this.version = version;</span>
+<span class="nc" id="L253">    }</span>
+
+    public String toString()
+    {
+<span class="fc" id="L257">        return this.getClass().getSimpleName() + &quot;[id='&quot; + this.getId() + &quot;'&quot; + &quot;, title='&quot; + this.getTitle() + &quot;'&quot;</span>
+<span class="fc" id="L258">            + &quot;, fixVersions='&quot; + this.getFixVersions() + &quot;'&quot; + &quot;]&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

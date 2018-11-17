@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChangesMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.changes</a> &gt; <span class="el_source">ChangesMojo.java</span></div><h1>ChangesMojo.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.changes;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.ResourceBundle;
+
+import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.apache.commons.io.input.XmlStreamReader;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.changes.model.Release;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.reporting.MavenReportException;
+import org.apache.maven.shared.filtering.MavenFileFilter;
+import org.apache.maven.shared.filtering.MavenFileFilterRequest;
+import org.apache.maven.shared.filtering.MavenFilteringException;
+import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.IOUtil;
+import org.codehaus.plexus.util.StringUtils;
+
+/**
+ * Goal which creates a nicely formatted Changes Report in html format from a changes.xml file.
+ *
+ * @author &lt;a href=&quot;mailto:jruiz@exist.com&quot;&gt;Johnny R. Ruiz III&lt;/a&gt;
+ * @version $Id$
+ */
+@Mojo( name = &quot;changes-report&quot;, threadSafe = true )
+<span class="nc" id="L60">public class ChangesMojo</span>
+    extends AbstractChangesReport
+{
+    /**
+     * A flag whether the report should also include changes from child modules. If set to &lt;code&gt;false&lt;/code&gt;, only the
+     * changes from current project will be written to the report.
+     *
+     * @since 2.5
+     */
+    @Parameter( defaultValue = &quot;false&quot; )
+    private boolean aggregated;
+
+    /**
+     * A flag whether the report should also include the dates of individual actions. If set to &lt;code&gt;false&lt;/code&gt;, only
+     * the dates of releases will be written to the report.
+     *
+     * @since 2.1
+     */
+    @Parameter( property = &quot;changes.addActionDate&quot;, defaultValue = &quot;false&quot; )
+    private boolean addActionDate;
+
+    /**
+     * Whether HTML code within an action should be escaped. By changing this to &lt;code&gt;false&lt;/code&gt; you can restore the
+     * behavior that was in version 2.2 of this plugin, allowing you to use HTML code to format the content of an
+     * action.
+     * &lt;p&gt;
+     * &lt;strong&gt;Note:&lt;/strong&gt; If you use HTML code in an action you need to place it inside a CDATA section.
+     * &lt;/p&gt;
+     * &lt;strong&gt;Note:&lt;/strong&gt; Putting any kind of markup inside a CDATA section might mess up the Changes Report or
+     * other generated documents, such as PDFs, that are based on your &lt;code&gt;changes.xml&lt;/code&gt; file if you are not
+     * careful.
+     *
+     * @since 2.4
+     * @deprecated using markup inside CDATA sections does not work for all output formats!
+     */
+    @Parameter
+    private Boolean escapeHTML;
+
+    /**
+     * The directory for interpolated changes.xml.
+     *
+     * @since 2.2
+     */
+    @Parameter( defaultValue = &quot;${project.build.directory}/changes&quot;, required = true, readonly = true )
+    private File filteredOutputDirectory;
+
+    /**
+     * applying filtering filtering &quot;a la&quot; resources plugin
+     *
+     * @since 2.2
+     */
+    @Parameter( defaultValue = &quot;false&quot; )
+    private boolean filteringChanges;
+
+    /**
+     * Template string that is used to discover the URL to use to display an issue report. There are 2 template tokens
+     * you can use. &lt;code&gt;%URL%&lt;/code&gt;: this is computed by getting the &lt;code&gt;&amp;lt;issueManagement&amp;gt;/&amp;lt;url&amp;gt;&lt;/code&gt;
+     * value from the POM, and removing the last '/' and everything that comes after it. &lt;code&gt;%ISSUE%&lt;/code&gt;: this is
+     * the issue number.
+     * &lt;p&gt;
+     * &lt;strong&gt;Note:&lt;/strong&gt; In versions of this plugin prior to 2.0-beta-2 this parameter was called
+     * &lt;code&gt;link_template&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @since 2.0-beta-2
+     * @deprecated As of 2.1 use issueLinkTemplatePerSystem: this one will be with system default
+     */
+    @Parameter( property = &quot;changes.issueLinkTemplate&quot; )
+    private String issueLinkTemplate;
+
+    /**
+     * Template strings per system that is used to discover the URL to use to display an issue report. Each key in this
+     * map denotes the (case-insensitive) identifier of the issue tracking system and its value gives the URL template.
+     * &lt;p&gt;
+     * There are 2 template tokens you can use. &lt;code&gt;%URL%&lt;/code&gt;: this is computed by getting the
+     * &lt;code&gt;&amp;lt;issueManagement&amp;gt;/&amp;lt;url&amp;gt;&lt;/code&gt; value from the POM, and removing the last '/' and everything
+     * that comes after it. &lt;code&gt;%ISSUE%&lt;/code&gt;: this is the issue number.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;strong&gt;Note:&lt;/strong&gt; The deprecated issueLinkTemplate will be used for a system called &quot;default&quot;.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;strong&gt;Note:&lt;/strong&gt; Starting with version 2.4 you usually don't need to specify this, unless you need to link
+     * to an issue management system in your Changes report that isn't supported out of the box. See the
+     * &lt;a href=&quot;./usage.html&quot;&gt;Usage page&lt;/a&gt; for more information.
+     * &lt;/p&gt;
+     *
+     * @since 2.1
+     */
+    @Parameter
+    private Map&lt;String, String&gt; issueLinkTemplatePerSystem;
+
+    /**
+     * @since 2.2
+     */
+    @Component
+    private MavenFileFilter mavenFileFilter;
+
+    /**
+     * Format to use for publishDate. The value will be available with the following expression ${publishDate}
+     *
+     * @see java.text.SimpleDateFormat
+     * @since 2.2
+     */
+    @Parameter( defaultValue = &quot;yyyy-MM-dd&quot; )
+    private String publishDateFormat;
+
+    /**
+     * Locale to use for publishDate when formatting
+     *
+     * @see java.util.Locale
+     * @since 2.2
+     */
+    @Parameter( defaultValue = &quot;en&quot; )
+    private String publishDateLocale;
+
+    /**
+     * @since 2.2
+     */
+    @Parameter( defaultValue = &quot;${session}&quot;, readonly = true, required = true )
+    protected MavenSession session;
+
+    /**
+     * @since 2.4
+     */
+    @Parameter( defaultValue = &quot;${project.issueManagement.system}&quot;, readonly = true )
+    private String system;
+
+    /**
+     * The URI of a file containing all the team members. If this is set to the special value &quot;none&quot;, no links will be
+     * generated for the team members.
+     *
+     * @since 2.4
+     */
+    @Parameter( defaultValue = &quot;team-list.html&quot; )
+    private String teamlist;
+
+    /**
+     */
+    @Parameter( defaultValue = &quot;${project.issueManagement.url}&quot;, readonly = true )
+    private String url;
+
+    /**
+     * The type of the feed to generate.
+     * &lt;p&gt;
+     * Supported values are: &lt;code&gt;&quot;rss_0.9&quot;, &quot;rss_0.91N&quot; (RSS 0.91 Netscape), &quot;rss_0.91U&quot; (RSS 0.91 Userland),
+     * &quot;rss_0.92&quot;, &quot;rss_0.93&quot;, &quot;rss_0.94&quot;, &quot;rss_1.0&quot;, &quot;rss_2.0&quot;, &quot;atom_0.3&quot;, &quot;atom_1.0&quot;&lt;/code&gt;.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * If not specified, no feed is generated.
+     * &lt;/p&gt;
+     *
+     * @since 2.9
+     */
+    @Parameter
+    private String feedType;
+
+    /**
+     * The path of the &lt;code&gt;changes.xml&lt;/code&gt; file that will be converted into an HTML report.
+     */
+    @Parameter( property = &quot;changes.xmlPath&quot;, defaultValue = &quot;src/changes/changes.xml&quot; )
+    private File xmlPath;
+
+<span class="nc" id="L223">    private ReleaseUtils releaseUtils = new ReleaseUtils( getLog() );</span>
+
+    private CaseInsensitiveMap caseInsensitiveIssueLinkTemplatePerSystem;
+
+    /* --------------------------------------------------------------------- */
+    /* Public methods */
+    /* --------------------------------------------------------------------- */
+
+    public boolean canGenerateReport()
+    {
+        // Run only at the execution root
+<span class="nc bnc" id="L234" title="All 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+        {
+<span class="nc" id="L236">            getLog().info( &quot;Skipping the Changes Report in this project because it's not the Execution Root&quot; );</span>
+<span class="nc" id="L237">            return false;</span>
+        }
+<span class="nc" id="L239">        return xmlPath.isFile();</span>
+    }
+
+    public void executeReport( Locale locale )
+        throws MavenReportException
+    {
+<span class="nc" id="L245">        failIfUsingDeprecatedParameter( escapeHTML, &quot;escapeHTML&quot;,</span>
+                                        &quot;Using markup inside CDATA sections does not work for all output formats!&quot; );
+<span class="nc" id="L247">        failIfUsingDeprecatedParameter( issueLinkTemplate, &quot;issueLinkTemplate&quot;,</span>
+                                        &quot;You must use 'issueLinkTemplatePerSystem' for the system '&quot;
+                                            + ChangesReportGenerator.DEFAULT_ISSUE_SYSTEM_KEY + &quot;' instead.&quot; );
+<span class="nc" id="L250">        Date now = new Date();</span>
+<span class="nc" id="L251">        SimpleDateFormat simpleDateFormat = new SimpleDateFormat( publishDateFormat, new Locale( publishDateLocale ) );</span>
+<span class="nc" id="L252">        Properties additionalProperties = new Properties();</span>
+<span class="nc" id="L253">        additionalProperties.put( &quot;publishDate&quot;, simpleDateFormat.format( now ) );</span>
+
+<span class="nc" id="L255">        ChangesXML changesXml = getChangesFromFile( xmlPath, project, additionalProperties );</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">        if ( changesXml == null )</span>
+        {
+<span class="nc" id="L258">            return;</span>
+        }
+
+<span class="nc bnc" id="L261" title="All 2 branches missed.">        if ( aggregated )</span>
+        {
+<span class="nc" id="L263">            final String basePath = project.getBasedir().getAbsolutePath();</span>
+<span class="nc" id="L264">            final String absolutePath = xmlPath.getAbsolutePath();</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">            if ( !absolutePath.startsWith( basePath ) )</span>
+            {
+<span class="nc" id="L267">                getLog().warn( &quot;xmlPath should be within the project dir for aggregated changes report.&quot; );</span>
+<span class="nc" id="L268">                return;</span>
+            }
+<span class="nc" id="L270">            final String relativePath = absolutePath.substring( basePath.length() );</span>
+
+<span class="nc" id="L272">            List&lt;Release&gt; releaseList = changesXml.getReleaseList();</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">            for ( Object o : project.getCollectedProjects() )</span>
+            {
+<span class="nc" id="L275">                final MavenProject childProject = (MavenProject) o;</span>
+<span class="nc" id="L276">                final File changesFile = new File( childProject.getBasedir(), relativePath );</span>
+<span class="nc" id="L277">                final ChangesXML childXml = getChangesFromFile( changesFile, childProject, additionalProperties );</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">                if ( childXml != null )</span>
+                {
+<span class="nc" id="L280">                    releaseList =</span>
+<span class="nc" id="L281">                        releaseUtils.mergeReleases( releaseList, childProject.getName(), childXml.getReleaseList() );</span>
+                }
+<span class="nc" id="L283">            }</span>
+<span class="nc" id="L284">            changesXml.setReleaseList( releaseList );</span>
+        }
+
+<span class="nc" id="L287">        ChangesReportGenerator report = new ChangesReportGenerator( changesXml.getReleaseList() );</span>
+
+<span class="nc" id="L289">        report.setAuthor( changesXml.getAuthor() );</span>
+<span class="nc" id="L290">        report.setTitle( changesXml.getTitle() );</span>
+
+<span class="nc" id="L292">        report.setEscapeHTML( true );</span>
+
+        // Create a case insensitive version of issueLinkTemplatePerSystem
+        // We need something case insensitive to maintain backward compatibility
+<span class="nc bnc" id="L296" title="All 2 branches missed.">        if ( issueLinkTemplatePerSystem == null )</span>
+        {
+<span class="nc" id="L298">            caseInsensitiveIssueLinkTemplatePerSystem = new CaseInsensitiveMap();</span>
+        }
+        else
+        {
+<span class="nc" id="L302">            caseInsensitiveIssueLinkTemplatePerSystem = new CaseInsensitiveMap( issueLinkTemplatePerSystem );</span>
+        }
+
+        // Set good default values for issue management systems here
+<span class="nc" id="L306">        addIssueLinkTemplate( ChangesReportGenerator.DEFAULT_ISSUE_SYSTEM_KEY, &quot;%URL%/ViewIssue.jspa?key=%ISSUE%&quot; );</span>
+<span class="nc" id="L307">        addIssueLinkTemplate( &quot;Bitbucket&quot;, &quot;%URL%/issue/%ISSUE%&quot; );</span>
+<span class="nc" id="L308">        addIssueLinkTemplate( &quot;Bugzilla&quot;, &quot;%URL%/show_bug.cgi?id=%ISSUE%&quot; );</span>
+<span class="nc" id="L309">        addIssueLinkTemplate( &quot;GitHub&quot;, &quot;%URL%/%ISSUE%&quot; );</span>
+<span class="nc" id="L310">        addIssueLinkTemplate( &quot;GoogleCode&quot;, &quot;%URL%/detail?id=%ISSUE%&quot; );</span>
+<span class="nc" id="L311">        addIssueLinkTemplate( &quot;JIRA&quot;, &quot;%URL%/%ISSUE%&quot; );</span>
+<span class="nc" id="L312">        addIssueLinkTemplate( &quot;Mantis&quot;, &quot;%URL%/view.php?id=%ISSUE%&quot; );</span>
+<span class="nc" id="L313">        addIssueLinkTemplate( &quot;MKS&quot;, &quot;%URL%/viewissue?selection=%ISSUE%&quot; );</span>
+<span class="nc" id="L314">        addIssueLinkTemplate( &quot;Redmine&quot;, &quot;%URL%/issues/show/%ISSUE%&quot; );</span>
+<span class="nc" id="L315">        addIssueLinkTemplate( &quot;Scarab&quot;, &quot;%URL%/issues/id/%ISSUE%&quot; );</span>
+<span class="nc" id="L316">        addIssueLinkTemplate( &quot;SourceForge&quot;, &quot;http://sourceforge.net/support/tracker.php?aid=%ISSUE%&quot; );</span>
+<span class="nc" id="L317">        addIssueLinkTemplate( &quot;SourceForge2&quot;, &quot;%URL%/%ISSUE%&quot; );</span>
+<span class="nc" id="L318">        addIssueLinkTemplate( &quot;Trac&quot;, &quot;%URL%/ticket/%ISSUE%&quot; );</span>
+<span class="nc" id="L319">        addIssueLinkTemplate( &quot;Trackplus&quot;, &quot;%URL%/printItem.action?key=%ISSUE%&quot; );</span>
+<span class="nc" id="L320">        addIssueLinkTemplate( &quot;YouTrack&quot;, &quot;%URL%/issue/%ISSUE%&quot; );</span>
+        // @todo Add more issue management systems here
+        // Remember to also add documentation in usage.apt.vm
+
+        // Show the current issueLinkTemplatePerSystem configuration
+<span class="nc" id="L325">        logIssueLinkTemplatePerSystem( caseInsensitiveIssueLinkTemplatePerSystem );</span>
+
+<span class="nc" id="L327">        report.setIssueLinksPerSystem( caseInsensitiveIssueLinkTemplatePerSystem );</span>
+
+<span class="nc" id="L329">        report.setSystem( system );</span>
+
+<span class="nc" id="L331">        report.setTeamlist( teamlist );</span>
+
+<span class="nc" id="L333">        report.setUrl( url );</span>
+
+<span class="nc" id="L335">        report.setAddActionDate( addActionDate );</span>
+
+<span class="nc bnc" id="L337" title="All 2 branches missed.">        if ( StringUtils.isEmpty( url ) )</span>
+        {
+<span class="nc" id="L339">            getLog().warn( &quot;No issue management URL defined in POM. Links to your issues will not work correctly.&quot; );</span>
+        }
+
+<span class="nc" id="L342">        boolean feedGenerated = false;</span>
+
+<span class="nc bnc" id="L344" title="All 2 branches missed.">        if ( StringUtils.isNotEmpty( feedType ) )</span>
+        {
+<span class="nc" id="L346">            feedGenerated = generateFeed( changesXml, locale );</span>
+        }
+
+<span class="nc" id="L349">        report.setLinkToFeed( feedGenerated );</span>
+
+<span class="nc" id="L351">        report.doGenerateReport( getBundle( locale ), getSink() );</span>
+
+        // Copy the images
+<span class="nc" id="L354">        copyStaticResources();</span>
+<span class="nc" id="L355">    }</span>
+
+    private void failIfUsingDeprecatedParameter( Object value, String name, String message )
+        throws MavenReportException
+    {
+<span class="nc bnc" id="L360" title="All 2 branches missed.">        if ( value != null )</span>
+        {
+<span class="nc" id="L362">            throw new MavenReportException( &quot;You are using the old parameter '&quot; + name + &quot;'. &quot; + message );</span>
+        }
+<span class="nc" id="L364">    }</span>
+
+    public String getDescription( Locale locale )
+    {
+<span class="nc" id="L368">        return getBundle( locale ).getString( &quot;report.issues.description&quot; );</span>
+    }
+
+    public String getName( Locale locale )
+    {
+<span class="nc" id="L373">        return getBundle( locale ).getString( &quot;report.issues.name&quot; );</span>
+    }
+
+    public String getOutputName()
+    {
+<span class="nc" id="L378">        return &quot;changes-report&quot;;</span>
+    }
+
+    /* --------------------------------------------------------------------- */
+    /* Private methods */
+    /* --------------------------------------------------------------------- */
+
+    /**
+     * Parses specified changes.xml file. It also makes filtering if needed. If specified file doesn't exist it will log
+     * warning and return &lt;code&gt;null&lt;/code&gt;.
+     *
+     * @param changesXml changes xml file to parse
+     * @param project maven project to parse changes for
+     * @param additionalProperties additional properties used for filtering
+     * @return parsed &lt;code&gt;ChangesXML&lt;/code&gt; instance or null if file doesn't exist
+     * @throws MavenReportException if any errors occurs while parsing
+     */
+    private ChangesXML getChangesFromFile( File changesXml, MavenProject project, Properties additionalProperties )
+        throws MavenReportException
+    {
+<span class="nc bnc" id="L398" title="All 2 branches missed.">        if ( !changesXml.exists() )</span>
+        {
+<span class="nc" id="L400">            getLog().warn( &quot;changes.xml file &quot; + changesXml.getAbsolutePath() + &quot; does not exist.&quot; );</span>
+<span class="nc" id="L401">            return null;</span>
+        }
+
+<span class="nc bnc" id="L404" title="All 2 branches missed.">        if ( filteringChanges )</span>
+        {
+<span class="nc bnc" id="L406" title="All 2 branches missed.">            if ( !filteredOutputDirectory.exists() )</span>
+            {
+<span class="nc" id="L408">                filteredOutputDirectory.mkdirs();</span>
+            }
+<span class="nc" id="L410">            XmlStreamReader xmlStreamReader = null;</span>
+            try
+            {
+                // so we get encoding from the file itself
+<span class="nc" id="L414">                xmlStreamReader = new XmlStreamReader( changesXml );</span>
+<span class="nc" id="L415">                String encoding = xmlStreamReader.getEncoding();</span>
+<span class="nc" id="L416">                File resultFile = new File( filteredOutputDirectory,</span>
+<span class="nc" id="L417">                                            project.getGroupId() + &quot;.&quot; + project.getArtifactId() + &quot;-changes.xml&quot; );</span>
+
+<span class="nc" id="L419">                final MavenFileFilterRequest mavenFileFilterRequest =</span>
+<span class="nc" id="L420">                    new MavenFileFilterRequest( changesXml, resultFile, true, project, Collections.&lt;String&gt;emptyList(),</span>
+                                                false, encoding, session, additionalProperties );
+<span class="nc" id="L422">                mavenFileFilter.copyFile( mavenFileFilterRequest );</span>
+<span class="nc" id="L423">                changesXml = resultFile;</span>
+<span class="nc" id="L424">                xmlStreamReader.close();</span>
+<span class="nc" id="L425">                xmlStreamReader = null;</span>
+            }
+<span class="nc" id="L427">            catch ( IOException e )</span>
+            {
+<span class="nc" id="L429">                throw new MavenReportException( &quot;Exception during filtering changes file : &quot; + e.getMessage(), e );</span>
+            }
+<span class="nc" id="L431">            catch ( MavenFilteringException e )</span>
+            {
+<span class="nc" id="L433">                throw new MavenReportException( &quot;Exception during filtering changes file : &quot; + e.getMessage(), e );</span>
+            }
+            finally
+            {
+<span class="nc" id="L437">                IOUtil.close( xmlStreamReader );</span>
+            }
+
+        }
+<span class="nc" id="L441">        return new ChangesXML( changesXml, getLog() );</span>
+    }
+
+    /**
+     * Add the issue link template for the given issue management system, but only if it has not already been
+     * configured.
+     *
+     * @param system The issue management system
+     * @param issueLinkTemplate The issue link template to use
+     * @since 2.4
+     */
+    private void addIssueLinkTemplate( String system, String issueLinkTemplate )
+    {
+<span class="nc bnc" id="L454" title="All 2 branches missed.">        if ( caseInsensitiveIssueLinkTemplatePerSystem == null )</span>
+        {
+<span class="nc" id="L456">            caseInsensitiveIssueLinkTemplatePerSystem = new CaseInsensitiveMap();</span>
+        }
+<span class="nc bnc" id="L458" title="All 2 branches missed.">        if ( !caseInsensitiveIssueLinkTemplatePerSystem.containsKey( system ) )</span>
+        {
+<span class="nc" id="L460">            caseInsensitiveIssueLinkTemplatePerSystem.put( system, issueLinkTemplate );</span>
+        }
+<span class="nc" id="L462">    }</span>
+
+    private void copyStaticResources()
+        throws MavenReportException
+    {
+<span class="nc" id="L467">        final String pluginResourcesBase = &quot;org/apache/maven/plugins/changes&quot;;</span>
+<span class="nc" id="L468">        String resourceNames[] = { &quot;images/add.gif&quot;, &quot;images/fix.gif&quot;, &quot;images/icon_help_sml.gif&quot;, &quot;images/remove.gif&quot;,</span>
+            &quot;images/rss.png&quot;, &quot;images/update.gif&quot; };
+        try
+        {
+<span class="nc" id="L472">            getLog().debug( &quot;Copying static resources.&quot; );</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">            for ( String resourceName : resourceNames )</span>
+            {
+<span class="nc" id="L475">                URL url = this.getClass().getClassLoader().getResource( pluginResourcesBase + &quot;/&quot; + resourceName );</span>
+<span class="nc" id="L476">                FileUtils.copyURLToFile( url, new File( getReportOutputDirectory(), resourceName ) );</span>
+            }
+        }
+<span class="nc" id="L479">        catch ( IOException e )</span>
+        {
+<span class="nc" id="L481">            throw new MavenReportException( &quot;Unable to copy static resources.&quot; );</span>
+<span class="nc" id="L482">        }</span>
+<span class="nc" id="L483">    }</span>
+
+    private ResourceBundle getBundle( Locale locale )
+    {
+<span class="nc" id="L487">        return ResourceBundle.getBundle( &quot;changes-report&quot;, locale, this.getClass().getClassLoader() );</span>
+    }
+
+    protected String getTeamlist()
+    {
+<span class="nc" id="L492">        return teamlist;</span>
+    }
+
+    private void logIssueLinkTemplatePerSystem( Map&lt;String, String&gt; issueLinkTemplatePerSystem )
+    {
+<span class="nc bnc" id="L497" title="All 2 branches missed.">        if ( getLog().isDebugEnabled() )</span>
+        {
+<span class="nc bnc" id="L499" title="All 2 branches missed.">            if ( issueLinkTemplatePerSystem == null )</span>
+            {
+<span class="nc" id="L501">                getLog().debug( &quot;No issueLinkTemplatePerSystem configuration was found&quot; );</span>
+            }
+            else
+            {
+<span class="nc bnc" id="L505" title="All 2 branches missed.">                for ( Entry&lt;String, String&gt; entry : issueLinkTemplatePerSystem.entrySet() )</span>
+                {
+<span class="nc" id="L507">                    getLog().debug( &quot;issueLinkTemplatePerSystem[&quot; + entry.getKey() + &quot;] = &quot; + entry.getValue() );</span>
+<span class="nc" id="L508">                }</span>
+            }
+        }
+<span class="nc" id="L511">    }</span>
+
+    private boolean generateFeed( final ChangesXML changesXml, final Locale locale )
+    {
+<span class="nc" id="L515">        getLog().debug( &quot;Generating &quot; + feedType + &quot; feed.&quot; );</span>
+
+<span class="nc" id="L517">        boolean success = true;</span>
+
+<span class="nc" id="L519">        final FeedGenerator feed = new FeedGenerator( locale );</span>
+<span class="nc" id="L520">        feed.setLink( project.getUrl() + &quot;/changes-report.html&quot; ); // TODO: better way?</span>
+<span class="nc" id="L521">        feed.setTitle( project.getName() + &quot;: &quot; + changesXml.getTitle() );</span>
+<span class="nc" id="L522">        feed.setAuthor( changesXml.getAuthor() );</span>
+<span class="nc" id="L523">        feed.setDateFormat( new SimpleDateFormat( publishDateFormat, new Locale( publishDateLocale ) ) );</span>
+
+<span class="nc" id="L525">        Writer writer = null;</span>
+
+        try
+        {
+<span class="nc" id="L529">            writer = new FileWriter( new File( getReportOutputDirectory(), &quot;changes.rss&quot; ) );</span>
+<span class="nc" id="L530">            feed.export( changesXml.getReleaseList(), feedType, writer );</span>
+        }
+<span class="nc" id="L532">        catch ( IOException ex )</span>
+        {
+<span class="nc" id="L534">            success = false;</span>
+<span class="nc" id="L535">            getLog().warn( &quot;Failed to create rss feed: &quot; + ex.getMessage() );</span>
+<span class="nc" id="L536">            getLog().debug( ex );</span>
+        }
+        finally
+        {
+            try
+            {
+<span class="nc bnc" id="L542" title="All 2 branches missed.">                if ( writer != null )</span>
+                {
+<span class="nc" id="L544">                    writer.close();</span>
+                }
+            }
+<span class="nc" id="L547">            catch ( IOException ex )</span>
+            {
+<span class="nc" id="L549">                getLog().warn( &quot;Failed to close writer: &quot; + ex.getMessage() );</span>
+<span class="nc" id="L550">                getLog().debug( ex );</span>
+<span class="nc" id="L551">            }</span>
+        }
+
+<span class="nc" id="L554">        return success;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

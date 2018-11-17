@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JiraMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.jira</a> &gt; <span class="el_source">JiraMojo.java</span></div><h1>JiraMojo.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.jira;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.changes.AbstractChangesReport;
+import org.apache.maven.plugins.changes.ProjectUtils;
+import org.apache.maven.plugins.issues.Issue;
+import org.apache.maven.plugins.issues.IssueUtils;
+import org.apache.maven.plugins.issues.IssuesReportGenerator;
+import org.apache.maven.plugins.issues.IssuesReportHelper;
+import org.apache.maven.reporting.MavenReportException;
+import org.apache.maven.settings.Settings;
+
+/**
+ * Goal which downloads issues from the Issue Tracking System and generates a report.
+ *
+ * @author &lt;a href=&quot;mailto:jruiz@exist.com&quot;&gt;Johnny R. Ruiz III&lt;/a&gt;
+ * @version $Id$
+ */
+@Mojo( name = &quot;jira-report&quot;, threadSafe = true )
+<span class="fc" id="L48">public class JiraMojo</span>
+    extends AbstractChangesReport
+{
+    /**
+     * Valid JIRA columns.
+     */
+<span class="fc" id="L54">    private static final Map&lt;String, Integer&gt; JIRA_COLUMNS = new HashMap&lt;String, Integer&gt;( 16 );</span>
+
+    static
+    {
+<span class="fc" id="L58">        JIRA_COLUMNS.put( &quot;Assignee&quot;, IssuesReportHelper.COLUMN_ASSIGNEE );</span>
+<span class="fc" id="L59">        JIRA_COLUMNS.put( &quot;Component&quot;, IssuesReportHelper.COLUMN_COMPONENT );</span>
+<span class="fc" id="L60">        JIRA_COLUMNS.put( &quot;Created&quot;, IssuesReportHelper.COLUMN_CREATED );</span>
+<span class="fc" id="L61">        JIRA_COLUMNS.put( &quot;Fix Version&quot;, IssuesReportHelper.COLUMN_FIX_VERSION );</span>
+<span class="fc" id="L62">        JIRA_COLUMNS.put( &quot;Id&quot;, IssuesReportHelper.COLUMN_ID );</span>
+<span class="fc" id="L63">        JIRA_COLUMNS.put( &quot;Key&quot;, IssuesReportHelper.COLUMN_KEY );</span>
+<span class="fc" id="L64">        JIRA_COLUMNS.put( &quot;Priority&quot;, IssuesReportHelper.COLUMN_PRIORITY );</span>
+<span class="fc" id="L65">        JIRA_COLUMNS.put( &quot;Reporter&quot;, IssuesReportHelper.COLUMN_REPORTER );</span>
+<span class="fc" id="L66">        JIRA_COLUMNS.put( &quot;Resolution&quot;, IssuesReportHelper.COLUMN_RESOLUTION );</span>
+<span class="fc" id="L67">        JIRA_COLUMNS.put( &quot;Status&quot;, IssuesReportHelper.COLUMN_STATUS );</span>
+<span class="fc" id="L68">        JIRA_COLUMNS.put( &quot;Summary&quot;, IssuesReportHelper.COLUMN_SUMMARY );</span>
+<span class="fc" id="L69">        JIRA_COLUMNS.put( &quot;Type&quot;, IssuesReportHelper.COLUMN_TYPE );</span>
+<span class="fc" id="L70">        JIRA_COLUMNS.put( &quot;Updated&quot;, IssuesReportHelper.COLUMN_UPDATED );</span>
+<span class="fc" id="L71">        JIRA_COLUMNS.put( &quot;Version&quot;, IssuesReportHelper.COLUMN_VERSION );</span>
+<span class="fc" id="L72">    }</span>
+
+    /**
+     * Sets the names of the columns that you want in the report. The columns will appear in the report in the same
+     * order as you specify them here. Multiple values can be separated by commas.
+     * &lt;p&gt;
+     * Valid columns are: &lt;code&gt;Assignee&lt;/code&gt;, &lt;code&gt;Component&lt;/code&gt;, &lt;code&gt;Created&lt;/code&gt;, &lt;code&gt;Fix Version&lt;/code&gt;,
+     * &lt;code&gt;Id&lt;/code&gt;, &lt;code&gt;Key&lt;/code&gt;, &lt;code&gt;Priority&lt;/code&gt;, &lt;code&gt;Reporter&lt;/code&gt;, &lt;code&gt;Resolution&lt;/code&gt;,
+     * &lt;code&gt;Status&lt;/code&gt;, &lt;code&gt;Summary&lt;/code&gt;, &lt;code&gt;Type&lt;/code&gt;, &lt;code&gt;Updated&lt;/code&gt; and &lt;code&gt;Version&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @since 2.0
+     */
+    @Parameter( defaultValue = &quot;Key,Summary,Status,Resolution,Assignee&quot; )
+    private String columnNames;
+
+    /**
+     * Use the JIRA query language instead of the JIRA query based on HTTP parameters. From JIRA 5.1 and up only JQL is
+     * supported. JIRA 4.4 supports both JQL and URL parameter based queries. From 5.1.1 this is obsolete, since REST
+     * queries only use JQL.
+     *
+     * @since 2.8
+     */
+    @Parameter( property = &quot;changes.useJql&quot;, defaultValue = &quot;false&quot; )
+    private boolean useJql;
+
+    /**
+     * Since JIRA 5.1.1, it is no longer possible to construct a URL that downloads RSS. Meanwhile JIRA added a REST API
+     * in 4.2. By default, this plugin uses the REST API if available. Setting this parameter to true forces it to
+     * attempt to use RSS.
+     *
+     * @since 2.9
+     */
+    @Parameter( defaultValue = &quot;false&quot; )
+    private boolean forceRss;
+
+    /**
+     * Sets the component(s) that you want to limit your report to include. Multiple values can be separated by commas
+     * (such as 10011,10012). If this is set to empty - that means all components will be included.
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String component;
+
+    /**
+     * Defines the filter parameters to restrict which issues are retrieved from JIRA. The filter parameter uses the
+     * same format of url parameters that is used in a JIRA search.
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String filter;
+
+    /**
+     * Sets the fix version id(s) that you want to limit your report to include. These are JIRA's internal version ids,
+     * &lt;b&gt;NOT&lt;/b&gt; the human readable display ones. Multiple fix versions can be separated by commas. If this is set to
+     * empty - that means all fix versions will be included.
+     *
+     * @since 2.0
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String fixVersionIds;
+
+    /**
+     * The pattern used by dates in the JIRA XML-file. This is used to parse the Created and Updated fields.
+     *
+     * @since 2.4
+     */
+    @Parameter( defaultValue = &quot;EEE, d MMM yyyy HH:mm:ss Z&quot; )
+    private String jiraDatePattern;
+
+    /**
+     * Defines the JIRA password for authentication into a private JIRA installation.
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String jiraPassword;
+
+    /**
+     * Defines the JIRA username for authentication into a private JIRA installation.
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String jiraUser;
+
+    /**
+     * Path to the JIRA XML file, which will be parsed.
+     */
+    @Parameter( defaultValue = &quot;${project.build.directory}/jira-results.xml&quot;, required = true, readonly = true )
+    private File jiraXmlPath;
+
+    /**
+     * Maximum number of entries to be fetched from JIRA.
+     */
+    @Parameter( defaultValue = &quot;100&quot; )
+    private int maxEntries;
+
+    /**
+     * If you only want to show issues for the current version in the report. The current version being used is
+     * &lt;code&gt;${project.version}&lt;/code&gt; minus any &quot;-SNAPSHOT&quot; suffix.
+     *
+     * @since 2.0
+     */
+    @Parameter( defaultValue = &quot;false&quot; )
+    private boolean onlyCurrentVersion;
+
+    /**
+     * Sets the priority(s) that you want to limit your report to include. Valid statuses are &lt;code&gt;Blocker&lt;/code&gt;,
+     * &lt;code&gt;Critical&lt;/code&gt;, &lt;code&gt;Major&lt;/code&gt;, &lt;code&gt;Minor&lt;/code&gt; and &lt;code&gt;Trivial&lt;/code&gt;. Multiple values can be
+     * separated by commas. If this is set to empty - that means all priorities will be included.
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String priorityIds;
+
+    /**
+     * Sets the resolution(s) that you want to fetch from JIRA. Valid resolutions are: &lt;code&gt;Unresolved&lt;/code&gt;,
+     * &lt;code&gt;Fixed&lt;/code&gt;, &lt;code&gt;Won't Fix&lt;/code&gt;, &lt;code&gt;Duplicate&lt;/code&gt;, &lt;code&gt;Incomplete&lt;/code&gt; and
+     * &lt;code&gt;Cannot Reproduce&lt;/code&gt;. Multiple values can be separated by commas.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; In versions 2.0-beta-3 and earlier this parameter had no default value.
+     * &lt;/p&gt;
+     */
+    @Parameter( defaultValue = &quot;Fixed&quot; )
+    private String resolutionIds;
+
+    /**
+     * Settings XML configuration.
+     */
+    @Parameter( defaultValue = &quot;${settings}&quot;, readonly = true, required = true )
+    private Settings settings;
+
+    /**
+     * If set to &lt;code&gt;true&lt;/code&gt;, then the JIRA report will not be generated.
+     * 
+     * @since 2.8
+     */
+    @Parameter( property = &quot;changes.jira.skip&quot;, defaultValue = &quot;false&quot; )
+    private boolean skip;
+
+    /**
+     * Sets the column names that you want to sort the report by. Add &lt;code&gt;DESC&lt;/code&gt; following the column name to
+     * specify &lt;i&gt;descending&lt;/i&gt; sequence. For example &lt;code&gt;Fix Version DESC, Type&lt;/code&gt; sorts first by the Fix
+     * Version in descending order and then by Type in ascending order. By default sorting is done in ascending order,
+     * but is possible to specify &lt;code&gt;ASC&lt;/code&gt; for consistency. The previous example would then become
+     * &lt;code&gt;Fix Version DESC, Type ASC&lt;/code&gt;.
+     * &lt;p&gt;
+     * Valid columns are: &lt;code&gt;Assignee&lt;/code&gt;, &lt;code&gt;Component&lt;/code&gt;, &lt;code&gt;Created&lt;/code&gt;, &lt;code&gt;Fix Version&lt;/code&gt;,
+     * &lt;code&gt;Id&lt;/code&gt;, &lt;code&gt;Key&lt;/code&gt;, &lt;code&gt;Priority&lt;/code&gt;, &lt;code&gt;Reporter&lt;/code&gt;, &lt;code&gt;Resolution&lt;/code&gt;,
+     * &lt;code&gt;Status&lt;/code&gt;, &lt;code&gt;Summary&lt;/code&gt;, &lt;code&gt;Type&lt;/code&gt;, &lt;code&gt;Updated&lt;/code&gt; and &lt;code&gt;Version&lt;/code&gt;.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;strong&gt;Note:&lt;/strong&gt; If you are using JIRA 4 you need to put your sort column names in the reverse order. The
+     * handling of this changed between JIRA 3 and JIRA 4. The current default value is suitable for JIRA 3. This may
+     * change in the future, so please configure your sort column names in an order that works for your own JIRA
+     * version. If you use JQL, by setting the &lt;code&gt;useJql&lt;/code&gt; parameter to &lt;code&gt;true&lt;/code&gt;, then the order of the
+     * fields are in normal order again. Starting with JIRA 5.1 you have to use JQL.
+     * &lt;/p&gt;
+     *
+     * @since 2.0
+     */
+    @Parameter( defaultValue = &quot;Priority DESC, Created DESC&quot; )
+    private String sortColumnNames;
+
+    /**
+     * Sets the status(es) that you want to fetch from JIRA. Valid statuses are: &lt;code&gt;Open&lt;/code&gt;,
+     * &lt;code&gt;In Progress&lt;/code&gt;, &lt;code&gt;Reopened&lt;/code&gt;, &lt;code&gt;Resolved&lt;/code&gt; and &lt;code&gt;Closed&lt;/code&gt;. Multiple values
+     * can be separated by commas.
+     * &lt;p&gt;
+     * If your installation of JIRA uses custom status IDs, you can reference them here by their numeric values. You can
+     * obtain them on the Statuses page (in 4.0.2 it's under Administration &gt; Issue Settings &gt; Statuses) - just hover
+     * over the Edit link for the status you want and you'll see something like &amp;lt;your JIRA
+     * URL&amp;gt;/secure/admin/EditStatus!default.jspa?id=12345; in this case the value is 12345.
+     * &lt;/p&gt;
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; In versions 2.0-beta-3 and earlier this parameter had no default value.
+     * &lt;/p&gt;
+     */
+    @Parameter( defaultValue = &quot;Closed&quot; )
+    private String statusIds;
+
+    /**
+     * Sets the types(s) that you want to limit your report to include. Valid types are: &lt;code&gt;Bug&lt;/code&gt;,
+     * &lt;code&gt;New Feature&lt;/code&gt;, &lt;code&gt;Task&lt;/code&gt;, &lt;code&gt;Improvement&lt;/code&gt;, &lt;code&gt;Wish&lt;/code&gt;, &lt;code&gt;Test&lt;/code&gt; and
+     * &lt;code&gt;Sub-task&lt;/code&gt;. Multiple values can be separated by commas. If this is set to empty - that means all types
+     * will be included.
+     *
+     * @since 2.0
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String typeIds;
+
+    /**
+     * The prefix used when naming versions in JIRA.
+     * &lt;p&gt;
+     * If you have a project in JIRA with several components that have different release cycles, it is an often used
+     * pattern to prefix the version with the name of the component, e.g. maven-filtering-1.0 etc. To fetch issues from
+     * JIRA for a release of the &quot;maven-filtering&quot; component you would need to set this parameter to &quot;maven-filtering-&quot;.
+     * &lt;/p&gt;
+     *
+     * @since 2.4
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String versionPrefix;
+
+    /**
+     * Defines the http password for basic authentication into the JIRA webserver.
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String webPassword;
+
+    /**
+     * Defines the http user for basic authentication into the JIRA webserver.
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String webUser;
+    
+    /***
+     * If &quot;-SNAPSHOT&quot; suffix should be removed when searching for issues.
+     *
+     * @since 2.12.3
+     */
+    @Parameter( property = &quot;changes.removeSnapshotSuffix&quot;, defaultValue = &quot;true&quot; )
+    private boolean removeSnapshotSuffix;    
+
+    /*
+     * Used for tests.
+     */
+    private AbstractJiraDownloader mockDownloader;
+
+    /* --------------------------------------------------------------------- */
+    /* Public methods */
+    /* --------------------------------------------------------------------- */
+
+    /**
+     * @see org.apache.maven.reporting.AbstractMavenReport#canGenerateReport()
+     */
+    public boolean canGenerateReport()
+    {
+        // Run only at the execution root
+<span class="pc bpc" id="L306" title="3 of 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+        {
+<span class="nc" id="L308">            getLog().info( &quot;Skipping the JIRA Report in this project because it's not the Execution Root&quot; );</span>
+<span class="nc" id="L309">            return false;</span>
+        }
+<span class="fc bfc" id="L311" title="All 2 branches covered.">        if ( skip )</span>
+        {
+<span class="fc" id="L313">            return false;</span>
+        }
+<span class="pc bpc" id="L315" title="1 of 2 branches missed.">        if ( mockDownloader != null )</span>
+        {
+<span class="fc" id="L317">            return true;</span>
+        }
+<span class="nc" id="L319">        String message = ProjectUtils.validateIssueManagement( project, &quot;JIRA&quot;, &quot;JIRA Report&quot; );</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        if ( message != null )</span>
+        {
+<span class="nc" id="L322">            getLog().warn( message );</span>
+        }
+<span class="nc bnc" id="L324" title="All 2 branches missed.">        return message == null;</span>
+    }
+
+    public void executeReport( Locale locale )
+        throws MavenReportException
+    {
+        // Validate parameters
+<span class="fc" id="L331">        List&lt;Integer&gt; columnIds = IssuesReportHelper.getColumnIds( columnNames, JIRA_COLUMNS );</span>
+<span class="pc bpc" id="L332" title="1 of 2 branches missed.">        if ( columnIds.isEmpty() )</span>
+        {
+            // This can happen if the user has configured column names and they are all invalid
+<span class="nc" id="L335">            throw new MavenReportException( &quot;maven-changes-plugin: None of the configured columnNames '&quot; + columnNames</span>
+                + &quot;' are valid.&quot; );
+        }
+
+        try
+        {
+            // Download issues
+            AbstractJiraDownloader issueDownloader;
+<span class="pc bpc" id="L343" title="1 of 2 branches missed.">            if ( mockDownloader != null )</span>
+            {
+<span class="fc" id="L345">                issueDownloader = mockDownloader;</span>
+            }
+            else
+            {
+<span class="nc" id="L349">                AdaptiveJiraDownloader downloader = new AdaptiveJiraDownloader();</span>
+<span class="nc" id="L350">                downloader.setForceClassic( forceRss );</span>
+<span class="nc" id="L351">                issueDownloader = downloader;</span>
+            }
+<span class="fc" id="L353">            configureIssueDownloader( issueDownloader );</span>
+<span class="fc" id="L354">            issueDownloader.doExecute();</span>
+
+<span class="fc" id="L356">            List&lt;Issue&gt; issueList = issueDownloader.getIssueList();</span>
+
+<span class="pc bpc" id="L358" title="1 of 2 branches missed.">            if ( StringUtils.isNotEmpty( versionPrefix ) )</span>
+            {
+<span class="nc" id="L360">                int originalNumberOfIssues = issueList.size();</span>
+<span class="nc" id="L361">                issueList = IssueUtils.filterIssuesWithVersionPrefix( issueList, versionPrefix );</span>
+<span class="nc" id="L362">                getLog().debug( &quot;Filtered out &quot; + issueList.size() + &quot; issues of &quot; + originalNumberOfIssues</span>
+                    + &quot; that matched the versionPrefix '&quot; + versionPrefix + &quot;'.&quot; );
+            }
+
+<span class="pc bpc" id="L366" title="1 of 2 branches missed.">            if ( onlyCurrentVersion )</span>
+            {
+<span class="nc bnc" id="L368" title="All 2 branches missed.">                String version = ( versionPrefix == null ? &quot;&quot; : versionPrefix ) + project.getVersion();</span>
+<span class="nc" id="L369">                issueList = IssueUtils.getIssuesForVersion( issueList, version, removeSnapshotSuffix );</span>
+<span class="nc" id="L370">                getLog().info( &quot;The JIRA Report will contain issues only for the current version.&quot; );</span>
+            }
+
+            // Generate the report
+<span class="fc" id="L374">            IssuesReportGenerator report = new IssuesReportGenerator( IssuesReportHelper.toIntArray( columnIds ) );</span>
+
+<span class="pc bpc" id="L376" title="1 of 2 branches missed.">            if ( issueList.isEmpty() )</span>
+            {
+<span class="nc" id="L378">                report.doGenerateEmptyReport( getBundle( locale ), getSink() );</span>
+            }
+            else
+            {
+<span class="fc" id="L382">                report.doGenerateReport( getBundle( locale ), getSink(), issueList );</span>
+            }
+        }
+<span class="nc" id="L385">        catch ( Exception e )</span>
+        {
+<span class="nc" id="L387">            getLog().warn( e );</span>
+<span class="fc" id="L388">        }</span>
+<span class="fc" id="L389">    }</span>
+
+    public String getDescription( Locale locale )
+    {
+<span class="nc" id="L393">        return getBundle( locale ).getString( &quot;report.issues.description&quot; );</span>
+    }
+
+    public String getName( Locale locale )
+    {
+<span class="fc" id="L398">        return getBundle( locale ).getString( &quot;report.issues.name&quot; );</span>
+    }
+
+    public String getOutputName()
+    {
+<span class="fc" id="L403">        return &quot;jira-report&quot;;</span>
+    }
+
+    /* --------------------------------------------------------------------- */
+    /* Private methods */
+    /* --------------------------------------------------------------------- */
+
+    private ResourceBundle getBundle( Locale locale )
+    {
+<span class="fc" id="L412">        return ResourceBundle.getBundle( &quot;jira-report&quot;, locale, this.getClass().getClassLoader() );</span>
+    }
+
+    private void configureIssueDownloader( AbstractJiraDownloader issueDownloader )
+    {
+<span class="fc" id="L417">        issueDownloader.setLog( getLog() );</span>
+
+<span class="fc" id="L419">        issueDownloader.setMavenProject( project );</span>
+
+<span class="fc" id="L421">        issueDownloader.setOutput( jiraXmlPath );</span>
+
+<span class="fc" id="L423">        issueDownloader.setNbEntries( maxEntries );</span>
+
+<span class="fc" id="L425">        issueDownloader.setComponent( component );</span>
+
+<span class="fc" id="L427">        issueDownloader.setFixVersionIds( fixVersionIds );</span>
+
+<span class="fc" id="L429">        issueDownloader.setStatusIds( statusIds );</span>
+
+<span class="fc" id="L431">        issueDownloader.setResolutionIds( resolutionIds );</span>
+
+<span class="fc" id="L433">        issueDownloader.setPriorityIds( priorityIds );</span>
+
+<span class="fc" id="L435">        issueDownloader.setSortColumnNames( sortColumnNames );</span>
+
+<span class="fc" id="L437">        issueDownloader.setFilter( filter );</span>
+
+<span class="fc" id="L439">        issueDownloader.setJiraDatePattern( jiraDatePattern );</span>
+
+<span class="fc" id="L441">        issueDownloader.setJiraUser( jiraUser );</span>
+
+<span class="fc" id="L443">        issueDownloader.setJiraPassword( jiraPassword );</span>
+
+<span class="fc" id="L445">        issueDownloader.setTypeIds( typeIds );</span>
+
+<span class="fc" id="L447">        issueDownloader.setWebUser( webUser );</span>
+
+<span class="fc" id="L449">        issueDownloader.setWebPassword( webPassword );</span>
+
+<span class="fc" id="L451">        issueDownloader.setSettings( settings );</span>
+
+<span class="fc" id="L453">        issueDownloader.setUseJql( useJql );</span>
+
+<span class="fc" id="L455">        issueDownloader.setOnlyCurrentVersion( onlyCurrentVersion );</span>
+
+<span class="fc" id="L457">        issueDownloader.setVersionPrefix( versionPrefix );</span>
+<span class="fc" id="L458">    }</span>
+
+    public void setMockDownloader( AbstractJiraDownloader mockDownloader )
+    {
+<span class="fc" id="L462">        this.mockDownloader = mockDownloader;</span>
+<span class="fc" id="L463">    }</span>
+
+    public AbstractJiraDownloader getMockDownloader()
+    {
+<span class="nc" id="L467">        return mockDownloader;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

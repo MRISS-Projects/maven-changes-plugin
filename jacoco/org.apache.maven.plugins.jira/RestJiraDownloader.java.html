@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RestJiraDownloader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.jira</a> &gt; <span class="el_source">RestJiraDownloader.java</span></div><h1>RestJiraDownloader.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.jira;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
+import org.apache.cxf.interceptor.LoggingInInterceptor;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.apache.cxf.transports.http.configuration.ProxyServerType;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.issues.Issue;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MappingJsonFactory;
+
+/**
+ * Use the JIRA REST API to implement the download. This class assumes that the URL points to a copy of JIRA that
+ * implements the REST API. A static function may be forthcoming in here to probe and see if a given URL supports it.
+ */
+<span class="nc bnc" id="L60" title="All 2 branches missed.">public class RestJiraDownloader</span>
+    extends AbstractJiraDownloader
+{
+    private List&lt;Issue&gt; issueList;
+
+    private JsonFactory jsonFactory;
+
+    private SimpleDateFormat dateFormat;
+
+    private List&lt;String&gt; resolvedFixVersionIds;
+
+    private List&lt;String&gt; resolvedStatusIds;
+
+    private List&lt;String&gt; resolvedComponentIds;
+
+    private List&lt;String&gt; resolvedTypeIds;
+
+    private List&lt;String&gt; resolvedResolutionIds;
+
+    private List&lt;String&gt; resolvedPriorityIds;
+
+    private String jiraProject;
+
+    /**
+     * 
+     */
+    public static class NoRest
+        extends Exception
+    {
+        private static final long serialVersionUID = 6970088805270319624L;
+
+        public NoRest()
+<span class="nc" id="L92">        {</span>
+            // blank on purpose.
+<span class="nc" id="L94">        }</span>
+
+        public NoRest( String message )
+        {
+<span class="nc" id="L98">            super( message );</span>
+<span class="nc" id="L99">        }</span>
+    }
+
+    public RestJiraDownloader()
+<span class="nc" id="L103">    {</span>
+<span class="nc" id="L104">        jsonFactory = new MappingJsonFactory();</span>
+        // 2012-07-17T06:26:47.723-0500
+<span class="nc" id="L106">        dateFormat = new SimpleDateFormat( &quot;yyyy-MM-dd'T'HH:mm:ss.SSSZ&quot; );</span>
+<span class="nc" id="L107">        resolvedFixVersionIds = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L108">        resolvedStatusIds = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L109">        resolvedComponentIds = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L110">        resolvedTypeIds = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L111">        resolvedResolutionIds = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L112">        resolvedPriorityIds = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L113">    }</span>
+
+    public void doExecute()
+        throws Exception
+    {
+
+<span class="nc" id="L119">        Map&lt;String, String&gt; urlMap = JiraHelper.getJiraUrlAndProjectName( project.getIssueManagement().getUrl() );</span>
+<span class="nc" id="L120">        String jiraUrl = urlMap.get( &quot;url&quot; );</span>
+<span class="nc" id="L121">        jiraProject = urlMap.get( &quot;project&quot; );</span>
+
+<span class="nc" id="L123">        WebClient client = setupWebClient( jiraUrl );</span>
+
+        // We use version 2 of the REST API, that first appeared in JIRA 5
+        // Check if version 2 of the REST API is supported
+        // http://docs.atlassian.com/jira/REST/5.0/
+        // Note that serverInfo can always be accessed without authentication
+<span class="nc" id="L129">        client.replacePath( &quot;/rest/api/2/serverInfo&quot; );</span>
+<span class="nc" id="L130">        client.accept( MediaType.APPLICATION_JSON );</span>
+<span class="nc" id="L131">        Response siResponse = client.get();</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if ( siResponse.getStatus() != Response.Status.OK.getStatusCode() )</span>
+        {
+<span class="nc" id="L134">            throw new NoRest( &quot;This JIRA server does not support version 2 of the REST API, &quot;</span>
+                + &quot;which maven-changes-plugin requires.&quot; );
+        }
+
+<span class="nc" id="L138">        doSessionAuth( client );</span>
+
+<span class="nc" id="L140">        resolveIds( client, jiraProject );</span>
+
+        // CHECKSTYLE_OFF: LineLength
+<span class="nc" id="L143">        String jqlQuery =</span>
+<span class="nc" id="L144">            new JqlQueryBuilder( log ).urlEncode( false ).project( jiraProject ).fixVersion( getFixFor() ).fixVersionIds( resolvedFixVersionIds ).statusIds( resolvedStatusIds ).priorityIds( resolvedPriorityIds ).resolutionIds( resolvedResolutionIds ).components( resolvedComponentIds ).typeIds( resolvedTypeIds ).sortColumnNames( sortColumnNames ).filter( filter ).build();</span>
+        // CHECKSTYLE_ON: LineLength
+
+<span class="nc" id="L147">        StringWriter searchParamStringWriter = new StringWriter();</span>
+<span class="nc" id="L148">        JsonGenerator gen = jsonFactory.createGenerator( searchParamStringWriter );</span>
+<span class="nc" id="L149">        gen.writeStartObject();</span>
+<span class="nc" id="L150">        gen.writeStringField( &quot;jql&quot;, jqlQuery );</span>
+<span class="nc" id="L151">        gen.writeNumberField( &quot;maxResults&quot;, nbEntriesMax );</span>
+<span class="nc" id="L152">        gen.writeArrayFieldStart( &quot;fields&quot; );</span>
+        // Retrieve all fields. If that seems slow, we can reconsider.
+<span class="nc" id="L154">        gen.writeString( &quot;*all&quot; );</span>
+<span class="nc" id="L155">        gen.writeEndArray();</span>
+<span class="nc" id="L156">        gen.writeEndObject();</span>
+<span class="nc" id="L157">        gen.close();</span>
+<span class="nc" id="L158">        client.replacePath( &quot;/rest/api/2/search&quot; );</span>
+<span class="nc" id="L159">        client.type( MediaType.APPLICATION_JSON_TYPE );</span>
+<span class="nc" id="L160">        client.accept( MediaType.APPLICATION_JSON_TYPE );</span>
+<span class="nc" id="L161">        Response searchResponse = client.post( searchParamStringWriter.toString() );</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if ( searchResponse.getStatus() != Response.Status.OK.getStatusCode() )</span>
+        {
+<span class="nc" id="L164">            reportErrors( searchResponse );</span>
+        }
+
+<span class="nc" id="L167">        JsonNode issueTree = getResponseTree( searchResponse );</span>
+<span class="nc bnc" id="L168" title="All 4 branches missed.">        assert issueTree.isObject();</span>
+<span class="nc" id="L169">        JsonNode issuesNode = issueTree.get( &quot;issues&quot; );</span>
+<span class="nc bnc" id="L170" title="All 4 branches missed.">        assert issuesNode.isArray();</span>
+<span class="nc" id="L171">        buildIssues( issuesNode, jiraUrl, jiraProject );</span>
+<span class="nc" id="L172">    }</span>
+
+    private JsonNode getResponseTree( Response response )
+        throws IOException
+    {
+<span class="nc" id="L177">        JsonParser jsonParser = jsonFactory.createParser( (InputStream) response.getEntity() );</span>
+<span class="nc" id="L178">        return (JsonNode) jsonParser.readValueAsTree();</span>
+    }
+
+    private void reportErrors( Response resp )
+        throws IOException, MojoExecutionException
+    {
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        if ( MediaType.APPLICATION_JSON_TYPE.getType().equals( getResponseMediaType( resp ).getType() ) )</span>
+        {
+<span class="nc" id="L186">            JsonNode errorTree = getResponseTree( resp );</span>
+<span class="nc bnc" id="L187" title="All 4 branches missed.">            assert errorTree.isObject();</span>
+<span class="nc" id="L188">            JsonNode messages = errorTree.get( &quot;errorMessages&quot; );</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">            if ( messages != null )</span>
+            {
+<span class="nc bnc" id="L191" title="All 2 branches missed.">                for ( int mx = 0; mx &lt; messages.size(); mx++ )</span>
+                {
+<span class="nc" id="L193">                    getLog().error( messages.get( mx ).asText() );</span>
+                }
+            }
+            else
+            {
+<span class="nc" id="L198">                JsonNode message = errorTree.get( &quot;message&quot; );</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">                if ( message != null )</span>
+                {
+<span class="nc" id="L201">                    getLog().error( message.asText() );</span>
+                }
+            }
+        }
+<span class="nc" id="L205">        throw new MojoExecutionException( String.format( &quot;Failed to query issues; response %d&quot;, resp.getStatus() ) );</span>
+    }
+
+    private void resolveIds( WebClient client, String jiraProject )
+        throws IOException, MojoExecutionException, MojoFailureException
+    {
+<span class="nc" id="L211">        resolveList( resolvedComponentIds, client, &quot;components&quot;, component, &quot;/rest/api/2/project/{key}/components&quot;,</span>
+                     jiraProject );
+<span class="nc" id="L213">        resolveList( resolvedFixVersionIds, client, &quot;fixVersions&quot;, fixVersionIds, &quot;/rest/api/2/project/{key}/versions&quot;,</span>
+                     jiraProject );
+<span class="nc" id="L215">        resolveList( resolvedStatusIds, client, &quot;status&quot;, statusIds, &quot;/rest/api/2/status&quot; );</span>
+<span class="nc" id="L216">        resolveList( resolvedResolutionIds, client, &quot;resolution&quot;, resolutionIds, &quot;/rest/api/2/resolution&quot; );</span>
+<span class="nc" id="L217">        resolveList( resolvedTypeIds, client, &quot;type&quot;, typeIds, &quot;/rest/api/2/issuetype&quot; );</span>
+<span class="nc" id="L218">        resolveList( resolvedPriorityIds, client, &quot;priority&quot;, priorityIds, &quot;/rest/api/2/priority&quot; );</span>
+<span class="nc" id="L219">    }</span>
+
+    private void resolveList( List&lt;String&gt; targetList, WebClient client, String what, String input,
+                              String listRestUrlPattern, String... listUrlArgs )
+                                  throws IOException, MojoExecutionException, MojoFailureException
+    {
+<span class="nc bnc" id="L225" title="All 4 branches missed.">        if ( input == null || input.length() == 0 )</span>
+        {
+<span class="nc" id="L227">            return;</span>
+        }
+<span class="nc bnc" id="L229" title="All 4 branches missed.">        if ( listUrlArgs != null &amp;&amp; listUrlArgs.length != 0 )</span>
+        {
+<span class="nc" id="L231">            client.replacePath( &quot;/&quot; );</span>
+<span class="nc" id="L232">            client.path( listRestUrlPattern, listUrlArgs );</span>
+        }
+        else
+        {
+<span class="nc" id="L236">            client.replacePath( listRestUrlPattern );</span>
+        }
+<span class="nc" id="L238">        client.accept( MediaType.APPLICATION_JSON );</span>
+<span class="nc" id="L239">        Response resp = client.get();</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">        if ( resp.getStatus() != Response.Status.OK.getStatusCode() )</span>
+        {
+<span class="nc" id="L242">            getLog().error( String.format( &quot;Could not get %s list from %s&quot;, what, listRestUrlPattern ) );</span>
+<span class="nc" id="L243">            reportErrors( resp );</span>
+        }
+
+<span class="nc" id="L246">        JsonNode items = getResponseTree( resp );</span>
+<span class="nc" id="L247">        String[] pieces = input.split( &quot;,&quot; );</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">        for ( String item : pieces )</span>
+        {
+<span class="nc" id="L250">            targetList.add( resolveOneItem( items, what, item.trim() ) );</span>
+        }
+<span class="nc" id="L252">    }</span>
+
+    private String resolveOneItem( JsonNode items, String what, String nameOrId )
+        throws IOException, MojoExecutionException, MojoFailureException
+    {
+<span class="nc bnc" id="L257" title="All 2 branches missed.">        for ( int cx = 0; cx &lt; items.size(); cx++ )</span>
+        {
+<span class="nc" id="L259">            JsonNode item = items.get( cx );</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">            if ( nameOrId.equals( item.get( &quot;id&quot; ).asText() ) )</span>
+            {
+<span class="nc" id="L262">                return nameOrId;</span>
+            }
+<span class="nc bnc" id="L264" title="All 2 branches missed.">            else if ( nameOrId.equals( item.get( &quot;name&quot; ).asText() ) )</span>
+            {
+<span class="nc" id="L266">                return item.get( &quot;id&quot; ).asText();</span>
+            }
+        }
+<span class="nc" id="L269">        throw new MojoFailureException( String.format( &quot;Could not find %s %s.&quot;, what, nameOrId ) );</span>
+    }
+
+    private MediaType getResponseMediaType( Response response )
+    {
+<span class="nc" id="L274">        String header = (String) response.getMetadata().getFirst( HttpHeaders.CONTENT_TYPE );</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        return header == null ? null : MediaType.valueOf( header );</span>
+    }
+
+    private void buildIssues( JsonNode issuesNode, String jiraUrl, String jiraProject )
+    {
+<span class="nc" id="L280">        issueList = new ArrayList&lt;Issue&gt;();</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        for ( int ix = 0; ix &lt; issuesNode.size(); ix++ )</span>
+        {
+<span class="nc" id="L283">            JsonNode issueNode = issuesNode.get( ix );</span>
+<span class="nc bnc" id="L284" title="All 4 branches missed.">            assert issueNode.isObject();</span>
+<span class="nc" id="L285">            Issue issue = new Issue();</span>
+            JsonNode val;
+
+<span class="nc" id="L288">            val = issueNode.get( &quot;id&quot; );</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">            if ( val != null )</span>
+            {
+<span class="nc" id="L291">                issue.setId( val.asText() );</span>
+            }
+
+<span class="nc" id="L294">            val = issueNode.get( &quot;key&quot; );</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">            if ( val != null )</span>
+            {
+<span class="nc" id="L297">                issue.setKey( val.asText() );</span>
+<span class="nc" id="L298">                issue.setLink( String.format( &quot;%s/browse/%s&quot;, jiraUrl, val.asText() ) );</span>
+            }
+
+            // much of what we want is in here.
+<span class="nc" id="L302">            JsonNode fieldsNode = issueNode.get( &quot;fields&quot; );</span>
+
+<span class="nc" id="L304">            val = fieldsNode.get( &quot;assignee&quot; );</span>
+<span class="nc" id="L305">            processAssignee( issue, val );</span>
+
+<span class="nc" id="L307">            val = fieldsNode.get( &quot;created&quot; );</span>
+<span class="nc" id="L308">            processCreated( issue, val );</span>
+
+<span class="nc" id="L310">            val = fieldsNode.get( &quot;comment&quot; );</span>
+<span class="nc" id="L311">            processComments( issue, val );</span>
+
+<span class="nc" id="L313">            val = fieldsNode.get( &quot;components&quot; );</span>
+<span class="nc" id="L314">            processComponents( issue, val );</span>
+
+<span class="nc" id="L316">            val = fieldsNode.get( &quot;fixVersions&quot; );</span>
+<span class="nc" id="L317">            processFixVersions( issue, val );</span>
+
+<span class="nc" id="L319">            val = fieldsNode.get( &quot;issuetype&quot; );</span>
+<span class="nc" id="L320">            processIssueType( issue, val );</span>
+
+<span class="nc" id="L322">            val = fieldsNode.get( &quot;priority&quot; );</span>
+<span class="nc" id="L323">            processPriority( issue, val );</span>
+
+<span class="nc" id="L325">            val = fieldsNode.get( &quot;reporter&quot; );</span>
+<span class="nc" id="L326">            processReporter( issue, val );</span>
+
+<span class="nc" id="L328">            val = fieldsNode.get( &quot;resolution&quot; );</span>
+<span class="nc" id="L329">            processResolution( issue, val );</span>
+
+<span class="nc" id="L331">            val = fieldsNode.get( &quot;status&quot; );</span>
+<span class="nc" id="L332">            processStatus( issue, val );</span>
+
+<span class="nc" id="L334">            val = fieldsNode.get( &quot;summary&quot; );</span>
+<span class="nc bnc" id="L335" title="All 2 branches missed.">            if ( val != null )</span>
+            {
+<span class="nc" id="L337">                issue.setSummary( val.asText() );</span>
+            }
+
+<span class="nc" id="L340">            val = fieldsNode.get( &quot;title&quot; );</span>
+<span class="nc bnc" id="L341" title="All 2 branches missed.">            if ( val != null )</span>
+            {
+<span class="nc" id="L343">                issue.setTitle( val.asText() );</span>
+            }
+
+<span class="nc" id="L346">            val = fieldsNode.get( &quot;updated&quot; );</span>
+<span class="nc" id="L347">            processUpdated( issue, val );</span>
+
+<span class="nc" id="L349">            val = fieldsNode.get( &quot;versions&quot; );</span>
+<span class="nc" id="L350">            processVersions( issue, val );</span>
+
+<span class="nc" id="L352">            issueList.add( issue );</span>
+        }
+<span class="nc" id="L354">    }</span>
+
+    private void processVersions( Issue issue, JsonNode val )
+    {
+<span class="nc" id="L358">        StringBuilder sb = new StringBuilder();</span>
+<span class="nc bnc" id="L359" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+<span class="nc bnc" id="L361" title="All 2 branches missed.">            for ( int vx = 0; vx &lt; val.size(); vx++ )</span>
+            {
+<span class="nc" id="L363">                sb.append( val.get( vx ).get( &quot;name&quot; ).asText() );</span>
+<span class="nc" id="L364">                sb.append( &quot;, &quot; );</span>
+            }
+        }
+<span class="nc bnc" id="L367" title="All 2 branches missed.">        if ( sb.length() &gt; 0 )</span>
+        {
+            // remove last &quot;, &quot;
+<span class="nc" id="L370">            issue.setVersion( sb.substring( 0, sb.length() - 2 ) );</span>
+        }
+<span class="nc" id="L372">    }</span>
+
+    private void processStatus( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L376" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+<span class="nc" id="L378">            issue.setStatus( val.get( &quot;name&quot; ).asText() );</span>
+        }
+<span class="nc" id="L380">    }</span>
+
+    private void processPriority( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L384" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+<span class="nc" id="L386">            issue.setPriority( val.get( &quot;name&quot; ).asText() );</span>
+        }
+<span class="nc" id="L388">    }</span>
+
+    private void processResolution( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L392" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+<span class="nc" id="L394">            issue.setResolution( val.get( &quot;name&quot; ).asText() );</span>
+        }
+<span class="nc" id="L396">    }</span>
+
+    private String getPerson( JsonNode val )
+    {
+<span class="nc" id="L400">        JsonNode nameNode = val.get( &quot;displayName&quot; );</span>
+<span class="nc bnc" id="L401" title="All 2 branches missed.">        if ( nameNode == null )</span>
+        {
+<span class="nc" id="L403">            nameNode = val.get( &quot;name&quot; );</span>
+        }
+<span class="nc bnc" id="L405" title="All 2 branches missed.">        if ( nameNode != null )</span>
+        {
+<span class="nc" id="L407">            return nameNode.asText();</span>
+        }
+        else
+        {
+<span class="nc" id="L411">            return null;</span>
+        }
+    }
+
+    private void processAssignee( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L417" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+<span class="nc" id="L419">            String text = getPerson( val );</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">            if ( text != null )</span>
+            {
+<span class="nc" id="L422">                issue.setAssignee( text );</span>
+            }
+        }
+<span class="nc" id="L425">    }</span>
+
+    private void processReporter( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L429" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+<span class="nc" id="L431">            String text = getPerson( val );</span>
+<span class="nc bnc" id="L432" title="All 2 branches missed.">            if ( text != null )</span>
+            {
+<span class="nc" id="L434">                issue.setReporter( text );</span>
+            }
+        }
+<span class="nc" id="L437">    }</span>
+
+    private void processCreated( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L441" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+            try
+            {
+<span class="nc" id="L445">                issue.setCreated( parseDate( val ) );</span>
+            }
+<span class="nc" id="L447">            catch ( ParseException e )</span>
+            {
+<span class="nc" id="L449">                getLog().warn( &quot;Invalid created date &quot; + val.asText() );</span>
+<span class="nc" id="L450">            }</span>
+        }
+<span class="nc" id="L452">    }</span>
+
+    private void processUpdated( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L456" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+            try
+            {
+<span class="nc" id="L460">                issue.setUpdated( parseDate( val ) );</span>
+            }
+<span class="nc" id="L462">            catch ( ParseException e )</span>
+            {
+<span class="nc" id="L464">                getLog().warn( &quot;Invalid updated date &quot; + val.asText() );</span>
+<span class="nc" id="L465">            }</span>
+        }
+<span class="nc" id="L467">    }</span>
+
+    private Date parseDate( JsonNode val )
+        throws ParseException
+    {
+<span class="nc" id="L472">        return dateFormat.parse( val.asText() );</span>
+    }
+
+    private void processFixVersions( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L477" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+<span class="nc bnc" id="L479" title="All 4 branches missed.">            assert val.isArray();</span>
+<span class="nc bnc" id="L480" title="All 2 branches missed.">            for ( int vx = 0; vx &lt; val.size(); vx++ )</span>
+            {
+<span class="nc" id="L482">                JsonNode fvNode = val.get( vx );</span>
+<span class="nc" id="L483">                issue.addFixVersion( fvNode.get( &quot;name&quot; ).asText() );</span>
+            }
+        }
+<span class="nc" id="L486">    }</span>
+
+    private void processComments( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L490" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+<span class="nc" id="L492">            JsonNode commentsArray = val.get( &quot;comments&quot; );</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">            for ( int cx = 0; cx &lt; commentsArray.size(); cx++ )</span>
+            {
+<span class="nc" id="L495">                JsonNode cnode = commentsArray.get( cx );</span>
+<span class="nc" id="L496">                issue.addComment( cnode.get( &quot;body&quot; ).asText() );</span>
+            }
+        }
+<span class="nc" id="L499">    }</span>
+
+    private void processComponents( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L503" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+<span class="nc bnc" id="L505" title="All 4 branches missed.">            assert val.isArray();</span>
+<span class="nc bnc" id="L506" title="All 2 branches missed.">            for ( int cx = 0; cx &lt; val.size(); cx++ )</span>
+            {
+<span class="nc" id="L508">                JsonNode cnode = val.get( cx );</span>
+<span class="nc" id="L509">                issue.addComponent( cnode.get( &quot;name&quot; ).asText() );</span>
+            }
+        }
+<span class="nc" id="L512">    }</span>
+
+    private void processIssueType( Issue issue, JsonNode val )
+    {
+<span class="nc bnc" id="L516" title="All 2 branches missed.">        if ( val != null )</span>
+        {
+<span class="nc" id="L518">            issue.setType( val.get( &quot;name&quot; ).asText() );</span>
+        }
+<span class="nc" id="L520">    }</span>
+
+    private void doSessionAuth( WebClient client )
+        throws IOException, MojoExecutionException, NoRest
+    {
+        /* if JiraUser is specified instead of WebUser, we need to make a session. */
+<span class="nc bnc" id="L526" title="All 2 branches missed.">        if ( jiraUser != null )</span>
+        {
+<span class="nc" id="L528">            client.replacePath( &quot;/rest/auth/1/session&quot; );</span>
+<span class="nc" id="L529">            client.type( MediaType.APPLICATION_JSON_TYPE );</span>
+<span class="nc" id="L530">            StringWriter jsWriter = new StringWriter();</span>
+<span class="nc" id="L531">            JsonGenerator gen = jsonFactory.createGenerator( jsWriter );</span>
+<span class="nc" id="L532">            gen.writeStartObject();</span>
+<span class="nc" id="L533">            gen.writeStringField( &quot;username&quot;, jiraUser );</span>
+<span class="nc" id="L534">            gen.writeStringField( &quot;password&quot;, jiraPassword );</span>
+<span class="nc" id="L535">            gen.writeEndObject();</span>
+<span class="nc" id="L536">            gen.close();</span>
+<span class="nc" id="L537">            Response authRes = client.post( jsWriter.toString() );</span>
+<span class="nc bnc" id="L538" title="All 2 branches missed.">            if ( authRes.getStatus() != Response.Status.OK.getStatusCode() )</span>
+            {
+<span class="nc bnc" id="L540" title="All 2 branches missed.">                if ( authRes.getStatus() != Response.Status.UNAUTHORIZED.getStatusCode()</span>
+<span class="nc bnc" id="L541" title="All 2 branches missed.">                    &amp;&amp; authRes.getStatus() != Response.Status.FORBIDDEN.getStatusCode() )</span>
+                {
+                    // if not one of the documented failures, assume that there's no rest in there in the first place.
+<span class="nc" id="L544">                    throw new NoRest();</span>
+                }
+<span class="nc" id="L546">                throw new MojoExecutionException( String.format( &quot;Authentication failure status %d.&quot;,</span>
+<span class="nc" id="L547">                                                                 authRes.getStatus() ) );</span>
+            }
+        }
+<span class="nc" id="L550">    }</span>
+
+    private WebClient setupWebClient( String jiraUrl )
+    {
+<span class="nc" id="L554">        WebClient client = WebClient.create( jiraUrl );</span>
+
+<span class="nc" id="L556">        ClientConfiguration clientConfiguration = WebClient.getConfig( client );</span>
+<span class="nc" id="L557">        HTTPConduit http = clientConfiguration.getHttpConduit();</span>
+        // MCHANGES-324 - Maintain the client session
+<span class="nc" id="L559">        clientConfiguration.getRequestContext().put( Message.MAINTAIN_SESSION, Boolean.TRUE );</span>
+
+<span class="nc bnc" id="L561" title="All 2 branches missed.">        if ( getLog().isDebugEnabled() )</span>
+        {
+<span class="nc" id="L563">            clientConfiguration.getInInterceptors().add( new LoggingInInterceptor() );</span>
+<span class="nc" id="L564">            clientConfiguration.getOutInterceptors().add( new LoggingOutInterceptor() );</span>
+        }
+
+<span class="nc" id="L567">        HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();</span>
+
+        // MCHANGES-341 Externalize JIRA server timeout values to the configuration section
+<span class="nc" id="L570">        getLog().debug( &quot;RestJiraDownloader: connectionTimeout: &quot; + connectionTimeout );</span>
+<span class="nc" id="L571">        httpClientPolicy.setConnectionTimeout( connectionTimeout );</span>
+<span class="nc" id="L572">        httpClientPolicy.setAllowChunking( false );</span>
+<span class="nc" id="L573">        getLog().debug( &quot;RestJiraDownloader: receiveTimout: &quot; + receiveTimout );</span>
+<span class="nc" id="L574">        httpClientPolicy.setReceiveTimeout( receiveTimout );</span>
+
+        // MCHANGES-334 RestJiraDownloader doesn't honor proxy settings
+<span class="nc" id="L577">        getProxyInfo( jiraUrl );</span>
+
+<span class="nc bnc" id="L579" title="All 2 branches missed.">        if ( proxyHost != null )</span>
+        {
+<span class="nc" id="L581">            getLog().debug( &quot;Using proxy: &quot; + proxyHost + &quot; at port &quot; + proxyPort );</span>
+<span class="nc" id="L582">            httpClientPolicy.setProxyServer( proxyHost );</span>
+<span class="nc" id="L583">            httpClientPolicy.setProxyServerPort( proxyPort );</span>
+<span class="nc" id="L584">            httpClientPolicy.setProxyServerType( ProxyServerType.HTTP );</span>
+<span class="nc bnc" id="L585" title="All 2 branches missed.">            if ( proxyUser != null )</span>
+            {
+<span class="nc" id="L587">                ProxyAuthorizationPolicy proxyAuthorizationPolicy = new ProxyAuthorizationPolicy();</span>
+<span class="nc" id="L588">                proxyAuthorizationPolicy.setAuthorizationType( &quot;Basic&quot; );</span>
+<span class="nc" id="L589">                proxyAuthorizationPolicy.setUserName( proxyUser );</span>
+<span class="nc" id="L590">                proxyAuthorizationPolicy.setPassword( proxyPass );</span>
+<span class="nc" id="L591">                http.setProxyAuthorization( proxyAuthorizationPolicy );</span>
+            }
+        }
+
+<span class="nc bnc" id="L595" title="All 2 branches missed.">        if ( webUser != null )</span>
+        {
+<span class="nc" id="L597">            AuthorizationPolicy authPolicy = new AuthorizationPolicy();</span>
+<span class="nc" id="L598">            authPolicy.setAuthorizationType( &quot;Basic&quot; );</span>
+<span class="nc" id="L599">            authPolicy.setUserName( webUser );</span>
+<span class="nc" id="L600">            authPolicy.setPassword( webPassword );</span>
+<span class="nc" id="L601">            http.setAuthorization( authPolicy );</span>
+        }
+
+<span class="nc" id="L604">        http.setClient( httpClientPolicy );</span>
+<span class="nc" id="L605">        return client;</span>
+    }
+
+    public List&lt;Issue&gt; getIssueList()
+        throws MojoExecutionException
+    {
+<span class="nc" id="L611">        return issueList;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

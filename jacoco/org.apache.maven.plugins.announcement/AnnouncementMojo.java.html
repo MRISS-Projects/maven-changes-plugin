@@ -1,0 +1,1019 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnnouncementMojo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.announcement</a> &gt; <span class="el_source">AnnouncementMojo.java</span></div><h1>AnnouncementMojo.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.announcement;
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * &quot;License&quot;); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.changes.ChangesXML;
+import org.apache.maven.plugins.changes.IssueAdapter;
+import org.apache.maven.plugins.changes.ProjectUtils;
+import org.apache.maven.plugins.changes.ReleaseUtils;
+import org.apache.maven.plugins.changes.model.Release;
+import org.apache.maven.plugins.github.GitHubDownloader;
+import org.apache.maven.plugins.github.GitHubIssueManagementSystem;
+import org.apache.maven.plugins.issues.Issue;
+import org.apache.maven.plugins.issues.IssueManagementSystem;
+import org.apache.maven.plugins.issues.IssueUtils;
+import org.apache.maven.plugins.jira.AbstractJiraDownloader;
+import org.apache.maven.plugins.jira.AdaptiveJiraDownloader;
+import org.apache.maven.plugins.jira.JIRAIssueManagmentSystem;
+import org.apache.maven.plugins.trac.TracDownloader;
+import org.apache.maven.plugins.trac.TracIssueManagmentSystem;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
+import org.apache.maven.settings.crypto.SettingsDecrypter;
+import org.apache.velocity.Template;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.exception.ResourceNotFoundException;
+import org.apache.velocity.exception.VelocityException;
+import org.apache.velocity.tools.ToolManager;
+import org.codehaus.plexus.util.ReaderFactory;
+import org.codehaus.plexus.util.StringUtils;
+import org.codehaus.plexus.velocity.VelocityComponent;
+
+/**
+ * Goal which generate an announcement from the announcement template.
+ *
+ * @author aramirez@exist.com
+ * @version $Id$
+ * @since 2.0-beta-2
+ */
+@Mojo( name = &quot;announcement-generate&quot;, threadSafe = true )
+<span class="fc" id="L71">public class AnnouncementMojo</span>
+    extends AbstractAnnouncementMojo
+{
+    private static final String CHANGES_XML = &quot;changes.xml&quot;;
+
+    private static final String JIRA = &quot;JIRA&quot;;
+
+    private static final String TRAC = &quot;Trac&quot;;
+
+    private static final String GIT_HUB = &quot;GitHub&quot;;
+
+    /**
+     * The name of the file which will contain the generated announcement. If no value is specified the plugin will use
+     * the name of the template.
+     *
+     * @since 2.4
+     */
+    @Parameter( property = &quot;changes.announcementFile&quot; )
+    private String announcementFile;
+
+    /**
+     * Map of custom parameters for the announcement. This Map will be passed to the template.
+     *
+     * @since 2.1
+     */
+    @Parameter
+    private Map&lt;Object, Object&gt; announceParameters;
+
+    /**
+     */
+    @Parameter( property = &quot;project.artifactId&quot;, readonly = true )
+    private String artifactId;
+
+    /**
+     * Name of the team that develops the artifact. This parameter will be passed to the template.
+     */
+    @Parameter( property = &quot;changes.developmentTeam&quot;, defaultValue = &quot;${project.name} team&quot;, required = true )
+    private String developmentTeam;
+
+    /**
+     * The name of the artifact to be used in the announcement.
+     */
+    @Parameter( property = &quot;changes.finalName&quot;, defaultValue = &quot;${project.build.finalName}&quot;, required = true )
+    private String finalName;
+
+    /**
+     */
+    @Parameter( property = &quot;project.groupId&quot;, readonly = true )
+    private String groupId;
+
+    /**
+     * Short description or introduction of the released artifact. This parameter will be passed to the template.
+     */
+    @Parameter( defaultValue = &quot;${project.description}&quot; )
+    private String introduction;
+
+    /**
+     * A list of issue management systems to fetch releases from. This parameter replaces the parameters
+     * &lt;code&gt;generateJiraAnnouncement&lt;/code&gt; and &lt;code&gt;jiraMerge&lt;/code&gt;.
+     * &lt;p&gt;
+     * Valid values are: &lt;code&gt;changes.xml&lt;/code&gt; and &lt;code&gt;JIRA&lt;/code&gt;.
+     * &lt;/p&gt;
+     * &lt;strong&gt;Note:&lt;/strong&gt; Only one issue management system that is configured in
+     * &amp;lt;project&amp;gt;/&amp;lt;issueManagement&amp;gt; can be used. This currently means that you can combine a changes.xml file
+     * with one other issue management system.
+     *
+     * @since 2.4
+     */
+    @Parameter
+    private List&lt;String&gt; issueManagementSystems;
+
+    /**
+     * Maps issues types to action types for grouping issues in announcements. If issue types are not defined for a
+     * action type then the default issue type will be applied.
+     * &lt;p&gt;
+     * Valid action types: &lt;code&gt;add&lt;/code&gt;, &lt;code&gt;fix&lt;/code&gt; and &lt;code&gt;update&lt;/code&gt;.
+     * &lt;/p&gt;
+     *
+     * @since 2.6
+     */
+    @Parameter
+    private Map&lt;String, String&gt; issueTypes;
+
+    /**
+     * Directory where the announcement file will be generated.
+     *
+     * @since 2.10
+     */
+    @Parameter( defaultValue = &quot;${project.build.directory}/announcement&quot;, required = true )
+    private File announcementDirectory;
+
+    /**
+     * Directory where the announcement file will be generated.
+     *
+     * @deprecated Starting with version 2.10 this parameter is no longer used. You must use
+     *             {@link #announcementDirectory} instead.
+     */
+    @Parameter
+    private File outputDirectory;
+
+    /**
+     * Packaging structure for the artifact.
+     */
+    @Parameter( property = &quot;project.packaging&quot;, readonly = true )
+    private String packaging;
+
+    /**
+     * The Maven Project.
+     */
+    @Parameter( defaultValue = &quot;${project}&quot;, readonly = true, required = true )
+    private MavenProject project;
+
+    /**
+     * The Velocity template used to format the announcement.
+     */
+    @Parameter( property = &quot;changes.template&quot;, defaultValue = &quot;announcement.vm&quot;, required = true )
+    private String template;
+
+    /**
+     * Directory that contains the template.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; This directory must be a subdirectory of
+     * &lt;code&gt;/src/main/resources/ or current project base directory&lt;/code&gt;.
+     * &lt;/p&gt;
+     */
+    // CHECKSTYLE_OFF: LineLength
+    @Parameter( property = &quot;changes.templateDirectory&quot;, defaultValue = &quot;org/apache/maven/plugins/announcement&quot;, required = true )
+    private String templateDirectory;
+    // CHECKSTYLE_ON: LineLength
+
+    /**
+     * The template encoding.
+     *
+     * @since 2.1
+     */
+    @Parameter( property = &quot;changes.templateEncoding&quot;, defaultValue = &quot;${project.build.sourceEncoding}&quot; )
+    private String templateEncoding;
+
+    /**
+     * Use the JIRA query language instead of the JIRA query based on HTTP parameters. From JIRA 5.1 and up only JQL is
+     * supported. JIRA 4.4 supports both JQL and URL parameter based queries. From 5.1.1 this is obsolete, since REST
+     * queries only use JQL.
+     *
+     * @since 2.10
+     */
+    @Parameter( property = &quot;changes.useJql&quot;, defaultValue = &quot;false&quot; )
+    private boolean useJql;
+
+    /**
+     * Distribution URL of the artifact. This parameter will be passed to the template.
+     */
+    @Parameter( property = &quot;project.url&quot; )
+    private String url;
+
+    /**
+     * URL where the artifact can be downloaded. If not specified, no URL is used. This parameter will be passed to the
+     * template.
+     */
+    @Parameter
+    private String urlDownload;
+
+    /**
+     * Velocity Component.
+     */
+    @Component( role = VelocityComponent.class, hint = &quot;maven-changes-plugin&quot; )
+    private VelocityComponent velocity;
+
+    /**
+     * Component used to decrypt server information.
+     */
+    @Component
+    private SettingsDecrypter settingsDecrypter;
+
+    /**
+     * Version of the artifact.
+     */
+    @Parameter( property = &quot;changes.version&quot;, defaultValue = &quot;${project.version}&quot;, required = true )
+    private String version;
+
+    /**
+     * The path of the changes.xml file.
+     *
+     * @parameter expression=&quot;${basedir}/src/changes/changes.xml&quot;
+     * @required
+     */
+    @Parameter( defaultValue = &quot;${basedir}/src/changes/changes.xml&quot; )
+    private File xmlPath;
+    
+    /***
+     * If &quot;-SNAPSHOT&quot; suffix should be removed when searching for issues.
+     * 
+     * @since 2.12.13
+     */
+    @Parameter( property = &quot;changes.removeSnapshotSuffix&quot;, defaultValue = &quot;true&quot; )
+    private boolean removeSnapshotSuffix;
+
+    // =======================================//
+    // JIRA-Announcement Needed Parameters //
+    // =======================================//
+
+    /**
+     * Defines the filter parameters to restrict which issues are retrieved from JIRA. The filter parameter uses the
+     * same format of url parameters that is used in a JIRA search.
+     *
+     * @since 2.4
+     */
+    @Parameter( defaultValue = &quot;&quot; )
+    private String filter;
+
+    /**
+     * Flag to determine if the plugin will generate a JIRA announcement.
+     *
+     * @deprecated Since version 2.4 this parameter has been deprecated. Please use the issueManagementSystems parameter
+     *             instead.
+     */
+    @Parameter( property = &quot;generateJiraAnnouncement&quot; )
+    private Boolean generateJiraAnnouncement;
+
+    /**
+     * If releases from JIRA should be merged with the releases from a changes.xml file.
+     *
+     * @since 2.1
+     * @deprecated Since version 2.4 this parameter has been deprecated. Please use the issueManagementSystems parameter
+     *             instead.
+     */
+    @Parameter( property = &quot;changes.jiraMerge&quot; )
+    private Boolean jiraMerge;
+
+    /**
+     * Defines the JIRA password for authentication into a private JIRA installation.
+     *
+     * @since 2.1
+     */
+    @Parameter( property = &quot;changes.jiraPassword&quot;, defaultValue = &quot;&quot; )
+    private String jiraPassword;
+
+    /**
+     * Defines the JIRA username for authentication into a private JIRA installation.
+     *
+     * @since 2.1
+     */
+    @Parameter( property = &quot;changes.jiraUser&quot;, defaultValue = &quot;&quot; )
+    private String jiraUser;
+
+    /**
+     * Path to the JIRA XML file, which will be parsed.
+     */
+    @Parameter( defaultValue = &quot;${project.build.directory}/jira-announcement.xml&quot;, required = true, readonly = true )
+    private File jiraXML;
+
+    /**
+     * The maximum number of issues to fetch from JIRA.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; In versions 2.0-beta-3 and earlier this parameter was called &quot;nbEntries&quot;.
+     * &lt;/p&gt;
+     */
+    @Parameter( property = &quot;changes.maxEntries&quot;, defaultValue = &quot;25&quot;, required = true )
+    private int maxEntries;
+
+    /**
+     * Include issues from JIRA with these resolution ids. Multiple resolution ids can be specified as a comma separated
+     * list of ids.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; In versions 2.0-beta-3 and earlier this parameter was called &quot;resolutionId&quot;.
+     * &lt;/p&gt;
+     */
+    @Parameter( property = &quot;changes.resolutionIds&quot;, defaultValue = &quot;Fixed&quot; )
+    private String resolutionIds;
+
+    /**
+     * Settings XML configuration.
+     */
+    @Parameter( defaultValue = &quot;${settings}&quot;, readonly = true, required = true )
+    private Settings settings;
+
+    /**
+     * Include issues from JIRA with these status ids. Multiple status ids can be specified as a comma separated list of
+     * ids.
+     * &lt;p&gt;
+     * &lt;b&gt;Note:&lt;/b&gt; In versions 2.0-beta-3 and earlier this parameter was called &quot;statusId&quot;.
+     * &lt;/p&gt;
+     */
+    @Parameter( property = &quot;changes.statusIds&quot;, defaultValue = &quot;Closed&quot; )
+    private String statusIds;
+
+    /**
+     * Defines the http user for basic authentication into the JIRA webserver.
+     *
+     * @since 2.4
+     */
+    @Parameter( property = &quot;changes.webUser&quot;, defaultValue = &quot;&quot; )
+    private String webUser;
+
+    /**
+     * Defines the http password for basic authentication into the JIRA webserver.
+     *
+     * @since 2.4
+     */
+    @Parameter( property = &quot;changes.webPassword&quot;, defaultValue = &quot;&quot; )
+    private String webPassword;
+
+    /**
+     * The prefix used when naming versions in JIRA.
+     * &lt;p&gt;
+     * If you have a project in JIRA with several components that have different release cycles, it is an often used
+     * pattern to prefix the version with the name of the component, e.g. maven-filtering-1.0 etc. To fetch issues from
+     * JIRA for a release of the &quot;maven-filtering&quot; component you would need to set this parameter to &quot;maven-filtering-&quot;.
+     * &lt;/p&gt;
+     *
+     * @since 2.5
+     */
+    @Parameter( property = &quot;changes.versionPrefix&quot;, defaultValue = &quot;&quot; )
+    private String versionPrefix;
+
+    /**
+     * Defines the connection timeout in milliseconds when accessing JIRA's REST-API.
+     * &lt;p&gt;
+     * Might help when you have a lot of different resolutions in your JIRA instance.
+     * &lt;/p&gt;
+     *
+     * @since 2.11
+     */
+    @Parameter( property = &quot;changes.jiraConnectionTimeout&quot;, defaultValue = &quot;36000&quot; )
+    private int jiraConnectionTimeout;
+
+    /**
+     * Defines the receive timeout in milliseconds when accessing JIRA's REST-API.
+     * &lt;p&gt;
+     * Might help when you have a lot of different resolutions in your JIRA instance.
+     * &lt;/p&gt;
+     *
+     * @since 2.11
+     */
+    @Parameter( property = &quot;changes.jiraReceiveTimout&quot;, defaultValue = &quot;32000&quot; )
+    private int jiraReceiveTimout;
+
+    // =======================================//
+    // Trac Parameters //
+    // =======================================//
+
+    /**
+     * Defines the Trac password for authentication into a private Trac installation.
+     *
+     * @since 2.4
+     */
+    @Parameter( property = &quot;changes.tracPassword&quot;, defaultValue = &quot;&quot; )
+    private String tracPassword;
+
+    /**
+     * Defines the Trac query for searching for tickets.
+     *
+     * @since 2.4
+     */
+    @Parameter( defaultValue = &quot;order=id&quot; )
+    private String tracQuery;
+
+    /**
+     * Defines the Trac username for authentication into a private Trac installation.
+     *
+     * @since 2.4
+     */
+    @Parameter( property = &quot;changes.tracUser&quot;, defaultValue = &quot;&quot; )
+    private String tracUser;
+
+    // =======================================//
+    // Github Parameters //
+    // =======================================//
+
+    /**
+     * The scheme of your github api domain. Only use if using github enterprise.
+     * 
+     * @since 2.9
+     */
+    @Parameter( defaultValue = &quot;http&quot;, property = &quot;changes.githubAPIScheme&quot; )
+    private String githubAPIScheme;
+
+    /**
+     * The port of your github api domain. Only use if using github enterprise.
+     * 
+     * @since 2.9
+     */
+    @Parameter( defaultValue = &quot;80&quot;, property = &quot;changes.githubAPIPort&quot; )
+    private int githubAPIPort;
+
+    /**
+     * The settings.xml server id to be used to authenticate into github api domain. Only use if using github
+     * enterprise.
+     *
+     * @since 2.12
+     */
+    @Parameter( defaultValue = &quot;github&quot; )
+    private String githubAPIServerId;
+
+    /**
+     * Boolean which says if we should include open github issues in the announcement.
+     */
+    @Parameter( defaultValue = &quot;false&quot; )
+    private boolean includeOpenIssues;
+
+<span class="fc" id="L470">    private ReleaseUtils releaseUtils = new ReleaseUtils( getLog() );</span>
+
+    private ChangesXML xml;
+
+    // =======================================//
+    // announcement-generate execution //
+    // =======================================//
+
+    /**
+     * Generate the template
+     *
+     * @throws MojoExecutionException in case of errors
+     */
+    public void execute()
+        throws MojoExecutionException
+    {
+        // Fail build fast if it is using deprecated parameters
+<span class="fc" id="L487">        failIfUsingDeprecatedParameter( outputDirectory, &quot;outputDirectory&quot;, &quot;announcementDirectory&quot; );</span>
+<span class="fc" id="L488">        failIfUsingDeprecatedParameter( generateJiraAnnouncement, &quot;generateJiraAnnouncement&quot;,</span>
+                                        &quot;issueManagementSystems &quot; );
+<span class="fc" id="L490">        failIfUsingDeprecatedParameter( jiraMerge, &quot;jiraMerge&quot;, &quot;issueManagementSystems &quot; );</span>
+
+        // Run only at the execution root
+<span class="pc bpc" id="L493" title="3 of 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+        {
+<span class="nc" id="L495">            getLog().info( &quot;Skipping the announcement generation in this project because it's not the Execution Root&quot; );</span>
+        }
+        else
+        {
+<span class="pc bpc" id="L499" title="1 of 2 branches missed.">            if ( issueManagementSystems == null )</span>
+            {
+<span class="fc" id="L501">                issueManagementSystems = new ArrayList&lt;String&gt;();</span>
+            }
+
+<span class="pc bpc" id="L504" title="1 of 2 branches missed.">            if ( issueManagementSystems.isEmpty() )</span>
+            {
+<span class="fc" id="L506">                issueManagementSystems.add( CHANGES_XML );</span>
+            }
+
+            // Fetch releases from the configured issue management systems
+<span class="fc" id="L510">            List&lt;Release&gt; releases = null;</span>
+<span class="pc bpc" id="L511" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( CHANGES_XML ) )</span>
+            {
+<span class="pc bpc" id="L513" title="1 of 2 branches missed.">                if ( getXmlPath().exists() )</span>
+                {
+<span class="fc" id="L515">                    ChangesXML changesXML = new ChangesXML( getXmlPath(), getLog() );</span>
+<span class="fc" id="L516">                    List&lt;Release&gt; changesReleases = changesXML.getReleaseList();</span>
+<span class="fc" id="L517">                    releases = releaseUtils.mergeReleases( null, changesReleases );</span>
+<span class="fc" id="L518">                    getLog().info( &quot;Including issues from file &quot; + getXmlPath() + &quot; in announcement...&quot; );</span>
+<span class="fc" id="L519">                }</span>
+                else
+                {
+<span class="nc" id="L522">                    getLog().warn( &quot;changes.xml file &quot; + getXmlPath().getAbsolutePath() + &quot; does not exist.&quot; );</span>
+                }
+            }
+
+<span class="pc bpc" id="L526" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( JIRA ) )</span>
+            {
+<span class="nc" id="L528">                String message = ProjectUtils.validateIssueManagement( project, JIRA, &quot;JIRA announcement&quot; );</span>
+<span class="nc bnc" id="L529" title="All 2 branches missed.">                if ( message == null )</span>
+                {
+<span class="nc" id="L531">                    List&lt;Release&gt; jiraReleases = getJiraReleases();</span>
+<span class="nc" id="L532">                    releases = releaseUtils.mergeReleases( releases, jiraReleases );</span>
+<span class="nc" id="L533">                    getLog().info( &quot;Including issues from JIRA in announcement...&quot; );</span>
+<span class="nc" id="L534">                }</span>
+                else
+                {
+<span class="nc" id="L537">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
+                        + message );
+                }
+            }
+
+<span class="pc bpc" id="L542" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( TRAC ) )</span>
+            {
+<span class="nc" id="L544">                String message = ProjectUtils.validateIssueManagement( project, TRAC, &quot;Trac announcement&quot; );</span>
+<span class="nc bnc" id="L545" title="All 2 branches missed.">                if ( message == null )</span>
+                {
+<span class="nc" id="L547">                    List&lt;Release&gt; tracReleases = getTracReleases();</span>
+<span class="nc" id="L548">                    releases = releaseUtils.mergeReleases( releases, tracReleases );</span>
+<span class="nc" id="L549">                    getLog().info( &quot;Including issues from Trac in announcement...&quot; );</span>
+<span class="nc" id="L550">                }</span>
+                else
+                {
+<span class="nc" id="L553">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
+                                    + message );
+                }
+            }
+
+<span class="pc bpc" id="L558" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( GIT_HUB ) )</span>
+            {
+<span class="nc" id="L560">                String message = ProjectUtils.validateIssueManagement( project, GIT_HUB, &quot;GitHub announcement&quot; );</span>
+<span class="nc bnc" id="L561" title="All 2 branches missed.">                if ( message == null )</span>
+                {
+<span class="nc" id="L563">                    List&lt;Release&gt; gitHubReleases = getGitHubReleases();</span>
+<span class="nc" id="L564">                    releases = releaseUtils.mergeReleases( releases, gitHubReleases );</span>
+<span class="nc" id="L565">                    getLog().info( &quot;Including issues from GitHub in announcement...&quot; );</span>
+<span class="nc" id="L566">                }</span>
+                else
+                {
+<span class="nc" id="L569">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
+                                    + message );
+                }
+            }
+
+            // @todo Add more issue management systems here.
+
+            // Follow these steps:
+            // 1. Add a constant for the name of the issue management system
+            // 2. Add the @parameters needed to configure the issue management system
+            // 3. Add a protected List get&lt;IMSname&gt;Releases() method that retrieves a list of releases
+            // 4. Merge those releases into the &quot;releases&quot; variable
+            // For help with these steps, you can have a look at how this has been done for JIRA or Trac
+
+            // Generate the report
+<span class="pc bpc" id="L584" title="2 of 4 branches missed.">            if ( releases == null || releases.isEmpty() )</span>
+            {
+<span class="nc" id="L586">                throw new MojoExecutionException( &quot;No releases found in any of the &quot;</span>
+                    + &quot;configured issue management systems.&quot; );
+            }
+            else
+            {
+<span class="fc" id="L591">                doGenerate( releases );</span>
+            }
+        }
+<span class="fc" id="L594">    }</span>
+
+    private void failIfUsingDeprecatedParameter( Object value, String name, String replacement )
+        throws MojoExecutionException
+    {
+<span class="pc bpc" id="L599" title="1 of 2 branches missed.">        if ( value != null )</span>
+        {
+<span class="nc" id="L601">            throw new MojoExecutionException( &quot;You are using the old parameter '&quot; + name + &quot;'. &quot; + &quot;You must use '&quot;</span>
+                + replacement + &quot;' instead.&quot; );
+        }
+<span class="fc" id="L604">    }</span>
+
+    /**
+     * Add the parameters to velocity context
+     *
+     * @param releases A &lt;code&gt;List&lt;/code&gt; of &lt;code&gt;Release&lt;/code&gt;s
+     * @throws MojoExecutionException in case of errors
+     */
+    public void doGenerate( List&lt;Release&gt; releases )
+        throws MojoExecutionException
+    {
+<span class="pc bpc" id="L615" title="1 of 2 branches missed.">        String version = ( versionPrefix == null ? &quot;&quot; : versionPrefix ) + getVersion();</span>
+
+<span class="fc" id="L617">        getLog().debug( &quot;Generating announcement for version [&quot; + version + &quot;]. Found these releases: &quot;</span>
+<span class="fc" id="L618">            + ReleaseUtils.toString( releases ) );</span>
+
+<span class="fc" id="L620">        doGenerate( releases, releaseUtils.getLatestRelease( releases, version, removeSnapshotSuffix ) );</span>
+<span class="fc" id="L621">    }</span>
+
+    protected void doGenerate( List&lt;Release&gt; releases, Release release )
+        throws MojoExecutionException
+    {
+        try
+        {
+<span class="fc" id="L628">            ToolManager toolManager = new ToolManager( true );</span>
+<span class="fc" id="L629">            Context context = toolManager.createContext();</span>
+
+<span class="pc bpc" id="L631" title="2 of 4 branches missed.">            if ( getIntroduction() == null || getIntroduction().equals( &quot;&quot; ) )</span>
+            {
+<span class="nc" id="L633">                setIntroduction( getUrl() );</span>
+            }
+
+<span class="fc" id="L636">            context.put( &quot;releases&quot;, releases );</span>
+
+<span class="fc" id="L638">            context.put( &quot;groupId&quot;, getGroupId() );</span>
+
+<span class="fc" id="L640">            context.put( &quot;artifactId&quot;, getArtifactId() );</span>
+
+<span class="fc" id="L642">            context.put( &quot;version&quot;, getVersion() );</span>
+
+<span class="fc" id="L644">            context.put( &quot;packaging&quot;, getPackaging() );</span>
+
+<span class="fc" id="L646">            context.put( &quot;url&quot;, getUrl() );</span>
+
+<span class="fc" id="L648">            context.put( &quot;release&quot;, release );</span>
+
+<span class="fc" id="L650">            context.put( &quot;introduction&quot;, getIntroduction() );</span>
+
+<span class="fc" id="L652">            context.put( &quot;developmentTeam&quot;, getDevelopmentTeam() );</span>
+
+<span class="fc" id="L654">            context.put( &quot;finalName&quot;, getFinalName() );</span>
+
+<span class="fc" id="L656">            context.put( &quot;urlDownload&quot;, getUrlDownload() );</span>
+
+<span class="fc" id="L658">            context.put( &quot;project&quot;, project );</span>
+
+<span class="pc bpc" id="L660" title="1 of 2 branches missed.">            if ( announceParameters == null )</span>
+            {
+                // empty Map to prevent NPE in velocity execution
+<span class="fc" id="L663">                context.put( &quot;announceParameters&quot;, Collections.emptyMap() );</span>
+            }
+            else
+            {
+<span class="nc" id="L667">                context.put( &quot;announceParameters&quot;, announceParameters );</span>
+            }
+
+<span class="fc" id="L670">            processTemplate( context, announcementDirectory, template, announcementFile );</span>
+        }
+<span class="nc" id="L672">        catch ( ResourceNotFoundException rnfe )</span>
+        {
+<span class="nc" id="L674">            throw new MojoExecutionException( &quot;Resource not found.&quot;, rnfe );</span>
+        }
+<span class="nc" id="L676">        catch ( VelocityException ve )</span>
+        {
+<span class="nc" id="L678">            throw new MojoExecutionException( ve.toString(), ve );</span>
+<span class="fc" id="L679">        }</span>
+<span class="fc" id="L680">    }</span>
+
+    /**
+     * Create the velocity template
+     *
+     * @param context velocity context that has the parameter values
+     * @param outputDirectory directory where the file will be generated
+     * @param template velocity template which will the context be merged
+     * @param announcementFile The file name of the generated announcement
+     * @throws VelocityException in case of errors.
+     * @throws MojoExecutionException in case of errors.
+     */
+    public void processTemplate( Context context, File outputDirectory, String template, String announcementFile )
+        throws VelocityException, MojoExecutionException
+    {
+        File f;
+
+        // Use the name of the template as a default value
+<span class="pc bpc" id="L698" title="1 of 2 branches missed.">        if ( StringUtils.isEmpty( announcementFile ) )</span>
+        {
+<span class="fc" id="L700">            announcementFile = template;</span>
+        }
+
+        try
+        {
+<span class="fc" id="L705">            f = new File( outputDirectory, announcementFile );</span>
+
+<span class="pc bpc" id="L707" title="1 of 2 branches missed.">            if ( !f.getParentFile().exists() )</span>
+            {
+<span class="nc" id="L709">                f.getParentFile().mkdirs();</span>
+            }
+
+<span class="fc" id="L712">            VelocityEngine engine = velocity.getEngine();</span>
+
+<span class="fc" id="L714">            engine.setApplicationAttribute( &quot;baseDirectory&quot;, basedir );</span>
+
+<span class="pc bpc" id="L716" title="1 of 2 branches missed.">            if ( StringUtils.isEmpty( templateEncoding ) )</span>
+            {
+<span class="fc" id="L718">                templateEncoding = ReaderFactory.FILE_ENCODING;</span>
+<span class="fc" id="L719">                getLog().warn( &quot;File encoding has not been set, using platform encoding &quot; + templateEncoding</span>
+                    + &quot;, i.e. build is platform dependent!&quot; );
+            }
+
+<span class="fc" id="L723">            Writer writer = new OutputStreamWriter( new FileOutputStream( f ), templateEncoding );</span>
+
+<span class="fc" id="L725">            Template velocityTemplate = engine.getTemplate( templateDirectory + &quot;/&quot; + template, templateEncoding );</span>
+
+<span class="fc" id="L727">            velocityTemplate.merge( context, writer );</span>
+
+<span class="fc" id="L729">            writer.flush();</span>
+
+<span class="fc" id="L731">            writer.close();</span>
+
+<span class="fc" id="L733">            getLog().info( &quot;Created template &quot; + f );</span>
+        }
+
+<span class="nc" id="L736">        catch ( ResourceNotFoundException rnfe )</span>
+        {
+<span class="nc" id="L738">            throw new ResourceNotFoundException( &quot;Template not found. ( &quot; + templateDirectory + &quot;/&quot; + template + &quot; )&quot; );</span>
+        }
+<span class="nc" id="L740">        catch ( VelocityException ve )</span>
+        {
+<span class="nc" id="L742">            throw new VelocityException( ve.toString() );</span>
+        }
+
+<span class="nc" id="L745">        catch ( Exception e )</span>
+        {
+<span class="nc bnc" id="L747" title="All 2 branches missed.">            if ( e.getCause() != null )</span>
+            {
+<span class="nc" id="L749">                getLog().warn( e.getCause() );</span>
+            }
+<span class="nc" id="L751">            throw new MojoExecutionException( e.toString(), e.getCause() );</span>
+<span class="fc" id="L752">        }</span>
+<span class="fc" id="L753">    }</span>
+
+    protected List&lt;Release&gt; getJiraReleases()
+        throws MojoExecutionException
+    {
+<span class="nc" id="L758">        AbstractJiraDownloader jiraDownloader = new AdaptiveJiraDownloader();</span>
+
+<span class="nc" id="L760">        File jiraXMLFile = jiraXML;</span>
+
+<span class="nc" id="L762">        jiraDownloader.setLog( getLog() );</span>
+
+<span class="nc" id="L764">        jiraDownloader.setOutput( jiraXMLFile );</span>
+
+<span class="nc" id="L766">        jiraDownloader.setStatusIds( statusIds );</span>
+
+<span class="nc" id="L768">        jiraDownloader.setResolutionIds( resolutionIds );</span>
+
+<span class="nc" id="L770">        jiraDownloader.setMavenProject( project );</span>
+
+<span class="nc" id="L772">        jiraDownloader.setSettings( settings );</span>
+
+<span class="nc" id="L774">        jiraDownloader.setNbEntries( maxEntries );</span>
+
+<span class="nc" id="L776">        jiraDownloader.setFilter( filter );</span>
+
+<span class="nc" id="L778">        jiraDownloader.setJiraUser( jiraUser );</span>
+
+<span class="nc" id="L780">        jiraDownloader.setJiraPassword( jiraPassword );</span>
+
+<span class="nc" id="L782">        jiraDownloader.setUseJql( useJql );</span>
+
+<span class="nc" id="L784">        jiraDownloader.setWebUser( webUser );</span>
+
+<span class="nc" id="L786">        jiraDownloader.setWebPassword( webPassword );</span>
+
+<span class="nc" id="L788">        jiraDownloader.setConnectionTimeout( jiraConnectionTimeout );</span>
+
+<span class="nc" id="L790">        jiraDownloader.setReceiveTimout( jiraReceiveTimout );</span>
+
+        try
+        {
+<span class="nc" id="L794">            jiraDownloader.doExecute();</span>
+
+<span class="nc" id="L796">            List&lt;Issue&gt; issueList = jiraDownloader.getIssueList();</span>
+
+<span class="nc bnc" id="L798" title="All 2 branches missed.">            if ( StringUtils.isNotEmpty( versionPrefix ) )</span>
+            {
+<span class="nc" id="L800">                int originalNumberOfIssues = issueList.size();</span>
+<span class="nc" id="L801">                issueList = IssueUtils.filterIssuesWithVersionPrefix( issueList, versionPrefix );</span>
+<span class="nc" id="L802">                getLog().debug( &quot;Filtered out &quot; + issueList.size() + &quot; issues of &quot; + originalNumberOfIssues</span>
+                    + &quot; that matched the versionPrefix '&quot; + versionPrefix + &quot;'.&quot; );
+            }
+
+<span class="nc" id="L806">            return getReleases( issueList, new JIRAIssueManagmentSystem() );</span>
+        }
+<span class="nc" id="L808">        catch ( Exception e )</span>
+        {
+<span class="nc" id="L810">            throw new MojoExecutionException( &quot;Failed to extract issues from JIRA.&quot;, e );</span>
+        }
+    }
+
+    private List&lt;Release&gt; getReleases( List&lt;Issue&gt; issues, IssueManagementSystem ims )
+        throws MojoExecutionException
+    {
+<span class="nc bnc" id="L817" title="All 2 branches missed.">        if ( issueTypes != null )</span>
+        {
+<span class="nc" id="L819">            ims.applyConfiguration( issueTypes );</span>
+        }
+<span class="nc bnc" id="L821" title="All 2 branches missed.">        if ( issues.isEmpty() )</span>
+        {
+<span class="nc" id="L823">            return Collections.emptyList();</span>
+        }
+        else
+        {
+<span class="nc" id="L827">            IssueAdapter adapter = new IssueAdapter( ims );</span>
+<span class="nc" id="L828">            return adapter.getReleases( issues );</span>
+        }
+    }
+
+    protected List&lt;Release&gt; getTracReleases()
+        throws MojoExecutionException
+    {
+<span class="nc" id="L835">        TracDownloader issueDownloader = new TracDownloader();</span>
+
+<span class="nc" id="L837">        issueDownloader.setProject( project );</span>
+
+<span class="nc" id="L839">        issueDownloader.setQuery( tracQuery );</span>
+
+<span class="nc" id="L841">        issueDownloader.setTracPassword( tracPassword );</span>
+
+<span class="nc" id="L843">        issueDownloader.setTracUser( tracUser );</span>
+
+        try
+        {
+<span class="nc" id="L847">            return getReleases( issueDownloader.getIssueList(), new TracIssueManagmentSystem() );</span>
+        }
+<span class="nc" id="L849">        catch ( Exception e )</span>
+        {
+<span class="nc" id="L851">            throw new MojoExecutionException( &quot;Failed to extract issues from Trac.&quot;, e );</span>
+        }
+    }
+
+    protected List&lt;Release&gt; getGitHubReleases()
+        throws MojoExecutionException
+    {
+        try
+        {
+<span class="nc" id="L860">            GitHubDownloader issueDownloader =</span>
+                new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues, true );
+            
+<span class="nc" id="L863">            issueDownloader.configureProxy( settings );</span>
+
+<span class="nc" id="L865">            issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, getLog() );</span>
+
+<span class="nc" id="L867">            return getReleases( issueDownloader.getIssueList(), new GitHubIssueManagementSystem() );</span>
+        }
+<span class="nc" id="L869">        catch ( Exception e )</span>
+        {
+<span class="nc" id="L871">            throw new MojoExecutionException( &quot;Failed to extract issues from GitHub.&quot;, e );</span>
+        }
+    }
+
+    /*
+     * accessors
+     */
+
+    public String getArtifactId()
+    {
+<span class="fc" id="L881">        return artifactId;</span>
+    }
+
+    public void setArtifactId( String artifactId )
+    {
+<span class="nc" id="L886">        this.artifactId = artifactId;</span>
+<span class="nc" id="L887">    }</span>
+
+    public String getDevelopmentTeam()
+    {
+<span class="fc" id="L891">        return developmentTeam;</span>
+    }
+
+    public void setDevelopmentTeam( String developmentTeam )
+    {
+<span class="nc" id="L896">        this.developmentTeam = developmentTeam;</span>
+<span class="nc" id="L897">    }</span>
+
+    public String getFinalName()
+    {
+<span class="fc" id="L901">        return finalName;</span>
+    }
+
+    public void setFinalName( String finalName )
+    {
+<span class="nc" id="L906">        this.finalName = finalName;</span>
+<span class="nc" id="L907">    }</span>
+
+    public String getGroupId()
+    {
+<span class="fc" id="L911">        return groupId;</span>
+    }
+
+    public void setGroupId( String groupId )
+    {
+<span class="nc" id="L916">        this.groupId = groupId;</span>
+<span class="nc" id="L917">    }</span>
+
+    public String getIntroduction()
+    {
+<span class="fc" id="L921">        return introduction;</span>
+    }
+
+    public void setIntroduction( String introduction )
+    {
+<span class="nc" id="L926">        this.introduction = introduction;</span>
+<span class="nc" id="L927">    }</span>
+
+    public void setIssueTypes( Map&lt;String, String&gt; issueTypes )
+    {
+<span class="nc" id="L931">        this.issueTypes = issueTypes;</span>
+<span class="nc" id="L932">    }</span>
+
+    public Map&lt;String, String&gt; getIssueTypes()
+    {
+<span class="nc" id="L936">        return issueTypes;</span>
+    }
+
+    public File getAnnouncementDirectory()
+    {
+<span class="nc" id="L941">        return announcementDirectory;</span>
+    }
+
+    public void setAnnouncementDirectory( File announcementDirectory )
+    {
+<span class="nc" id="L946">        this.announcementDirectory = announcementDirectory;</span>
+<span class="nc" id="L947">    }</span>
+
+    public String getPackaging()
+    {
+<span class="fc" id="L951">        return packaging;</span>
+    }
+
+    public void setPackaging( String packaging )
+    {
+<span class="nc" id="L956">        this.packaging = packaging;</span>
+<span class="nc" id="L957">    }</span>
+
+    public String getUrl()
+    {
+<span class="fc" id="L961">        return url;</span>
+    }
+
+    public void setUrl( String url )
+    {
+<span class="nc" id="L966">        this.url = url;</span>
+<span class="nc" id="L967">    }</span>
+
+    public String getUrlDownload()
+    {
+<span class="fc" id="L971">        return urlDownload;</span>
+    }
+
+    public void setUrlDownload( String urlDownload )
+    {
+<span class="nc" id="L976">        this.urlDownload = urlDownload;</span>
+<span class="nc" id="L977">    }</span>
+
+    public VelocityComponent getVelocity()
+    {
+<span class="nc" id="L981">        return velocity;</span>
+    }
+
+    public void setVelocity( VelocityComponent velocity )
+    {
+<span class="fc" id="L986">        this.velocity = velocity;</span>
+<span class="fc" id="L987">    }</span>
+
+    public String getVersion()
+    {
+<span class="fc" id="L991">        return version;</span>
+    }
+
+    public void setVersion( String version )
+    {
+<span class="nc" id="L996">        this.version = version;</span>
+<span class="nc" id="L997">    }</span>
+
+    public ChangesXML getXml()
+    {
+<span class="nc" id="L1001">        return xml;</span>
+    }
+
+    public void setXml( ChangesXML xml )
+    {
+<span class="nc" id="L1006">        this.xml = xml;</span>
+<span class="nc" id="L1007">    }</span>
+
+    public File getXmlPath()
+    {
+<span class="fc" id="L1011">        return xmlPath;</span>
+    }
+
+    public void setXmlPath( File xmlPath )
+    {
+<span class="nc" id="L1016">        this.xmlPath = xmlPath;</span>
+<span class="nc" id="L1017">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
