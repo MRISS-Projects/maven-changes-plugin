@@ -713,5 +713,38 @@
                 </plugins>
             </reporting>
         </profile>
+<!--         <profile> -->
+<!--             <id>update-coverage</id> -->
+<!--             <activation> -->
+<!--                 <activeByDefault>false</activeByDefault> -->
+<!--             </activation> -->
+<!--             <properties> -->
+<!--                 <project.scm.id>github</project.scm.id> -->
+<!--             </properties> -->
+<!--             <build> -->
+<!--                 <plugins> -->
+<!--                     <plugin> -->
+<!--                         <groupId>org.apache.maven.plugins</groupId> -->
+<!--                         <artifactId>maven-scm-plugin</artifactId> -->
+<!--                         <version>1.9.5</version> -->
+<!--                         <executions> -->
+<!--                             <execution> -->
+<!--                                 <id>commit-jacoco-svg</id> -->
+<!--                                 <phase>verify</phase> -->
+<!--                                 <goals> -->
+<!--                                     <goal>checkin</goal> -->
+<!--                                 </goals> -->
+<!--                                 <configuration> -->
+<!--                                     <basedir>${basedir}/jacoco-badge</basedir> -->
+<!--                                     <includes>jacoco.svg</includes> -->
+<!--                                     <message>Jacoco coverage badge</message> -->
+<!--                                 </configuration> -->
+<!--                                 <inherited>false</inherited> -->
+<!--                             </execution> -->
+<!--                         </executions> -->
+<!--                     </plugin> -->
+<!--                 </plugins> -->
+<!--             </build> -->
+<!--         </profile> -->
     </profiles>
 </project>
