@@ -20,7 +20,7 @@
  <!--- http://maven.apache.org/doxia/references/apt-format.html --->
 
 [![Build Status](https://travis-ci.org/MRISS-Projects/maven-changes-plugin.svg?branch=DEVELOP)](https://travis-ci.org/MRISS-Projects/maven-changes-plugin)
-![altText](https://github.com/MRISS-Projects/maven-changes-plugin/blob/DEVELOP/jacoco-badge/jacoco.svg "title")
+![altText](jacoco-badge/jacoco.svg "title")
 
 # Maven Changes Plugin - Adapted Version
 
