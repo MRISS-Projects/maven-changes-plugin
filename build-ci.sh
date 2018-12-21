@@ -22,7 +22,7 @@
 
 set -e
 
-#cp maven/security-settings.xml $HOME/.m2
+cp maven/settings-security.xml $HOME/.m2
 
 if [ "${TRAVIS_PULL_REQUEST}" = "true" ]; then
   echo This is a PR. Just testing ...

@@ -4,16 +4,16 @@
     See the License for the specific language governing permissions and limitations under the License. -->
 
 <settings>
-<!--     <servers> -->
-<!--         <server> -->
-<!--             <id>github.com</id> -->
-<!--             <username>${env.GITHUB_USER}</username> -->
-<!--             <password>${env.GITHUB_PASS}</password> -->
-<!--         </server> -->
-<!--         <server> -->
-<!--             <id>github</id> -->
-<!--             <username>${env.GITHUB_USER}</username> -->
-<!--             <password>${env.GITHUB_PASS}</password> -->
-<!--         </server> -->
-<!--     </servers> -->
+    <servers>
+        <server>
+            <id>github.com</id>
+            <username>${env.GITHUB_USER}</username>
+            <password>${env.GITHUB_PASS}</password>
+        </server>
+        <server>
+            <id>github</id>
+            <username>${env.GITHUB_USER}</username>
+            <password>${env.GITHUB_PASS}</password>
+        </server>
+    </servers>
 </settings>
