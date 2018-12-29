@@ -31,11 +31,11 @@ if [ "${TRAVIS_PULL_REQUEST}" = "true" ]; then
 else
   if [ "${TRAVIS_BRANCH}" = "master" ]; then
     echo This is an official release at master. Deploying artifact and site ...
-    mvn -s maven/settings.xml -P deployment clean deploy && mvn -P deployment site-deploy
+    mvn -s target/settings.xml -P deployment clean deploy && mvn -P deployment site-deploy
   else
     if [ "${TRAVIS_BRANCH}" = "DEVELOP" ]; then
       echo This is a new on-goging development version. Just commit the coverage results ...
-      mvn -s maven/settings.xml -P update-coverage clean install
+      mvn -s target/settings.xml -P update-coverage clean install
     fi
   fi
 fi
