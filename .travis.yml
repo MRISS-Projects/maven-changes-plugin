@@ -15,10 +15,6 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-# NOTE: For help with the syntax of this file, see:
-# http://maven.apache.org/doxia/references/apt-format.html
-
-
 env:
   global:
     - secure: "lSMPBxR+ehMnZqirBXoJyN7IiFJuPDlvzKHPsdhgPrhuGjg//kSozSNvdCMPAMJb0P5fsX0DpeDBkWB/aGxHRoYWOEuusvHqylNMP2aNWxhVwrMuMfbvGQbSiOEOjw6UUEUHiMVctNSqPv34xwYARLeY20AZAS+bu+TIWpeBD7WJWsgGUjc7qKD2sb5UT9Da+8DDQDwgwr/NNbTn2z0VP4aJeCUTbGoGvbFrrrqyXzcmfNPtHwLGVzJ1wh5BrYUn0saU+RhrEjVMstRQImkKwgE0MxOCd4DzedoJWgHdK7BMAmAME6hTcZMGZ7jJ97EQeCNbGH0t/PaAV2yZ9lKbWmOEG5J0ZmfJUu/EoosISVUCobSll3xHiNRjuAGhFfeSvR3zHfRhdVwTedXuE+xU4jLoCG7xq6ai4kOhAQwUwyTgM0mcc7hjfyIPIwx7uzY2VHJ5+nJGQJe5WNKi74/4ZWMwIn4+JZV/iHbjy6dYrH91Ot61CxG+lwL+FLJdCV8UOA8Vz5oGfKMPYraKKnPByaHJRGfMB61fzuOosMrS67iXJZVjQvusxrtse06JrXR3HMhi3RWLJ02W70KCfqQ1C435D65THyz4072VgNGKsTqGaqIkoP7cgkmES2mWCU3u5eH5xhWHK0rJtl0sFcauFmE2IN+Px4GyuphX15y3MlA="

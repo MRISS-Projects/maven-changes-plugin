@@ -54,8 +54,14 @@ public class SettingsStub extends Settings
         {
             try
             {
+                File settingsFile = new File( userHome + File.separator + ".m2" + File.separator + "settings.xml" );
+                if ( !settingsFile.exists() ) 
+                {
+                    settingsFile = new File( "maven" + File.separator + "settings.xml" );
+                }
+                System.out.println( "Using settings file for tests: " + settingsFile.getAbsolutePath() );
                 FileReader sReader = new FileReader(
-                        new File( userHome + File.separator + ".m2" + File.separator + "settings.xml" ) );
+                        settingsFile );
                 SettingsXpp3Reader modelReader = new SettingsXpp3Reader();
                 Settings settings = modelReader.read( sReader, true );
                 return settings.getServers();
