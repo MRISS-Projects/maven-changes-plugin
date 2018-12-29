@@ -57,7 +57,7 @@ public class SettingsStub extends Settings
                 File settingsFile = new File( userHome + File.separator + ".m2" + File.separator + "settings.xml" );
                 if ( !settingsFile.exists() ) 
                 {
-                    settingsFile = new File( "maven" + File.separator + "settings.xml" );
+                    settingsFile = new File( "settings.xml" );
                 }
                 System.out.println( "Using settings file for tests: " + settingsFile.getAbsolutePath() );
                 FileReader sReader = new FileReader(
@@ -67,7 +67,7 @@ public class SettingsStub extends Settings
                 List<Server> servers = settings.getServers();
                 if ( servers == null || servers.isEmpty() ) 
                 {
-                    settingsFile = new File( "maven" + File.separator + "settings.xml" );
+                    settingsFile = new File( "settings.xml" );
                     System.out.println( "Using settings file for tests: " + settingsFile.getAbsolutePath() );
                     sReader = new FileReader(
                             settingsFile );
