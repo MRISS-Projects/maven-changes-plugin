@@ -65,6 +65,16 @@ public class SettingsStub extends Settings
                 SettingsXpp3Reader modelReader = new SettingsXpp3Reader();
                 Settings settings = modelReader.read( sReader, true );
                 List<Server> servers = settings.getServers();
+                if ( servers == null || servers.isEmpty() ) 
+                {
+                    settingsFile = new File( "maven" + File.separator + "settings.xml" );
+                    System.out.println( "Using settings file for tests: " + settingsFile.getAbsolutePath() );
+                    sReader = new FileReader(
+                            settingsFile );
+                    modelReader = new SettingsXpp3Reader();
+                    settings = modelReader.read( sReader, true );
+                    servers = settings.getServers();
+                }
                 System.out.println( "Servers: " + servers );
                 return servers;
             }
