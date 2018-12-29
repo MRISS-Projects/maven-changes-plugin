@@ -64,7 +64,9 @@ public class SettingsStub extends Settings
                         settingsFile );
                 SettingsXpp3Reader modelReader = new SettingsXpp3Reader();
                 Settings settings = modelReader.read( sReader, true );
-                return settings.getServers();
+                List<Server> servers = settings.getServers();
+                System.out.println( "Servers: " + servers );
+                return servers;
             }
             catch ( Exception e )
             {
