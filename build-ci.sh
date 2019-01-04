@@ -25,6 +25,7 @@ set -e
 cp maven/settings-security.xml $HOME/.m2
 cp maven/settings-security.xml $HOME/.settings-security.xml
 
+git checkout ${TRAVIS_BRANCH}
 if [ "${TRAVIS_PULL_REQUEST}" = "true" ]; then
   echo This is a PR. Just testing ...
   mvn -s settings.xml clean install
