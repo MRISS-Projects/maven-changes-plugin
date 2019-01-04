@@ -27,7 +27,7 @@ cp maven/settings-security.xml $HOME/.settings-security.xml
 
 if [ "${TRAVIS_PULL_REQUEST}" = "true" ]; then
   echo This is a PR. Just testing ...
-  mvn clean install
+  mvn -s settings.xml clean install
 else
   if [ "${TRAVIS_BRANCH}" = "master" ]; then
     echo This is an official release at master. Deploying artifact and site ...
