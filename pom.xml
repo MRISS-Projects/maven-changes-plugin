@@ -656,6 +656,7 @@
                                     <pubScmUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</pubScmUrl>
                                     <content>${project.build.directory}/site-deploy</content>
                                     <checkoutDirectory>${project.build.directory}/site-deploy-checkout</checkoutDirectory>
+                                    <skipDeletedFiles>true</skipDeletedFiles>
                                 </configuration>
                             </execution>
                             <execution>
