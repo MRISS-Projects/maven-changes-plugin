@@ -76,115 +76,115 @@ public class MarkdownIssueListFormater implements IssueListFormater
      * @param locale the locale used for messages.
      * @param subtitleLevelNumber the number of characters used to set the version sub-title
      */
-    public MarkdownIssueListFormater( boolean versionSeparator, String issueManagementUrl, String ticketSuffix,
+<span class="nc" id="L79">    public MarkdownIssueListFormater( boolean versionSeparator, String issueManagementUrl, String ticketSuffix,</span>
             List&lt;Integer&gt; columnIds, Locale locale, int subtitleLevelNumber )
-<span class="fc" id="L81">    {</span>
-<span class="fc" id="L82">        this.versionSeparator = versionSeparator;</span>
-<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if ( issueManagementUrl.endsWith( &quot;/&quot; ) )</span>
+    {
+<span class="nc" id="L82">        this.versionSeparator = versionSeparator;</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if ( issueManagementUrl.endsWith( &quot;/&quot; ) )</span>
         {
 <span class="nc" id="L85">            this.issueManagementUrl = issueManagementUrl;</span>
-        }
+<span class="nc" id="L86">        }</span>
         else
         {
-<span class="fc" id="L89">            this.issueManagementUrl = issueManagementUrl + &quot;/&quot;;</span>
+<span class="nc" id="L89">            this.issueManagementUrl = issueManagementUrl + &quot;/&quot;;</span>
         }
-<span class="fc" id="L91">        this.ticketSuffix = ticketSuffix;</span>
-<span class="fc" id="L92">        this.columnIds = columnIds;</span>
-<span class="fc" id="L93">        this.locale = locale;</span>
-<span class="fc" id="L94">        this.subtitleLevelNumber = subtitleLevelNumber;</span>
-<span class="fc" id="L95">        this.headerLabelKeys = new String[] { &quot;report.issues.label.assignee&quot;, &quot;report.issues.label.component&quot;,</span>
-                &quot;report.issues.label.created&quot;, &quot;report.issues.label.fixVersion&quot;, &quot;report.issues.label.id&quot;,
-                &quot;report.issues.label.key&quot;, &quot;report.issues.label.priority&quot;, &quot;report.issues.label.reporter&quot;,
-                &quot;report.issues.label.resolution&quot;, &quot;report.issues.label.status&quot;, &quot;report.issues.label.summary&quot;,
-                &quot;report.issues.label.type&quot;, &quot;report.issues.label.updated&quot;, &quot;report.issues.label.version&quot; };
-<span class="fc" id="L100">    }</span>
+<span class="nc" id="L91">        this.ticketSuffix = ticketSuffix;</span>
+<span class="nc" id="L92">        this.columnIds = columnIds;</span>
+<span class="nc" id="L93">        this.locale = locale;</span>
+<span class="nc" id="L94">        this.subtitleLevelNumber = subtitleLevelNumber;</span>
+<span class="nc" id="L95">        this.headerLabelKeys = new String[] { &quot;report.issues.label.assignee&quot;, &quot;report.issues.label.component&quot;,</span>
+<span class="nc" id="L96">                &quot;report.issues.label.created&quot;, &quot;report.issues.label.fixVersion&quot;, &quot;report.issues.label.id&quot;,</span>
+<span class="nc" id="L97">                &quot;report.issues.label.key&quot;, &quot;report.issues.label.priority&quot;, &quot;report.issues.label.reporter&quot;,</span>
+<span class="nc" id="L98">                &quot;report.issues.label.resolution&quot;, &quot;report.issues.label.status&quot;, &quot;report.issues.label.summary&quot;,</span>
+<span class="nc" id="L99">                &quot;report.issues.label.type&quot;, &quot;report.issues.label.updated&quot;, &quot;report.issues.label.version&quot; };</span>
+<span class="nc" id="L100">    }</span>
 
     @Override
     public String formatIssueList( List&lt;Issue&gt; issueList )
     {
-<span class="fc" id="L105">        String header = generateHeader();</span>
-<span class="fc" id="L106">        String result = &quot;&quot;;</span>
-<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if ( !versionSeparator )</span>
+<span class="nc" id="L105">        String header = generateHeader();</span>
+<span class="nc" id="L106">        String result = &quot;&quot;;</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if ( !versionSeparator )</span>
         {
 <span class="nc" id="L109">            result = header;</span>
         }
-<span class="fc" id="L111">        String version = &quot;&quot;;</span>
-<span class="fc" id="L112">        DateFormat df = DateFormat.getDateInstance( DateFormat.SHORT, locale );</span>
-<span class="fc" id="L113">        int[] columns = IssuesReportHelper.toIntArray( columnIds );</span>
-<span class="fc bfc" id="L114" title="All 2 branches covered.">        for ( Iterator&lt;Issue&gt; iterator = issueList.iterator(); iterator.hasNext(); )</span>
+<span class="nc" id="L111">        String version = &quot;&quot;;</span>
+<span class="nc" id="L112">        DateFormat df = DateFormat.getDateInstance( DateFormat.SHORT, locale );</span>
+<span class="nc" id="L113">        int[] columns = IssuesReportHelper.toIntArray( columnIds );</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        for ( Iterator&lt;Issue&gt; iterator = issueList.iterator(); iterator.hasNext(); )</span>
         {
-<span class="fc" id="L116">            Issue issue = (Issue) iterator.next();</span>
-<span class="pc bpc" id="L117" title="1 of 4 branches missed.">            if ( issue == null || issue.getType() == null )</span>
+<span class="nc" id="L116">            Issue issue = (Issue) iterator.next();</span>
+<span class="nc bnc" id="L117" title="All 4 branches missed.">            if ( issue == null || issue.getType() == null )</span>
             {
-<span class="fc" id="L119">                continue;</span>
+<span class="nc" id="L119">                continue;</span>
             }
-<span class="fc" id="L121">            String issueVersion = getVersion( issue );</span>
-<span class="pc bpc" id="L122" title="3 of 8 branches missed.">            if ( issueVersion == null &amp;&amp; version != null &amp;&amp; isOpened( issue ) &amp;&amp; versionSeparator )</span>
+<span class="nc" id="L121">            String issueVersion = getVersion( issue );</span>
+<span class="nc bnc" id="L122" title="All 8 branches missed.">            if ( issueVersion == null &amp;&amp; version != null &amp;&amp; isOpened( issue ) &amp;&amp; versionSeparator )</span>
             {
-<span class="pc bpc" id="L124" title="1 of 2 branches missed.">                if ( !version.isEmpty() )</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                if ( !version.isEmpty() )</span>
                 {
-<span class="fc" id="L126">                    result += &quot;\n&quot;;</span>
+<span class="nc" id="L126">                    result += &quot;\n&quot;;</span>
                 }
-<span class="fc" id="L128">                version = issueVersion;</span>
-<span class="fc" id="L129">                result += ( StringUtils.repeat( &quot;#&quot;, subtitleLevelNumber ) + &quot; Opened Issues\n\n&quot; );</span>
-<span class="fc" id="L130">                result += ( header );</span>
-            }
-<span class="pc bpc" id="L132" title="2 of 6 branches missed.">            else if ( issueVersion != null &amp;&amp; !issueVersion.equals( version ) &amp;&amp; versionSeparator )</span>
+<span class="nc" id="L128">                version = issueVersion;</span>
+<span class="nc" id="L129">                result += ( StringUtils.repeat( &quot;#&quot;, subtitleLevelNumber ) + &quot; Opened Issues\n\n&quot; );</span>
+<span class="nc" id="L130">                result += ( header );</span>
+<span class="nc" id="L131">            }</span>
+<span class="nc bnc" id="L132" title="All 6 branches missed.">            else if ( issueVersion != null &amp;&amp; !issueVersion.equals( version ) &amp;&amp; versionSeparator )</span>
             {
-<span class="fc bfc" id="L134" title="All 2 branches covered.">                if ( !version.isEmpty() )</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                if ( !version.isEmpty() )</span>
                 {
-<span class="fc" id="L136">                    result += &quot;\n&quot;;</span>
+<span class="nc" id="L136">                    result += &quot;\n&quot;;</span>
                 }
-<span class="fc" id="L138">                version = issueVersion;</span>
-<span class="fc" id="L139">                result += ( StringUtils.repeat( &quot;#&quot;, subtitleLevelNumber ) + &quot; Version &quot; + issueVersion + &quot;\n\n&quot; );</span>
-<span class="fc" id="L140">                result += ( header );</span>
+<span class="nc" id="L138">                version = issueVersion;</span>
+<span class="nc" id="L139">                result += ( StringUtils.repeat( &quot;#&quot;, subtitleLevelNumber ) + &quot; Version &quot; + issueVersion + &quot;\n\n&quot; );</span>
+<span class="nc" id="L140">                result += ( header );</span>
             }
 
-<span class="fc" id="L143">            result += ( MD_LINE_PREFIX + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L143">            result += ( MD_LINE_PREFIX + COLUMN_SEPARATOR );</span>
 
-<span class="fc" id="L145">            result = generateDetail( result, df, columns, issue, issueVersion );</span>
-<span class="fc" id="L146">        }</span>
-<span class="fc" id="L147">        return result;</span>
+<span class="nc" id="L145">            result = generateDetail( result, df, columns, issue, issueVersion );</span>
+        }
+<span class="nc" id="L147">        return result;</span>
     }
 
     private String generateDetail( String result, DateFormat df, int[] columns, Issue issue, String issueVersion )
     {
-<span class="fc bfc" id="L152" title="All 2 branches covered.">        for ( int column : columns )</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        for ( int column : columns )</span>
         {
-<span class="pc bpc" id="L154" title="6 of 15 branches missed.">            switch ( column ) </span>
+<span class="nc bnc" id="L154" title="All 15 branches missed.">            switch ( column ) </span>
             {
             case IssuesReportHelper.COLUMN_ASSIGNEE:
-<span class="fc" id="L157">                result += ( MD_COLUMN_SPACE + issue.getAssignee() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
-<span class="fc" id="L158">                break;</span>
+<span class="nc" id="L157">                result += ( MD_COLUMN_SPACE + issue.getAssignee() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L158">                break;</span>
 
             case IssuesReportHelper.COLUMN_COMPONENT:
 <span class="nc" id="L161">                result += ( MD_COLUMN_SPACE + IssuesReportHelper.printValues( issue.getComponents() ) + MD_COLUMN_SPACE</span>
-                        + COLUMN_SEPARATOR );
+<span class="nc" id="L162">                        + COLUMN_SEPARATOR );</span>
 <span class="nc" id="L163">                break;</span>
 
             case IssuesReportHelper.COLUMN_CREATED:
-<span class="fc" id="L166">                String created = NOT_AVAILABLE;</span>
-<span class="pc bpc" id="L167" title="1 of 2 branches missed.">                if ( issue.getCreated() != null )</span>
+<span class="nc" id="L166">                String created = NOT_AVAILABLE;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">                if ( issue.getCreated() != null )</span>
                 {
-<span class="fc" id="L169">                    created = df.format( issue.getCreated() ) + MD_COLUMN_SPACE + COLUMN_SEPARATOR;</span>
+<span class="nc" id="L169">                    created = df.format( issue.getCreated() ) + MD_COLUMN_SPACE + COLUMN_SEPARATOR;</span>
                 }
-<span class="fc" id="L171">                result += ( MD_COLUMN_SPACE + created );</span>
-<span class="fc" id="L172">                break;</span>
+<span class="nc" id="L171">                result += ( MD_COLUMN_SPACE + created );</span>
+<span class="nc" id="L172">                break;</span>
 
             case IssuesReportHelper.COLUMN_FIX_VERSION:
-<span class="fc" id="L175">                result += ( MD_COLUMN_SPACE + IssuesReportHelper.printValues( issue.getFixVersions() ) + MD_COLUMN_SPACE</span>
-                        + COLUMN_SEPARATOR );
-<span class="fc" id="L177">                break;</span>
+<span class="nc" id="L175">                result += ( MD_COLUMN_SPACE + IssuesReportHelper.printValues( issue.getFixVersions() ) + MD_COLUMN_SPACE</span>
+<span class="nc" id="L176">                        + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L177">                break;</span>
 
             case IssuesReportHelper.COLUMN_ID:
-<span class="fc" id="L180">                result += ( MD_COLUMN_SPACE + &quot;[&quot; + issue.getId() + &quot;](&quot; + this.issueManagementUrl</span>
-<span class="pc bpc" id="L181" title="1 of 2 branches missed.">                        + ( this.ticketSuffix.isEmpty() ? &quot;&quot; : this.ticketSuffix + &quot;/&quot; ) + issue.getId() + &quot;)&quot;</span>
-                        + MD_COLUMN_SPACE + COLUMN_SEPARATOR );
-<span class="fc" id="L183">                break;</span>
+<span class="nc" id="L180">                result += ( MD_COLUMN_SPACE + &quot;[&quot; + issue.getId() + &quot;](&quot; + this.issueManagementUrl</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">                        + ( this.ticketSuffix.isEmpty() ? &quot;&quot; : this.ticketSuffix + &quot;/&quot; ) + issue.getId() + &quot;)&quot;</span>
+<span class="nc" id="L182">                        + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L183">                break;</span>
 
             case IssuesReportHelper.COLUMN_KEY:
 <span class="nc" id="L186">                result += ( MD_COLUMN_SPACE + &quot;[&quot; + issue.getKey() + &quot;](&quot; + issue.getLink() + &quot;)&quot; + MD_COLUMN_SPACE</span>
-                        + COLUMN_SEPARATOR );
+<span class="nc" id="L187">                        + COLUMN_SEPARATOR );</span>
 <span class="nc" id="L188">                break;</span>
 
             case IssuesReportHelper.COLUMN_PRIORITY:
@@ -192,33 +192,33 @@ public class MarkdownIssueListFormater implements IssueListFormater
 <span class="nc" id="L192">                break;</span>
 
             case IssuesReportHelper.COLUMN_REPORTER:
-<span class="fc" id="L195">                result += ( MD_COLUMN_SPACE + issue.getReporter() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
-<span class="fc" id="L196">                break;</span>
+<span class="nc" id="L195">                result += ( MD_COLUMN_SPACE + issue.getReporter() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L196">                break;</span>
 
             case IssuesReportHelper.COLUMN_RESOLUTION:
 <span class="nc" id="L199">                result += ( MD_COLUMN_SPACE + issue.getResolution() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
 <span class="nc" id="L200">                break;</span>
 
             case IssuesReportHelper.COLUMN_STATUS:
-<span class="fc" id="L203">                result += ( MD_COLUMN_SPACE + issue.getStatus() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
-<span class="fc" id="L204">                break;</span>
+<span class="nc" id="L203">                result += ( MD_COLUMN_SPACE + issue.getStatus() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L204">                break;</span>
 
             case IssuesReportHelper.COLUMN_SUMMARY:
-<span class="fc" id="L207">                result += ( MD_COLUMN_SPACE + issue.getSummary() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
-<span class="fc" id="L208">                break;</span>
+<span class="nc" id="L207">                result += ( MD_COLUMN_SPACE + issue.getSummary() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L208">                break;</span>
 
             case IssuesReportHelper.COLUMN_TYPE:
-<span class="fc" id="L211">                result += ( MD_COLUMN_SPACE + issue.getType() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
-<span class="fc" id="L212">                break;</span>
+<span class="nc" id="L211">                result += ( MD_COLUMN_SPACE + issue.getType() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L212">                break;</span>
 
             case IssuesReportHelper.COLUMN_UPDATED:
-<span class="fc" id="L215">                String updated = NOT_AVAILABLE;</span>
-<span class="pc bpc" id="L216" title="1 of 2 branches missed.">                if ( issue.getUpdated() != null )</span>
+<span class="nc" id="L215">                String updated = NOT_AVAILABLE;</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">                if ( issue.getUpdated() != null )</span>
                 {
-<span class="fc" id="L218">                    updated = df.format( issue.getUpdated() );</span>
+<span class="nc" id="L218">                    updated = df.format( issue.getUpdated() );</span>
                 }
-<span class="fc" id="L220">                result += ( MD_COLUMN_SPACE + updated + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
-<span class="fc" id="L221">                break;</span>
+<span class="nc" id="L220">                result += ( MD_COLUMN_SPACE + updated + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L221">                break;</span>
 
             case IssuesReportHelper.COLUMN_VERSION:
 <span class="nc" id="L224">                result += ( MD_COLUMN_SPACE + issueVersion + MD_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
@@ -229,43 +229,43 @@ public class MarkdownIssueListFormater implements IssueListFormater
                 break;
             }
         }
-<span class="fc" id="L232">        result += &quot;\n&quot;;</span>
-<span class="fc" id="L233">        return result;</span>
+<span class="nc" id="L232">        result += &quot;\n&quot;;</span>
+<span class="nc" id="L233">        return result;</span>
     }
 
     private String generateHeader()
     {
-<span class="fc" id="L238">        String resultHeader = MD_LINE_PREFIX + COLUMN_SEPARATOR;</span>
-<span class="fc" id="L239">        String resultHeaderSeparator = COLUMN_SEPARATOR;</span>
-<span class="fc" id="L240">        ResourceBundle bundle = getBundle();</span>
-<span class="fc" id="L241">        int[] columns = IssuesReportHelper.toIntArray( columnIds );</span>
-<span class="fc bfc" id="L242" title="All 2 branches covered.">        for ( int column : columns )</span>
+<span class="nc" id="L238">        String resultHeader = MD_LINE_PREFIX + COLUMN_SEPARATOR;</span>
+<span class="nc" id="L239">        String resultHeaderSeparator = COLUMN_SEPARATOR;</span>
+<span class="nc" id="L240">        ResourceBundle bundle = getBundle();</span>
+<span class="nc" id="L241">        int[] columns = IssuesReportHelper.toIntArray( columnIds );</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">        for ( int column : columns )</span>
         {
-<span class="fc" id="L244">            String headerText = bundle.getString( headerLabelKeys[column] );</span>
-<span class="fc" id="L245">            resultHeader += ( &quot; &quot; + headerText + &quot; &quot; + COLUMN_SEPARATOR );</span>
-<span class="fc" id="L246">            resultHeaderSeparator += ( &quot; &quot; + StringUtils.repeat( &quot;-&quot;, headerText.length() ) + &quot; &quot; + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L244">            String headerText = bundle.getString( headerLabelKeys[column] );</span>
+<span class="nc" id="L245">            resultHeader += ( &quot; &quot; + headerText + &quot; &quot; + COLUMN_SEPARATOR );</span>
+<span class="nc" id="L246">            resultHeaderSeparator += ( &quot; &quot; + StringUtils.repeat( &quot;-&quot;, headerText.length() ) + &quot; &quot; + COLUMN_SEPARATOR );</span>
         }
-<span class="fc" id="L248">        return resultHeader + &quot;\n&quot; + resultHeaderSeparator + &quot;\n&quot;;</span>
+<span class="nc" id="L248">        return resultHeader + &quot;\n&quot; + resultHeaderSeparator + &quot;\n&quot;;</span>
     }
 
     private boolean isOpened( Issue issue )
     {
-<span class="pc bpc" id="L253" title="2 of 4 branches missed.">        return issue.getStatus() != null &amp;&amp; !issue.getStatus().equalsIgnoreCase( &quot;closed&quot; );</span>
+<span class="nc bnc" id="L253" title="All 4 branches missed.">        return issue.getStatus() != null &amp;&amp; !issue.getStatus().equalsIgnoreCase( &quot;closed&quot; );</span>
     }
 
     private String getVersion( Issue issue )
     {
-<span class="fc" id="L258">        String version = issue.getVersion();</span>
-<span class="pc bpc" id="L259" title="1 of 2 branches missed.">        if ( StringUtils.isEmpty( version ) )</span>
+<span class="nc" id="L258">        String version = issue.getVersion();</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        if ( StringUtils.isEmpty( version ) )</span>
         {
-<span class="fc" id="L261">            List&lt;String&gt; fixVersions = issue.getFixVersions();</span>
-<span class="pc bpc" id="L262" title="1 of 4 branches missed.">            if ( fixVersions == null || fixVersions.isEmpty() )</span>
+<span class="nc" id="L261">            List&lt;String&gt; fixVersions = issue.getFixVersions();</span>
+<span class="nc bnc" id="L262" title="All 4 branches missed.">            if ( fixVersions == null || fixVersions.isEmpty() )</span>
             {
-<span class="fc" id="L264">                return null;</span>
+<span class="nc" id="L264">                return null;</span>
             }
             else
             {
-<span class="fc" id="L268">                return fixVersions.get( 0 );</span>
+<span class="nc" id="L268">                return fixVersions.get( 0 );</span>
             }
         }
 <span class="nc" id="L271">        return version;</span>
@@ -273,7 +273,7 @@ public class MarkdownIssueListFormater implements IssueListFormater
 
     private ResourceBundle getBundle()
     {
-<span class="fc" id="L276">        return ResourceBundle.getBundle( &quot;github-report&quot;, locale, this.getClass().getClassLoader() );</span>
+<span class="nc" id="L276">        return ResourceBundle.getBundle( &quot;github-report&quot;, locale, this.getClass().getClassLoader() );</span>
     }
 
 }

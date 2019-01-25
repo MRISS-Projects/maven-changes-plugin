@@ -42,7 +42,7 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
  * @author jruiz@exist.com
  * @version $Id$
  */
-<span class="fc" id="L45">public abstract class AbstractJiraDownloader</span>
+<span class="nc" id="L45">public abstract class AbstractJiraDownloader</span>
 {
     protected static final String UTF_8 = &quot;UTF-8&quot;;
 
@@ -170,11 +170,11 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
             try
             {
 <span class="nc" id="L172">                url = new URL( jiraUrl );</span>
-            }
+<span class="nc" id="L173">            }</span>
 <span class="nc" id="L174">            catch ( MalformedURLException e )</span>
             {
 <span class="nc" id="L176">                getLog().error( &quot;Invalid JIRA URL: &quot; + jiraUrl + &quot;. &quot; + e.getMessage() );</span>
-<span class="nc" id="L177">            }</span>
+            }
 <span class="nc" id="L178">            String jiraHost = null;</span>
 <span class="nc bnc" id="L179" title="All 2 branches missed.">            if ( url != null )</span>
             {
@@ -228,8 +228,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
 
     public void setJiraDatePattern( String jiraDatePattern )
     {
-<span class="fc" id="L231">        this.jiraDatePattern = jiraDatePattern;</span>
-<span class="fc" id="L232">    }</span>
+<span class="nc" id="L231">        this.jiraDatePattern = jiraDatePattern;</span>
+<span class="nc" id="L232">    }</span>
 
     /**
      * Set the output file for the log.
@@ -238,8 +238,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setOutput( File thisOutput )
     {
-<span class="fc" id="L241">        this.output = thisOutput;</span>
-<span class="fc" id="L242">    }</span>
+<span class="nc" id="L241">        this.output = thisOutput;</span>
+<span class="nc" id="L242">    }</span>
 
     public File getOutput()
     {
@@ -253,8 +253,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setMavenProject( Object thisProject )
     {
-<span class="fc" id="L256">        this.project = (MavenProject) thisProject;</span>
-<span class="fc" id="L257">    }</span>
+<span class="nc" id="L256">        this.project = (MavenProject) thisProject;</span>
+<span class="nc" id="L257">    }</span>
 
     /**
      * Sets the maximum number of Issues to show.
@@ -263,8 +263,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setNbEntries( final int nbEntries )
     {
-<span class="fc" id="L266">        nbEntriesMax = nbEntries;</span>
-<span class="fc" id="L267">    }</span>
+<span class="nc" id="L266">        nbEntriesMax = nbEntries;</span>
+<span class="nc" id="L267">    }</span>
 
     /**
      * Sets the statusIds.
@@ -273,8 +273,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setStatusIds( String thisStatusIds )
     {
-<span class="fc" id="L276">        statusIds = thisStatusIds;</span>
-<span class="fc" id="L277">    }</span>
+<span class="nc" id="L276">        statusIds = thisStatusIds;</span>
+<span class="nc" id="L277">    }</span>
 
     /**
      * Sets the priorityIds.
@@ -283,8 +283,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setPriorityIds( String thisPriorityIds )
     {
-<span class="fc" id="L286">        priorityIds = thisPriorityIds;</span>
-<span class="fc" id="L287">    }</span>
+<span class="nc" id="L286">        priorityIds = thisPriorityIds;</span>
+<span class="nc" id="L287">    }</span>
 
     /**
      * Sets the resolutionIds.
@@ -293,8 +293,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setResolutionIds( String thisResolutionIds )
     {
-<span class="fc" id="L296">        resolutionIds = thisResolutionIds;</span>
-<span class="fc" id="L297">    }</span>
+<span class="nc" id="L296">        resolutionIds = thisResolutionIds;</span>
+<span class="nc" id="L297">    }</span>
 
     /**
      * Sets the sort column names.
@@ -303,8 +303,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setSortColumnNames( String thisSortColumnNames )
     {
-<span class="fc" id="L306">        sortColumnNames = thisSortColumnNames;</span>
-<span class="fc" id="L307">    }</span>
+<span class="nc" id="L306">        sortColumnNames = thisSortColumnNames;</span>
+<span class="nc" id="L307">    }</span>
 
     /**
      * Sets the password for authentication against the webserver.
@@ -313,8 +313,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setWebPassword( String thisWebPassword )
     {
-<span class="fc" id="L316">        this.webPassword = thisWebPassword;</span>
-<span class="fc" id="L317">    }</span>
+<span class="nc" id="L316">        this.webPassword = thisWebPassword;</span>
+<span class="nc" id="L317">    }</span>
 
     /**
      * Sets the username for authentication against the webserver.
@@ -323,8 +323,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setWebUser( String thisWebUser )
     {
-<span class="fc" id="L326">        this.webUser = thisWebUser;</span>
-<span class="fc" id="L327">    }</span>
+<span class="nc" id="L326">        this.webUser = thisWebUser;</span>
+<span class="nc" id="L327">    }</span>
 
     /**
      * Sets the password to log into a secured JIRA.
@@ -333,8 +333,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setJiraPassword( final String thisJiraPassword )
     {
-<span class="fc" id="L336">        this.jiraPassword = thisJiraPassword;</span>
-<span class="fc" id="L337">    }</span>
+<span class="nc" id="L336">        this.jiraPassword = thisJiraPassword;</span>
+<span class="nc" id="L337">    }</span>
 
     /**
      * Sets the username to log into a secured JIRA.
@@ -343,8 +343,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setJiraUser( String thisJiraUser )
     {
-<span class="fc" id="L346">        this.jiraUser = thisJiraUser;</span>
-<span class="fc" id="L347">    }</span>
+<span class="nc" id="L346">        this.jiraUser = thisJiraUser;</span>
+<span class="nc" id="L347">    }</span>
 
     /**
      * Sets the filter to apply to query to JIRA.
@@ -353,8 +353,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setFilter( String thisFilter )
     {
-<span class="fc" id="L356">        this.filter = thisFilter;</span>
-<span class="fc" id="L357">    }</span>
+<span class="nc" id="L356">        this.filter = thisFilter;</span>
+<span class="nc" id="L357">    }</span>
 
     /**
      * Sets the component(s) to apply to query JIRA.
@@ -363,8 +363,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setComponent( String theseComponents )
     {
-<span class="fc" id="L366">        this.component = theseComponents;</span>
-<span class="fc" id="L367">    }</span>
+<span class="nc" id="L366">        this.component = theseComponents;</span>
+<span class="nc" id="L367">    }</span>
 
     /**
      * Sets the fix version id(s) to apply to query JIRA.
@@ -373,8 +373,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setFixVersionIds( String theseFixVersionIds )
     {
-<span class="fc" id="L376">        this.fixVersionIds = theseFixVersionIds;</span>
-<span class="fc" id="L377">    }</span>
+<span class="nc" id="L376">        this.fixVersionIds = theseFixVersionIds;</span>
+<span class="nc" id="L377">    }</span>
 
     /**
      * Sets the typeIds.
@@ -383,13 +383,13 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
      */
     public void setTypeIds( String theseTypeIds )
     {
-<span class="fc" id="L386">        typeIds = theseTypeIds;</span>
-<span class="fc" id="L387">    }</span>
+<span class="nc" id="L386">        typeIds = theseTypeIds;</span>
+<span class="nc" id="L387">    }</span>
 
     public void setLog( Log log )
     {
-<span class="fc" id="L391">        this.log = log;</span>
-<span class="fc" id="L392">    }</span>
+<span class="nc" id="L391">        this.log = log;</span>
+<span class="nc" id="L392">    }</span>
 
     protected Log getLog()
     {
@@ -398,8 +398,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
 
     public void setSettings( Settings settings )
     {
-<span class="fc" id="L401">        this.settings = settings;</span>
-<span class="fc" id="L402">    }</span>
+<span class="nc" id="L401">        this.settings = settings;</span>
+<span class="nc" id="L402">    }</span>
 
     public boolean isUseJql()
     {
@@ -408,8 +408,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
 
     public void setUseJql( boolean useJql )
     {
-<span class="fc" id="L411">        this.useJql = useJql;</span>
-<span class="fc" id="L412">    }</span>
+<span class="nc" id="L411">        this.useJql = useJql;</span>
+<span class="nc" id="L412">    }</span>
 
     public boolean isOnlyCurrentVersion()
     {
@@ -418,8 +418,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
 
     public void setOnlyCurrentVersion( boolean onlyCurrentVersion )
     {
-<span class="fc" id="L421">        this.onlyCurrentVersion = onlyCurrentVersion;</span>
-<span class="fc" id="L422">    }</span>
+<span class="nc" id="L421">        this.onlyCurrentVersion = onlyCurrentVersion;</span>
+<span class="nc" id="L422">    }</span>
 
     public String getVersionPrefix()
     {
@@ -428,8 +428,8 @@ import org.apache.maven.wagon.proxy.ProxyUtils;
 
     public void setVersionPrefix( String versionPrefix )
     {
-<span class="fc" id="L431">        this.versionPrefix = versionPrefix;</span>
-<span class="fc" id="L432">    }</span>
+<span class="nc" id="L431">        this.versionPrefix = versionPrefix;</span>
+<span class="nc" id="L432">    }</span>
 
     public void setConnectionTimeout( int connectionTimeout )
     {

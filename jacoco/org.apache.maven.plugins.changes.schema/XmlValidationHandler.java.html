@@ -36,23 +36,23 @@ public class XmlValidationHandler
     extends DefaultHandler
 {
    
-<span class="fc" id="L39">    private boolean parsingError = false;</span>
+<span class="nc" id="L39">    private boolean parsingError = false;</span>
 
-<span class="fc" id="L41">    private List&lt;SAXParseException&gt; errors = new ArrayList&lt;SAXParseException&gt;();</span>
+<span class="nc" id="L41">    private List&lt;SAXParseException&gt; errors = new ArrayList&lt;SAXParseException&gt;();</span>
 
-<span class="fc" id="L43">    private List&lt;SAXParseException&gt; fatalErrors = new ArrayList&lt;SAXParseException&gt;();</span>
+<span class="nc" id="L43">    private List&lt;SAXParseException&gt; fatalErrors = new ArrayList&lt;SAXParseException&gt;();</span>
 
-<span class="fc" id="L45">    private List&lt;SAXParseException&gt; warnings = new ArrayList&lt;SAXParseException&gt;();</span>
+<span class="nc" id="L45">    private List&lt;SAXParseException&gt; warnings = new ArrayList&lt;SAXParseException&gt;();</span>
 
     private boolean failOnValidationError;
 
     /**
      * @param failOnValidationError If fail on validation error.
      */
-    public XmlValidationHandler( boolean failOnValidationError )
-<span class="fc" id="L53">    {</span>
-<span class="fc" id="L54">        this.failOnValidationError = failOnValidationError;</span>
-<span class="fc" id="L55">    }</span>
+<span class="nc" id="L52">    public XmlValidationHandler( boolean failOnValidationError )</span>
+    {
+<span class="nc" id="L54">        this.failOnValidationError = failOnValidationError;</span>
+<span class="nc" id="L55">    }</span>
 
     /**
      * @see org.xml.sax.ErrorHandler#error(org.xml.sax.SAXParseException)
@@ -60,13 +60,13 @@ public class XmlValidationHandler
     public void error( SAXParseException excp )
         throws SAXException
     {
-<span class="fc" id="L63">        this.setErrorParsing( true );</span>
-<span class="fc" id="L64">        this.errors.add( excp );</span>
-<span class="fc bfc" id="L65" title="All 2 branches covered.">        if ( this.failOnValidationError )</span>
+<span class="nc" id="L63">        this.setErrorParsing( true );</span>
+<span class="nc" id="L64">        this.errors.add( excp );</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if ( this.failOnValidationError )</span>
         {
-<span class="fc" id="L67">            throw new SAXException( excp.getMessage(), excp );</span>
+<span class="nc" id="L67">            throw new SAXException( excp.getMessage(), excp );</span>
         }
-<span class="fc" id="L69">    }</span>
+<span class="nc" id="L69">    }</span>
 
     /**
      * @see org.xml.sax.ErrorHandler#fatalError(org.xml.sax.SAXParseException)
@@ -112,12 +112,12 @@ public class XmlValidationHandler
      */
     public void setErrorParsing( boolean error )
     {
-<span class="fc" id="L115">        this.parsingError = error;</span>
-<span class="fc" id="L116">    }</span>
+<span class="nc" id="L115">        this.parsingError = error;</span>
+<span class="nc" id="L116">    }</span>
 
     public List&lt;SAXParseException&gt; getErrors()
     {
-<span class="fc" id="L120">        return errors;</span>
+<span class="nc" id="L120">        return errors;</span>
     }
 
     public void setErrors( List&lt;SAXParseException&gt; errors )

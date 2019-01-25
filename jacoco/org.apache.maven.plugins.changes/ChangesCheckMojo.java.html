@@ -96,28 +96,28 @@ import org.apache.maven.plugins.changes.model.Release;
 <span class="nc bnc" id="L96" title="All 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
         {
 <span class="nc" id="L98">            getLog().info( &quot;Skipping the changes check in this project because it's not the Execution Root&quot; );</span>
-        }
+<span class="nc" id="L99">        }</span>
         else
         {
 <span class="nc bnc" id="L102" title="All 4 branches missed.">            if ( this.version.endsWith( &quot;-SNAPSHOT&quot; ) &amp;&amp; this.skipSnapshots )</span>
             {
 <span class="nc" id="L104">                getLog().info( &quot;Skipping snapshot version '&quot; + this.version + &quot;'.&quot; );</span>
-            }
+<span class="nc" id="L105">            }</span>
 <span class="nc bnc" id="L106" title="All 2 branches missed.">            else if ( xmlPath.exists() )</span>
             {
 <span class="nc" id="L108">                ChangesXML xml = new ChangesXML( xmlPath, getLog() );</span>
 <span class="nc" id="L109">                ReleaseUtils releaseUtils = new ReleaseUtils( getLog() );</span>
 <span class="nc" id="L110">                Release release =</span>
 <span class="nc" id="L111">                    releaseUtils.getLatestRelease( releaseUtils.convertReleaseList( xml.getReleaseList() ), version, </span>
-                       removeSnapshotSuffix );
+<span class="nc" id="L112">                       removeSnapshotSuffix );</span>
 
 <span class="nc bnc" id="L114" title="All 2 branches missed.">                if ( !isValidDate( release.getDateRelease(), releaseDateFormat, releaseDateLocale ) )</span>
                 {
 <span class="nc" id="L116">                    throw new MojoExecutionException( &quot;The file &quot; + xmlPath.getAbsolutePath()</span>
-                        + &quot; has an invalid release date.&quot; );
+<span class="nc" id="L117">                        + &quot; has an invalid release date.&quot; );</span>
 
                 }
-<span class="nc" id="L120">            }</span>
+            }
             else
             {
 <span class="nc" id="L123">                getLog().warn( &quot;The file &quot; + xmlPath.getAbsolutePath() + &quot; does not exist.&quot; );</span>
@@ -135,7 +135,7 @@ import org.apache.maven.plugins.changes.model.Release;
      */
     protected static boolean isValidDate( String string, String pattern )
     {
-<span class="fc" id="L138">        return isValidDate( string, pattern, null );</span>
+<span class="nc" id="L138">        return isValidDate( string, pattern, null );</span>
     }
 
     /**
@@ -148,54 +148,54 @@ import org.apache.maven.plugins.changes.model.Release;
      */
     protected static boolean isValidDate( String string, String pattern, String locale )
     {
-<span class="fc bfc" id="L151" title="All 2 branches covered.">        if ( StringUtils.isEmpty( string ) )</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">        if ( StringUtils.isEmpty( string ) )</span>
         {
-<span class="fc" id="L153">            return false;</span>
+<span class="nc" id="L153">            return false;</span>
         }
 
-<span class="fc bfc" id="L156" title="All 2 branches covered.">        if ( StringUtils.isEmpty( pattern ) )</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if ( StringUtils.isEmpty( pattern ) )</span>
         {
-<span class="fc" id="L158">            return false;</span>
+<span class="nc" id="L158">            return false;</span>
         }
 
         try
         {
-<span class="fc" id="L163">            Locale usedLocale = null;</span>
+<span class="nc" id="L163">            Locale usedLocale = null;</span>
 
-<span class="fc bfc" id="L165" title="All 2 branches covered.">            if ( StringUtils.isEmpty( locale ) )</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            if ( StringUtils.isEmpty( locale ) )</span>
             {
                 // No locale specified, use the default locale as default value
                 // The same behavior as before the locale parameter was added
-<span class="fc" id="L169">                usedLocale = Locale.getDefault();</span>
-            }
+<span class="nc" id="L169">                usedLocale = Locale.getDefault();</span>
+<span class="nc" id="L170">            }</span>
             else
             {
                 // Try to find the specified locale on this system
-<span class="fc" id="L174">                Locale[] locales = Locale.getAvailableLocales();</span>
-<span class="fc bfc" id="L175" title="All 2 branches covered.">                for ( int i = 0; i &lt; locales.length; i++ )</span>
+<span class="nc" id="L174">                Locale[] locales = Locale.getAvailableLocales();</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">                for ( int i = 0; i &lt; locales.length; i++ )</span>
                 {
-<span class="fc bfc" id="L177" title="All 2 branches covered.">                    if ( locales[i].toString().equals( locale ) )</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">                    if ( locales[i].toString().equals( locale ) )</span>
                     {
-<span class="fc" id="L179">                        usedLocale = locales[i];</span>
-<span class="fc" id="L180">                        break;</span>
+<span class="nc" id="L179">                        usedLocale = locales[i];</span>
+<span class="nc" id="L180">                        break;</span>
                     }
                 }
 
-<span class="fc bfc" id="L184" title="All 2 branches covered.">                if ( usedLocale == null )</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">                if ( usedLocale == null )</span>
                 {
                     // The use specified locale was not found on this system,
                     // use the default locale as default value
-<span class="fc" id="L188">                    usedLocale = Locale.getDefault();</span>
+<span class="nc" id="L188">                    usedLocale = Locale.getDefault();</span>
                 }
             }
 
-<span class="fc" id="L192">            SimpleDateFormat df = new SimpleDateFormat( pattern, usedLocale );</span>
-<span class="fc" id="L193">            df.parse( string );</span>
-<span class="fc" id="L194">            return true;</span>
+<span class="nc" id="L192">            SimpleDateFormat df = new SimpleDateFormat( pattern, usedLocale );</span>
+<span class="nc" id="L193">            df.parse( string );</span>
+<span class="nc" id="L194">            return true;</span>
         }
-<span class="fc" id="L196">        catch ( ParseException e )</span>
+<span class="nc" id="L196">        catch ( ParseException e )</span>
         {
-<span class="fc" id="L198">            return false;</span>
+<span class="nc" id="L198">            return false;</span>
         }
     }
 }

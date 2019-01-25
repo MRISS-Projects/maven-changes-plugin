@@ -68,7 +68,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
  * @since 2.0-beta-2
  */
 @Mojo( name = &quot;announcement-generate&quot;, threadSafe = true )
-<span class="fc" id="L71">public class AnnouncementMojo</span>
+<span class="nc" id="L71">public class AnnouncementMojo</span>
     extends AbstractAnnouncementMojo
 {
     private static final String CHANGES_XML = &quot;changes.xml&quot;;
@@ -467,7 +467,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
     @Parameter( defaultValue = &quot;false&quot; )
     private boolean includeOpenIssues;
 
-<span class="fc" id="L470">    private ReleaseUtils releaseUtils = new ReleaseUtils( getLog() );</span>
+<span class="nc" id="L470">    private ReleaseUtils releaseUtils = new ReleaseUtils( getLog() );</span>
 
     private ChangesXML xml;
 
@@ -484,46 +484,46 @@ import org.codehaus.plexus.velocity.VelocityComponent;
         throws MojoExecutionException
     {
         // Fail build fast if it is using deprecated parameters
-<span class="fc" id="L487">        failIfUsingDeprecatedParameter( outputDirectory, &quot;outputDirectory&quot;, &quot;announcementDirectory&quot; );</span>
-<span class="fc" id="L488">        failIfUsingDeprecatedParameter( generateJiraAnnouncement, &quot;generateJiraAnnouncement&quot;,</span>
-                                        &quot;issueManagementSystems &quot; );
-<span class="fc" id="L490">        failIfUsingDeprecatedParameter( jiraMerge, &quot;jiraMerge&quot;, &quot;issueManagementSystems &quot; );</span>
+<span class="nc" id="L487">        failIfUsingDeprecatedParameter( outputDirectory, &quot;outputDirectory&quot;, &quot;announcementDirectory&quot; );</span>
+<span class="nc" id="L488">        failIfUsingDeprecatedParameter( generateJiraAnnouncement, &quot;generateJiraAnnouncement&quot;,</span>
+<span class="nc" id="L489">                                        &quot;issueManagementSystems &quot; );</span>
+<span class="nc" id="L490">        failIfUsingDeprecatedParameter( jiraMerge, &quot;jiraMerge&quot;, &quot;issueManagementSystems &quot; );</span>
 
         // Run only at the execution root
-<span class="pc bpc" id="L493" title="3 of 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+<span class="nc bnc" id="L493" title="All 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
         {
 <span class="nc" id="L495">            getLog().info( &quot;Skipping the announcement generation in this project because it's not the Execution Root&quot; );</span>
-        }
+<span class="nc" id="L496">        }</span>
         else
         {
-<span class="pc bpc" id="L499" title="1 of 2 branches missed.">            if ( issueManagementSystems == null )</span>
+<span class="nc bnc" id="L499" title="All 2 branches missed.">            if ( issueManagementSystems == null )</span>
             {
-<span class="fc" id="L501">                issueManagementSystems = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L501">                issueManagementSystems = new ArrayList&lt;String&gt;();</span>
             }
 
-<span class="pc bpc" id="L504" title="1 of 2 branches missed.">            if ( issueManagementSystems.isEmpty() )</span>
+<span class="nc bnc" id="L504" title="All 2 branches missed.">            if ( issueManagementSystems.isEmpty() )</span>
             {
-<span class="fc" id="L506">                issueManagementSystems.add( CHANGES_XML );</span>
+<span class="nc" id="L506">                issueManagementSystems.add( CHANGES_XML );</span>
             }
 
             // Fetch releases from the configured issue management systems
-<span class="fc" id="L510">            List&lt;Release&gt; releases = null;</span>
-<span class="pc bpc" id="L511" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( CHANGES_XML ) )</span>
+<span class="nc" id="L510">            List&lt;Release&gt; releases = null;</span>
+<span class="nc bnc" id="L511" title="All 2 branches missed.">            if ( issueManagementSystems.contains( CHANGES_XML ) )</span>
             {
-<span class="pc bpc" id="L513" title="1 of 2 branches missed.">                if ( getXmlPath().exists() )</span>
+<span class="nc bnc" id="L513" title="All 2 branches missed.">                if ( getXmlPath().exists() )</span>
                 {
-<span class="fc" id="L515">                    ChangesXML changesXML = new ChangesXML( getXmlPath(), getLog() );</span>
-<span class="fc" id="L516">                    List&lt;Release&gt; changesReleases = changesXML.getReleaseList();</span>
-<span class="fc" id="L517">                    releases = releaseUtils.mergeReleases( null, changesReleases );</span>
-<span class="fc" id="L518">                    getLog().info( &quot;Including issues from file &quot; + getXmlPath() + &quot; in announcement...&quot; );</span>
-<span class="fc" id="L519">                }</span>
+<span class="nc" id="L515">                    ChangesXML changesXML = new ChangesXML( getXmlPath(), getLog() );</span>
+<span class="nc" id="L516">                    List&lt;Release&gt; changesReleases = changesXML.getReleaseList();</span>
+<span class="nc" id="L517">                    releases = releaseUtils.mergeReleases( null, changesReleases );</span>
+<span class="nc" id="L518">                    getLog().info( &quot;Including issues from file &quot; + getXmlPath() + &quot; in announcement...&quot; );</span>
+<span class="nc" id="L519">                }</span>
                 else
                 {
 <span class="nc" id="L522">                    getLog().warn( &quot;changes.xml file &quot; + getXmlPath().getAbsolutePath() + &quot; does not exist.&quot; );</span>
                 }
             }
 
-<span class="pc bpc" id="L526" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( JIRA ) )</span>
+<span class="nc bnc" id="L526" title="All 2 branches missed.">            if ( issueManagementSystems.contains( JIRA ) )</span>
             {
 <span class="nc" id="L528">                String message = ProjectUtils.validateIssueManagement( project, JIRA, &quot;JIRA announcement&quot; );</span>
 <span class="nc bnc" id="L529" title="All 2 branches missed.">                if ( message == null )</span>
@@ -535,11 +535,11 @@ import org.codehaus.plexus.velocity.VelocityComponent;
                 else
                 {
 <span class="nc" id="L537">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
-                        + message );
+<span class="nc" id="L538">                        + message );</span>
                 }
             }
 
-<span class="pc bpc" id="L542" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( TRAC ) )</span>
+<span class="nc bnc" id="L542" title="All 2 branches missed.">            if ( issueManagementSystems.contains( TRAC ) )</span>
             {
 <span class="nc" id="L544">                String message = ProjectUtils.validateIssueManagement( project, TRAC, &quot;Trac announcement&quot; );</span>
 <span class="nc bnc" id="L545" title="All 2 branches missed.">                if ( message == null )</span>
@@ -551,11 +551,11 @@ import org.codehaus.plexus.velocity.VelocityComponent;
                 else
                 {
 <span class="nc" id="L553">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
-                                    + message );
+<span class="nc" id="L554">                                    + message );</span>
                 }
             }
 
-<span class="pc bpc" id="L558" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( GIT_HUB ) )</span>
+<span class="nc bnc" id="L558" title="All 2 branches missed.">            if ( issueManagementSystems.contains( GIT_HUB ) )</span>
             {
 <span class="nc" id="L560">                String message = ProjectUtils.validateIssueManagement( project, GIT_HUB, &quot;GitHub announcement&quot; );</span>
 <span class="nc bnc" id="L561" title="All 2 branches missed.">                if ( message == null )</span>
@@ -567,7 +567,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
                 else
                 {
 <span class="nc" id="L569">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
-                                    + message );
+<span class="nc" id="L570">                                    + message );</span>
                 }
             }
 
@@ -581,27 +581,27 @@ import org.codehaus.plexus.velocity.VelocityComponent;
             // For help with these steps, you can have a look at how this has been done for JIRA or Trac
 
             // Generate the report
-<span class="pc bpc" id="L584" title="2 of 4 branches missed.">            if ( releases == null || releases.isEmpty() )</span>
+<span class="nc bnc" id="L584" title="All 4 branches missed.">            if ( releases == null || releases.isEmpty() )</span>
             {
 <span class="nc" id="L586">                throw new MojoExecutionException( &quot;No releases found in any of the &quot;</span>
                     + &quot;configured issue management systems.&quot; );
             }
             else
             {
-<span class="fc" id="L591">                doGenerate( releases );</span>
+<span class="nc" id="L591">                doGenerate( releases );</span>
             }
         }
-<span class="fc" id="L594">    }</span>
+<span class="nc" id="L594">    }</span>
 
     private void failIfUsingDeprecatedParameter( Object value, String name, String replacement )
         throws MojoExecutionException
     {
-<span class="pc bpc" id="L599" title="1 of 2 branches missed.">        if ( value != null )</span>
+<span class="nc bnc" id="L599" title="All 2 branches missed.">        if ( value != null )</span>
         {
 <span class="nc" id="L601">            throw new MojoExecutionException( &quot;You are using the old parameter '&quot; + name + &quot;'. &quot; + &quot;You must use '&quot;</span>
-                + replacement + &quot;' instead.&quot; );
+<span class="nc" id="L602">                + replacement + &quot;' instead.&quot; );</span>
         }
-<span class="fc" id="L604">    }</span>
+<span class="nc" id="L604">    }</span>
 
     /**
      * Add the parameters to velocity context
@@ -612,63 +612,63 @@ import org.codehaus.plexus.velocity.VelocityComponent;
     public void doGenerate( List&lt;Release&gt; releases )
         throws MojoExecutionException
     {
-<span class="pc bpc" id="L615" title="1 of 2 branches missed.">        String version = ( versionPrefix == null ? &quot;&quot; : versionPrefix ) + getVersion();</span>
+<span class="nc bnc" id="L615" title="All 2 branches missed.">        String version = ( versionPrefix == null ? &quot;&quot; : versionPrefix ) + getVersion();</span>
 
-<span class="fc" id="L617">        getLog().debug( &quot;Generating announcement for version [&quot; + version + &quot;]. Found these releases: &quot;</span>
-<span class="fc" id="L618">            + ReleaseUtils.toString( releases ) );</span>
+<span class="nc" id="L617">        getLog().debug( &quot;Generating announcement for version [&quot; + version + &quot;]. Found these releases: &quot;</span>
+<span class="nc" id="L618">            + ReleaseUtils.toString( releases ) );</span>
 
-<span class="fc" id="L620">        doGenerate( releases, releaseUtils.getLatestRelease( releases, version, removeSnapshotSuffix ) );</span>
-<span class="fc" id="L621">    }</span>
+<span class="nc" id="L620">        doGenerate( releases, releaseUtils.getLatestRelease( releases, version, removeSnapshotSuffix ) );</span>
+<span class="nc" id="L621">    }</span>
 
     protected void doGenerate( List&lt;Release&gt; releases, Release release )
         throws MojoExecutionException
     {
         try
         {
-<span class="fc" id="L628">            ToolManager toolManager = new ToolManager( true );</span>
-<span class="fc" id="L629">            Context context = toolManager.createContext();</span>
+<span class="nc" id="L628">            ToolManager toolManager = new ToolManager( true );</span>
+<span class="nc" id="L629">            Context context = toolManager.createContext();</span>
 
-<span class="pc bpc" id="L631" title="2 of 4 branches missed.">            if ( getIntroduction() == null || getIntroduction().equals( &quot;&quot; ) )</span>
+<span class="nc bnc" id="L631" title="All 4 branches missed.">            if ( getIntroduction() == null || getIntroduction().equals( &quot;&quot; ) )</span>
             {
 <span class="nc" id="L633">                setIntroduction( getUrl() );</span>
             }
 
-<span class="fc" id="L636">            context.put( &quot;releases&quot;, releases );</span>
+<span class="nc" id="L636">            context.put( &quot;releases&quot;, releases );</span>
 
-<span class="fc" id="L638">            context.put( &quot;groupId&quot;, getGroupId() );</span>
+<span class="nc" id="L638">            context.put( &quot;groupId&quot;, getGroupId() );</span>
 
-<span class="fc" id="L640">            context.put( &quot;artifactId&quot;, getArtifactId() );</span>
+<span class="nc" id="L640">            context.put( &quot;artifactId&quot;, getArtifactId() );</span>
 
-<span class="fc" id="L642">            context.put( &quot;version&quot;, getVersion() );</span>
+<span class="nc" id="L642">            context.put( &quot;version&quot;, getVersion() );</span>
 
-<span class="fc" id="L644">            context.put( &quot;packaging&quot;, getPackaging() );</span>
+<span class="nc" id="L644">            context.put( &quot;packaging&quot;, getPackaging() );</span>
 
-<span class="fc" id="L646">            context.put( &quot;url&quot;, getUrl() );</span>
+<span class="nc" id="L646">            context.put( &quot;url&quot;, getUrl() );</span>
 
-<span class="fc" id="L648">            context.put( &quot;release&quot;, release );</span>
+<span class="nc" id="L648">            context.put( &quot;release&quot;, release );</span>
 
-<span class="fc" id="L650">            context.put( &quot;introduction&quot;, getIntroduction() );</span>
+<span class="nc" id="L650">            context.put( &quot;introduction&quot;, getIntroduction() );</span>
 
-<span class="fc" id="L652">            context.put( &quot;developmentTeam&quot;, getDevelopmentTeam() );</span>
+<span class="nc" id="L652">            context.put( &quot;developmentTeam&quot;, getDevelopmentTeam() );</span>
 
-<span class="fc" id="L654">            context.put( &quot;finalName&quot;, getFinalName() );</span>
+<span class="nc" id="L654">            context.put( &quot;finalName&quot;, getFinalName() );</span>
 
-<span class="fc" id="L656">            context.put( &quot;urlDownload&quot;, getUrlDownload() );</span>
+<span class="nc" id="L656">            context.put( &quot;urlDownload&quot;, getUrlDownload() );</span>
 
-<span class="fc" id="L658">            context.put( &quot;project&quot;, project );</span>
+<span class="nc" id="L658">            context.put( &quot;project&quot;, project );</span>
 
-<span class="pc bpc" id="L660" title="1 of 2 branches missed.">            if ( announceParameters == null )</span>
+<span class="nc bnc" id="L660" title="All 2 branches missed.">            if ( announceParameters == null )</span>
             {
                 // empty Map to prevent NPE in velocity execution
-<span class="fc" id="L663">                context.put( &quot;announceParameters&quot;, Collections.emptyMap() );</span>
-            }
+<span class="nc" id="L663">                context.put( &quot;announceParameters&quot;, Collections.emptyMap() );</span>
+<span class="nc" id="L664">            }</span>
             else
             {
 <span class="nc" id="L667">                context.put( &quot;announceParameters&quot;, announceParameters );</span>
             }
 
-<span class="fc" id="L670">            processTemplate( context, announcementDirectory, template, announcementFile );</span>
-        }
+<span class="nc" id="L670">            processTemplate( context, announcementDirectory, template, announcementFile );</span>
+<span class="nc" id="L671">        }</span>
 <span class="nc" id="L672">        catch ( ResourceNotFoundException rnfe )</span>
         {
 <span class="nc" id="L674">            throw new MojoExecutionException( &quot;Resource not found.&quot;, rnfe );</span>
@@ -676,8 +676,8 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 <span class="nc" id="L676">        catch ( VelocityException ve )</span>
         {
 <span class="nc" id="L678">            throw new MojoExecutionException( ve.toString(), ve );</span>
-<span class="fc" id="L679">        }</span>
-<span class="fc" id="L680">    }</span>
+        }
+<span class="nc" id="L680">    }</span>
 
     /**
      * Create the velocity template
@@ -695,43 +695,43 @@ import org.codehaus.plexus.velocity.VelocityComponent;
         File f;
 
         // Use the name of the template as a default value
-<span class="pc bpc" id="L698" title="1 of 2 branches missed.">        if ( StringUtils.isEmpty( announcementFile ) )</span>
+<span class="nc bnc" id="L698" title="All 2 branches missed.">        if ( StringUtils.isEmpty( announcementFile ) )</span>
         {
-<span class="fc" id="L700">            announcementFile = template;</span>
+<span class="nc" id="L700">            announcementFile = template;</span>
         }
 
         try
         {
-<span class="fc" id="L705">            f = new File( outputDirectory, announcementFile );</span>
+<span class="nc" id="L705">            f = new File( outputDirectory, announcementFile );</span>
 
-<span class="pc bpc" id="L707" title="1 of 2 branches missed.">            if ( !f.getParentFile().exists() )</span>
+<span class="nc bnc" id="L707" title="All 2 branches missed.">            if ( !f.getParentFile().exists() )</span>
             {
 <span class="nc" id="L709">                f.getParentFile().mkdirs();</span>
             }
 
-<span class="fc" id="L712">            VelocityEngine engine = velocity.getEngine();</span>
+<span class="nc" id="L712">            VelocityEngine engine = velocity.getEngine();</span>
 
-<span class="fc" id="L714">            engine.setApplicationAttribute( &quot;baseDirectory&quot;, basedir );</span>
+<span class="nc" id="L714">            engine.setApplicationAttribute( &quot;baseDirectory&quot;, basedir );</span>
 
-<span class="pc bpc" id="L716" title="1 of 2 branches missed.">            if ( StringUtils.isEmpty( templateEncoding ) )</span>
+<span class="nc bnc" id="L716" title="All 2 branches missed.">            if ( StringUtils.isEmpty( templateEncoding ) )</span>
             {
-<span class="fc" id="L718">                templateEncoding = ReaderFactory.FILE_ENCODING;</span>
-<span class="fc" id="L719">                getLog().warn( &quot;File encoding has not been set, using platform encoding &quot; + templateEncoding</span>
-                    + &quot;, i.e. build is platform dependent!&quot; );
+<span class="nc" id="L718">                templateEncoding = ReaderFactory.FILE_ENCODING;</span>
+<span class="nc" id="L719">                getLog().warn( &quot;File encoding has not been set, using platform encoding &quot; + templateEncoding</span>
+<span class="nc" id="L720">                    + &quot;, i.e. build is platform dependent!&quot; );</span>
             }
 
-<span class="fc" id="L723">            Writer writer = new OutputStreamWriter( new FileOutputStream( f ), templateEncoding );</span>
+<span class="nc" id="L723">            Writer writer = new OutputStreamWriter( new FileOutputStream( f ), templateEncoding );</span>
 
-<span class="fc" id="L725">            Template velocityTemplate = engine.getTemplate( templateDirectory + &quot;/&quot; + template, templateEncoding );</span>
+<span class="nc" id="L725">            Template velocityTemplate = engine.getTemplate( templateDirectory + &quot;/&quot; + template, templateEncoding );</span>
 
-<span class="fc" id="L727">            velocityTemplate.merge( context, writer );</span>
+<span class="nc" id="L727">            velocityTemplate.merge( context, writer );</span>
 
-<span class="fc" id="L729">            writer.flush();</span>
+<span class="nc" id="L729">            writer.flush();</span>
 
-<span class="fc" id="L731">            writer.close();</span>
+<span class="nc" id="L731">            writer.close();</span>
 
-<span class="fc" id="L733">            getLog().info( &quot;Created template &quot; + f );</span>
-        }
+<span class="nc" id="L733">            getLog().info( &quot;Created template &quot; + f );</span>
+<span class="nc" id="L734">        }</span>
 
 <span class="nc" id="L736">        catch ( ResourceNotFoundException rnfe )</span>
         {
@@ -749,8 +749,8 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 <span class="nc" id="L749">                getLog().warn( e.getCause() );</span>
             }
 <span class="nc" id="L751">            throw new MojoExecutionException( e.toString(), e.getCause() );</span>
-<span class="fc" id="L752">        }</span>
-<span class="fc" id="L753">    }</span>
+        }
+<span class="nc" id="L753">    }</span>
 
     protected List&lt;Release&gt; getJiraReleases()
         throws MojoExecutionException
@@ -800,7 +800,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 <span class="nc" id="L800">                int originalNumberOfIssues = issueList.size();</span>
 <span class="nc" id="L801">                issueList = IssueUtils.filterIssuesWithVersionPrefix( issueList, versionPrefix );</span>
 <span class="nc" id="L802">                getLog().debug( &quot;Filtered out &quot; + issueList.size() + &quot; issues of &quot; + originalNumberOfIssues</span>
-                    + &quot; that matched the versionPrefix '&quot; + versionPrefix + &quot;'.&quot; );
+<span class="nc" id="L803">                    + &quot; that matched the versionPrefix '&quot; + versionPrefix + &quot;'.&quot; );</span>
             }
 
 <span class="nc" id="L806">            return getReleases( issueList, new JIRAIssueManagmentSystem() );</span>
@@ -858,7 +858,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
         try
         {
 <span class="nc" id="L860">            GitHubDownloader issueDownloader =</span>
-                new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues, true );
+<span class="nc" id="L861">                new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues, true );</span>
             
 <span class="nc" id="L863">            issueDownloader.configureProxy( settings );</span>
 
@@ -878,7 +878,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public String getArtifactId()
     {
-<span class="fc" id="L881">        return artifactId;</span>
+<span class="nc" id="L881">        return artifactId;</span>
     }
 
     public void setArtifactId( String artifactId )
@@ -888,7 +888,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public String getDevelopmentTeam()
     {
-<span class="fc" id="L891">        return developmentTeam;</span>
+<span class="nc" id="L891">        return developmentTeam;</span>
     }
 
     public void setDevelopmentTeam( String developmentTeam )
@@ -898,7 +898,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public String getFinalName()
     {
-<span class="fc" id="L901">        return finalName;</span>
+<span class="nc" id="L901">        return finalName;</span>
     }
 
     public void setFinalName( String finalName )
@@ -908,7 +908,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public String getGroupId()
     {
-<span class="fc" id="L911">        return groupId;</span>
+<span class="nc" id="L911">        return groupId;</span>
     }
 
     public void setGroupId( String groupId )
@@ -918,7 +918,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public String getIntroduction()
     {
-<span class="fc" id="L921">        return introduction;</span>
+<span class="nc" id="L921">        return introduction;</span>
     }
 
     public void setIntroduction( String introduction )
@@ -948,7 +948,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public String getPackaging()
     {
-<span class="fc" id="L951">        return packaging;</span>
+<span class="nc" id="L951">        return packaging;</span>
     }
 
     public void setPackaging( String packaging )
@@ -958,7 +958,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public String getUrl()
     {
-<span class="fc" id="L961">        return url;</span>
+<span class="nc" id="L961">        return url;</span>
     }
 
     public void setUrl( String url )
@@ -968,7 +968,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public String getUrlDownload()
     {
-<span class="fc" id="L971">        return urlDownload;</span>
+<span class="nc" id="L971">        return urlDownload;</span>
     }
 
     public void setUrlDownload( String urlDownload )
@@ -983,12 +983,12 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public void setVelocity( VelocityComponent velocity )
     {
-<span class="fc" id="L986">        this.velocity = velocity;</span>
-<span class="fc" id="L987">    }</span>
+<span class="nc" id="L986">        this.velocity = velocity;</span>
+<span class="nc" id="L987">    }</span>
 
     public String getVersion()
     {
-<span class="fc" id="L991">        return version;</span>
+<span class="nc" id="L991">        return version;</span>
     }
 
     public void setVersion( String version )
@@ -1008,7 +1008,7 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public File getXmlPath()
     {
-<span class="fc" id="L1011">        return xmlPath;</span>
+<span class="nc" id="L1011">        return xmlPath;</span>
     }
 
     public void setXmlPath( File xmlPath )

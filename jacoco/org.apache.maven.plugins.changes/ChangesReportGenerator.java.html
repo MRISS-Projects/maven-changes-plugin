@@ -88,8 +88,8 @@ public class ChangesReportGenerator
      */
     private List&lt;Release&gt; releaseList;
 
-    public ChangesReportGenerator()
-<span class="nc" id="L92">    {</span>
+<span class="nc" id="L91">    public ChangesReportGenerator()</span>
+    {
 <span class="nc" id="L93">        issueLinksPerSystem = new HashMap&lt;String, String&gt;();</span>
 <span class="nc" id="L94">    }</span>
 
@@ -241,7 +241,7 @@ public class ChangesReportGenerator
 <span class="nc bnc" id="L241" title="All 2 branches missed.">        if ( escapeHTML )</span>
         {
 <span class="nc" id="L243">            sink.text( actionDescription );</span>
-        }
+<span class="nc" id="L244">        }</span>
         else
         {
 <span class="nc" id="L247">            sink.rawText( actionDescription );</span>
@@ -271,7 +271,7 @@ public class ChangesReportGenerator
 <span class="nc bnc" id="L271" title="All 2 branches missed.">            if ( !canGenerateIssueLinks( system ) )</span>
             {
 <span class="nc" id="L273">                constructIssueText( action.getIssue(), sink, action.getFixedIssues() );</span>
-            }
+<span class="nc" id="L274">            }</span>
             else
             {
 <span class="nc" id="L277">                constructIssueLink( action.getIssue(), system, sink, action.getFixedIssues() );</span>
@@ -289,7 +289,7 @@ public class ChangesReportGenerator
 <span class="nc bnc" id="L289" title="All 2 branches missed.">        if ( NO_TEAMLIST.equals( teamlist ) )</span>
         {
 <span class="nc" id="L291">            sinkCell( sink, action.getDev() );</span>
-        }
+<span class="nc" id="L292">        }</span>
         else
         {
 <span class="nc" id="L295">            sinkCellLink( sink, action.getDev(), teamlist + &quot;#&quot; + action.getDev() );</span>
@@ -326,7 +326,7 @@ public class ChangesReportGenerator
 <span class="nc bnc" id="L326" title="All 2 branches missed.">        for ( DueTo dueTo : dueTos )</span>
         {
 <span class="nc" id="L328">            namesEmailMap.put( dueTo.getName(), dueTo.getEmail() );</span>
-<span class="nc" id="L329">        }</span>
+        }
 
 <span class="nc bnc" id="L331" title="All 2 branches missed.">        if ( namesEmailMap.isEmpty() )</span>
         {
@@ -343,7 +343,7 @@ public class ChangesReportGenerator
 <span class="nc bnc" id="L343" title="All 2 branches missed.">            if ( StringUtils.isNotEmpty( currentDueToEmail ) )</span>
             {
 <span class="nc" id="L345">                sinkLink( sink, currentDueTo, &quot;mailto:&quot; + currentDueToEmail );</span>
-            }
+<span class="nc" id="L346">            }</span>
 <span class="nc bnc" id="L347" title="All 2 branches missed.">            else if ( StringUtils.isNotEmpty( currentDueTo ) )</span>
             {
 <span class="nc" id="L349">                sink.text( currentDueTo );</span>
@@ -353,7 +353,7 @@ public class ChangesReportGenerator
             {
 <span class="nc" id="L354">                sink.text( &quot;, &quot; );</span>
             }
-<span class="nc" id="L356">        }</span>
+        }
 
 <span class="nc" id="L358">        sink.text( &quot;.&quot; );</span>
 <span class="nc" id="L359">    }</span>
@@ -399,7 +399,7 @@ public class ChangesReportGenerator
             {
 <span class="nc" id="L400">                sink.text( &quot;, &quot; );</span>
             }
-<span class="nc" id="L402">        }</span>
+        }
 <span class="nc" id="L403">    }</span>
 
     /**
@@ -435,7 +435,7 @@ public class ChangesReportGenerator
             {
 <span class="nc" id="L436">                sink.text( &quot;, &quot; );</span>
             }
-<span class="nc" id="L438">        }</span>
+        }
 <span class="nc" id="L439">    }</span>
 
     private void constructReleaseHistory( Sink sink, ResourceBundle bundle, List&lt;Release&gt; releaseList )
@@ -469,7 +469,7 @@ public class ChangesReportGenerator
 <span class="nc" id="L469">            sinkCell( sink, release.getDescription() );</span>
 
 <span class="nc" id="L471">            sink.tableRow_();</span>
-<span class="nc" id="L472">        }</span>
+        }
 
 <span class="nc" id="L474">        sink.table_();</span>
 
@@ -500,7 +500,7 @@ public class ChangesReportGenerator
 <span class="nc bnc" id="L500" title="All 2 branches missed.">        for ( Release release : releaseList )</span>
         {
 <span class="nc" id="L502">            constructRelease( sink, bundle, release );</span>
-<span class="nc" id="L503">        }</span>
+        }
 <span class="nc" id="L504">    }</span>
 
     /**
@@ -527,7 +527,7 @@ public class ChangesReportGenerator
 <span class="nc" id="L527">            sink.paragraph();</span>
 <span class="nc" id="L528">            sink.text( bundle.getString( &quot;report.changes.text.no.changes&quot; ) );</span>
 <span class="nc" id="L529">            sink.paragraph_();</span>
-        }
+<span class="nc" id="L530">        }</span>
         else
         {
 <span class="nc" id="L533">            sink.table();</span>
@@ -545,13 +545,13 @@ public class ChangesReportGenerator
 <span class="nc bnc" id="L545" title="All 2 branches missed.">            for ( Action action : release.getActions() )</span>
             {
 <span class="nc" id="L547">                constructAction( sink, bundle, action );</span>
-<span class="nc" id="L548">            }</span>
+            }
 
 <span class="nc bnc" id="L550" title="All 2 branches missed.">            for ( Object o : release.getComponents() )</span>
             {
 <span class="nc" id="L552">                Component component = (Component) o;</span>
 <span class="nc" id="L553">                constructComponent( sink, bundle, component );</span>
-<span class="nc" id="L554">            }</span>
+            }
 
 <span class="nc" id="L556">            sink.table_();</span>
         }
@@ -594,7 +594,7 @@ public class ChangesReportGenerator
 <span class="nc bnc" id="L594" title="All 2 branches missed.">            for ( Action action : component.getActions() )</span>
             {
 <span class="nc" id="L596">                constructAction( sink, bundle, action );</span>
-<span class="nc" id="L597">            }</span>
+            }
         }
 <span class="nc" id="L599">    }</span>
 
@@ -618,7 +618,7 @@ public class ChangesReportGenerator
             {
 <span class="nc" id="L619">                return false;</span>
             }
-<span class="nc" id="L621">        }</span>
+        }
 
 <span class="nc" id="L623">        return true;</span>
     }

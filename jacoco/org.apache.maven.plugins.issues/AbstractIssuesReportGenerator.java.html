@@ -39,9 +39,9 @@ public abstract class AbstractIssuesReportGenerator
 
     protected String title;
 
-    public AbstractIssuesReportGenerator()
-<span class="fc" id="L43">    {</span>
-<span class="fc" id="L44">    }</span>
+<span class="nc" id="L42">    public AbstractIssuesReportGenerator()</span>
+    {
+<span class="nc" id="L44">    }</span>
 
     public String getAuthor()
     {
@@ -65,56 +65,56 @@ public abstract class AbstractIssuesReportGenerator
 
     protected void sinkBeginReport( Sink sink, ResourceBundle bundle )
     {
-<span class="fc" id="L68">        sink.head();</span>
+<span class="nc" id="L68">        sink.head();</span>
 
         String title;
-<span class="pc bpc" id="L71" title="1 of 2 branches missed.">        if ( this.title != null )</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if ( this.title != null )</span>
         {
 <span class="nc" id="L73">            title = this.title;</span>
-        }
+<span class="nc" id="L74">        }</span>
         else
         {
-<span class="fc" id="L77">            title = bundle.getString( &quot;report.issues.header&quot; );</span>
+<span class="nc" id="L77">            title = bundle.getString( &quot;report.issues.header&quot; );</span>
         }
-<span class="fc" id="L79">        sink.title();</span>
-<span class="fc" id="L80">        sink.text( title );</span>
-<span class="fc" id="L81">        sink.title_();</span>
+<span class="nc" id="L79">        sink.title();</span>
+<span class="nc" id="L80">        sink.text( title );</span>
+<span class="nc" id="L81">        sink.title_();</span>
 
-<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if ( StringUtils.isNotEmpty( author ) )</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if ( StringUtils.isNotEmpty( author ) )</span>
         {
 <span class="nc" id="L85">            sink.author();</span>
 <span class="nc" id="L86">            sink.text( author );</span>
 <span class="nc" id="L87">            sink.author_();</span>
         }
 
-<span class="fc" id="L90">        sink.head_();</span>
+<span class="nc" id="L90">        sink.head_();</span>
 
-<span class="fc" id="L92">        sink.body();</span>
+<span class="nc" id="L92">        sink.body();</span>
 
-<span class="fc" id="L94">        sink.section1();</span>
+<span class="nc" id="L94">        sink.section1();</span>
 
-<span class="fc" id="L96">        sink.sectionTitle1();</span>
+<span class="nc" id="L96">        sink.sectionTitle1();</span>
 
-<span class="fc" id="L98">        sink.text( title );</span>
+<span class="nc" id="L98">        sink.text( title );</span>
 
-<span class="fc" id="L100">        sink.sectionTitle1_();</span>
-<span class="fc" id="L101">    }</span>
+<span class="nc" id="L100">        sink.sectionTitle1_();</span>
+<span class="nc" id="L101">    }</span>
 
     protected void sinkCell( Sink sink, String text )
     {
-<span class="fc" id="L105">        sink.tableCell();</span>
+<span class="nc" id="L105">        sink.tableCell();</span>
 
-<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if ( text != null )</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if ( text != null )</span>
         {
-<span class="fc" id="L109">            sink.text( text );</span>
-        }
+<span class="nc" id="L109">            sink.text( text );</span>
+<span class="nc" id="L110">        }</span>
         else
         {
 <span class="nc" id="L113">            sink.nonBreakingSpace();</span>
         }
 
-<span class="fc" id="L116">        sink.tableCell_();</span>
-<span class="fc" id="L117">    }</span>
+<span class="nc" id="L116">        sink.tableCell_();</span>
+<span class="nc" id="L117">    }</span>
 
     protected void sinkCellLink( Sink sink, String text, String link )
     {
@@ -127,14 +127,14 @@ public abstract class AbstractIssuesReportGenerator
 
     protected void sinkEndReport( Sink sink )
     {
-<span class="fc" id="L130">        sink.section1_();</span>
+<span class="nc" id="L130">        sink.section1_();</span>
 
-<span class="fc" id="L132">        sink.body_();</span>
+<span class="nc" id="L132">        sink.body_();</span>
 
-<span class="fc" id="L134">        sink.flush();</span>
+<span class="nc" id="L134">        sink.flush();</span>
 
-<span class="fc" id="L136">        sink.close();</span>
-<span class="fc" id="L137">    }</span>
+<span class="nc" id="L136">        sink.close();</span>
+<span class="nc" id="L137">    }</span>
 
     protected void sinkFigure( Sink sink, String image, String altText )
     {
@@ -147,12 +147,12 @@ public abstract class AbstractIssuesReportGenerator
 
     protected void sinkHeader( Sink sink, String header )
     {
-<span class="fc" id="L150">        sink.tableHeaderCell();</span>
+<span class="nc" id="L150">        sink.tableHeaderCell();</span>
 
-<span class="fc" id="L152">        sink.text( header );</span>
+<span class="nc" id="L152">        sink.text( header );</span>
 
-<span class="fc" id="L154">        sink.tableHeaderCell_();</span>
-<span class="fc" id="L155">    }</span>
+<span class="nc" id="L154">        sink.tableHeaderCell_();</span>
+<span class="nc" id="L155">    }</span>
 
     protected void sinkLink( Sink sink, String text, String link )
     {
@@ -172,22 +172,22 @@ public abstract class AbstractIssuesReportGenerator
         {
 <span class="nc" id="L173">            image = &quot;images/icon_help_sml.gif&quot;;</span>
 <span class="nc" id="L174">            altText = &quot;Unknown&quot;;</span>
-        }
+<span class="nc" id="L175">        }</span>
 <span class="nc bnc" id="L176" title="All 2 branches missed.">        else if ( type.equals( &quot;fix&quot; ) )</span>
         {
 <span class="nc" id="L178">            image = &quot;images/fix.gif&quot;;</span>
 <span class="nc" id="L179">            altText = &quot;Fix&quot;;</span>
-        }
+<span class="nc" id="L180">        }</span>
 <span class="nc bnc" id="L181" title="All 2 branches missed.">        else if ( type.equals( &quot;update&quot; ) )</span>
         {
 <span class="nc" id="L183">            image = &quot;images/update.gif&quot;;</span>
 <span class="nc" id="L184">            altText = &quot;Update&quot;;</span>
-        }
+<span class="nc" id="L185">        }</span>
 <span class="nc bnc" id="L186" title="All 2 branches missed.">        else if ( type.equals( &quot;add&quot; ) )</span>
         {
 <span class="nc" id="L188">            image = &quot;images/add.gif&quot;;</span>
 <span class="nc" id="L189">            altText = &quot;Add&quot;;</span>
-        }
+<span class="nc" id="L190">        }</span>
 <span class="nc bnc" id="L191" title="All 2 branches missed.">        else if ( type.equals( &quot;remove&quot; ) )</span>
         {
 <span class="nc" id="L193">            image = &quot;images/remove.gif&quot;;</span>

@@ -39,41 +39,41 @@ import org.apache.velocity.util.StringUtils;
  * 
  * @version $Id$
  */
-<span class="fc" id="L42">public class ProjectResourceLoader</span>
+<span class="nc" id="L42">public class ProjectResourceLoader</span>
     extends ResourceLoader
 {
     /**
      * The paths to search for templates.
      */
-<span class="fc" id="L48">    private List&lt;String&gt; paths = null;</span>
+<span class="nc" id="L48">    private List&lt;String&gt; paths = null;</span>
 
     /**
      * Used to map the path that a template was found on so that we can properly check the modification times of the
      * files.
      */
-<span class="fc" id="L54">    private Hashtable&lt;String, String&gt; templatePaths = new Hashtable&lt;String, String&gt;();</span>
+<span class="nc" id="L54">    private Hashtable&lt;String, String&gt; templatePaths = new Hashtable&lt;String, String&gt;();</span>
 
     public void init( ExtendedProperties configuration )
     {
-<span class="fc" id="L58">        rsvc.getLog().info( &quot;ProjectResourceLoader : initialization starting.&quot; );</span>
+<span class="nc" id="L58">        rsvc.getLog().info( &quot;ProjectResourceLoader : initialization starting.&quot; );</span>
 
-<span class="fc" id="L60">        String separator = System.getProperty( &quot;file.separator&quot; );</span>
+<span class="nc" id="L60">        String separator = System.getProperty( &quot;file.separator&quot; );</span>
 
-<span class="fc" id="L62">        String path = System.getProperty( &quot;user.dir&quot; ) + separator + &quot;src&quot; + separator + &quot;main&quot; + separator</span>
-            + &quot;resources&quot; + separator;
+<span class="nc" id="L62">        String path = System.getProperty( &quot;user.dir&quot; ) + separator + &quot;src&quot; + separator + &quot;main&quot; + separator</span>
+<span class="nc" id="L63">            + &quot;resources&quot; + separator;</span>
 
-<span class="fc" id="L65">        rsvc.getLog().info( &quot;path :&quot; + path );</span>
+<span class="nc" id="L65">        rsvc.getLog().info( &quot;path :&quot; + path );</span>
 
-<span class="fc" id="L67">        paths = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L67">        paths = new ArrayList&lt;String&gt;();</span>
 
-<span class="fc" id="L69">        paths.add( path );</span>
+<span class="nc" id="L69">        paths.add( path );</span>
 
-<span class="fc bfc" id="L71" title="All 2 branches covered.">        for ( String path1 : paths )</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for ( String path1 : paths )</span>
         {
-<span class="fc" id="L73">            rsvc.getLog().info( &quot;ProjectResourceLoader : adding path '&quot; + path1 + &quot;'&quot; );</span>
-<span class="fc" id="L74">        }</span>
-<span class="fc" id="L75">        rsvc.getLog().info( &quot;ProjectResourceLoader : initialization complete.&quot; );</span>
-<span class="fc" id="L76">    }</span>
+<span class="nc" id="L73">            rsvc.getLog().info( &quot;ProjectResourceLoader : adding path '&quot; + path1 + &quot;'&quot; );</span>
+        }
+<span class="nc" id="L75">        rsvc.getLog().info( &quot;ProjectResourceLoader : initialization complete.&quot; );</span>
+<span class="nc" id="L76">    }</span>
 
     /**
      * Get an InputStream so that the Runtime can build a template with it.
@@ -88,7 +88,7 @@ import org.apache.velocity.util.StringUtils;
         /*
          * Make sure we have a valid templateName.
          */
-<span class="pc bpc" id="L91" title="2 of 4 branches missed.">        if ( templateName == null || templateName.length() == 0 )</span>
+<span class="nc bnc" id="L91" title="All 4 branches missed.">        if ( templateName == null || templateName.length() == 0 )</span>
         {
             /*
              * If we don't get a properly formed templateName then there's not much we can do. So we'll forget about
@@ -97,11 +97,11 @@ import org.apache.velocity.util.StringUtils;
 <span class="nc" id="L97">            throw new ResourceNotFoundException( &quot;Need to specify a file name or file path!&quot; );</span>
         }
 
-<span class="fc" id="L100">        String template = StringUtils.normalizePath( templateName );</span>
-<span class="pc bpc" id="L101" title="2 of 4 branches missed.">        if ( template == null || template.length() == 0 )</span>
+<span class="nc" id="L100">        String template = StringUtils.normalizePath( templateName );</span>
+<span class="nc bnc" id="L101" title="All 4 branches missed.">        if ( template == null || template.length() == 0 )</span>
         {
 <span class="nc" id="L103">            String msg = &quot;Project Resource loader error : argument &quot; + template</span>
-                + &quot; contains .. and may be trying to access &quot; + &quot;content outside of template root.  Rejected.&quot;;
+<span class="nc" id="L104">                + &quot; contains .. and may be trying to access &quot; + &quot;content outside of template root.  Rejected.&quot;;</span>
 
 <span class="nc" id="L106">            rsvc.getLog().error( &quot;ProjectResourceLoader : &quot; + msg );</span>
 
@@ -111,28 +111,28 @@ import org.apache.velocity.util.StringUtils;
         /*
          * if a / leads off, then just nip that :)
          */
-<span class="pc bpc" id="L114" title="1 of 2 branches missed.">        if ( template.startsWith( &quot;/&quot; ) )</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if ( template.startsWith( &quot;/&quot; ) )</span>
         {
-<span class="fc" id="L116">            template = template.substring( 1 );</span>
+<span class="nc" id="L116">            template = template.substring( 1 );</span>
         }
 
         // MCHANGES-118 adding the basedir path
-<span class="fc" id="L120">        paths.add( (String) rsvc.getApplicationAttribute( &quot;baseDirectory&quot; ) );</span>
+<span class="nc" id="L120">        paths.add( (String) rsvc.getApplicationAttribute( &quot;baseDirectory&quot; ) );</span>
 
-<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        for ( String path : paths )</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        for ( String path : paths )</span>
         {
-<span class="fc" id="L124">            InputStream inputStream = findTemplate( path, template );</span>
+<span class="nc" id="L124">            InputStream inputStream = findTemplate( path, template );</span>
 
-<span class="fc bfc" id="L126" title="All 2 branches covered.">            if ( inputStream != null )</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            if ( inputStream != null )</span>
             {
                 /*
                  * Store the path that this template came from so that we can check its modification time.
                  */
 
-<span class="fc" id="L132">                templatePaths.put( templateName, path );</span>
-<span class="fc" id="L133">                return inputStream;</span>
+<span class="nc" id="L132">                templatePaths.put( templateName, path );</span>
+<span class="nc" id="L133">                return inputStream;</span>
             }
-<span class="fc" id="L135">        }</span>
+        }
 
         /*
          * We have now searched all the paths for templates and we didn't find anything so throw an exception.
@@ -152,15 +152,15 @@ import org.apache.velocity.util.StringUtils;
     {
         try
         {
-<span class="fc" id="L155">            File file = new File( path, template );</span>
+<span class="nc" id="L155">            File file = new File( path, template );</span>
 
-<span class="fc bfc" id="L157" title="All 2 branches covered.">            if ( file.canRead() )</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">            if ( file.canRead() )</span>
             {
-<span class="fc" id="L159">                return new BufferedInputStream( new FileInputStream( file.getAbsolutePath() ) );</span>
+<span class="nc" id="L159">                return new BufferedInputStream( new FileInputStream( file.getAbsolutePath() ) );</span>
             }
             else
             {
-<span class="fc" id="L163">                return null;</span>
+<span class="nc" id="L163">                return null;</span>
             }
         }
 <span class="nc" id="L166">        catch ( FileNotFoundException fnfe )</span>
@@ -224,12 +224,12 @@ import org.apache.velocity.util.StringUtils;
 
     public long getLastModified( Resource resource )
     {
-<span class="fc" id="L227">        String path = templatePaths.get( resource.getName() );</span>
-<span class="fc" id="L228">        File file = new File( path, resource.getName() );</span>
+<span class="nc" id="L227">        String path = templatePaths.get( resource.getName() );</span>
+<span class="nc" id="L228">        File file = new File( path, resource.getName() );</span>
 
-<span class="pc bpc" id="L230" title="1 of 2 branches missed.">        if ( file.canRead() )</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        if ( file.canRead() )</span>
         {
-<span class="fc" id="L232">            return file.lastModified();</span>
+<span class="nc" id="L232">            return file.lastModified();</span>
         }
         else
         {

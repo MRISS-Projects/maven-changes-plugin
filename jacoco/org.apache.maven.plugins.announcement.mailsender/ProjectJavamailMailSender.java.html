@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProjectJavamailMailSender.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.announcement.mailsender</a> &gt; <span class="el_source">ProjectJavamailMailSender.java</span></div><h1>ProjectJavamailMailSender.java</h1><pre class="source lang-java linenums">package org.apache.maven.plugins.announcement.mailsender;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProjectJavamailMailSender.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Apache Maven Changes Plugin</a> &gt; <a href="index.source.html" class="el_package">org.apache.maven.plugins.announcement.mailsender</a> &gt; <span class="el_source">ProjectJavamailMailSender.java</span></div><h1>ProjectJavamailMailSender.java</h1><pre class="source lang-java linenums"><span class="nc" id="L1">package org.apache.maven.plugins.announcement.mailsender;</span>
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -97,11 +97,11 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc" id="L97">                props.put( &quot;mail.smtp.socketFactory.class&quot;, SSL_FACTORY );</span>
 
 <span class="nc" id="L99">                props.put( &quot;mail.smtp.socketFactory.fallback&quot;, &quot;false&quot; );</span>
-            }
+<span class="nc" id="L100">            }</span>
 <span class="nc" id="L101">            catch ( ClassNotFoundException e )</span>
             {
 <span class="nc" id="L103">                getLogger().error( &quot;You can't use sslMode because your system is missing an SSL Provider.&quot;, e );</span>
-<span class="nc" id="L104">            }</span>
+            }
         }
 
 <span class="nc bnc" id="L107" title="All 2 branches missed.">        if ( isTlsEnabled() )</span>
@@ -118,7 +118,7 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc" id="L118">                String value = userProperties.getProperty( key );</span>
 
 <span class="nc" id="L120">                props.put( key, value );</span>
-<span class="nc" id="L121">            }</span>
+            }
         }
 <span class="nc" id="L123">    }</span>
 
@@ -138,7 +138,7 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc bnc" id="L138" title="All 2 branches missed.">            if ( getUsername() != null )</span>
             {
 <span class="nc" id="L140">                auth = new Authenticator()</span>
-<span class="nc" id="L141">                {</span>
+                {
                     protected PasswordAuthentication getPasswordAuthentication()
                     {
 <span class="nc" id="L144">                        return new PasswordAuthentication( getUsername(), getPassword() );</span>
@@ -162,7 +162,7 @@ import org.codehaus.plexus.util.StringUtils;
                 {
 <span class="nc" id="L163">                    String address = ( (MailMessage.Address) o ).getRfc2822Address();</span>
 <span class="nc" id="L164">                    addressTo[count++] = new InternetAddress( address );</span>
-<span class="nc" id="L165">                }</span>
+                }
 <span class="nc" id="L166">                msg.setRecipients( Message.RecipientType.TO, addressTo );</span>
             }
 
@@ -174,7 +174,7 @@ import org.codehaus.plexus.util.StringUtils;
                 {
 <span class="nc" id="L175">                    String address = ( (MailMessage.Address) o ).getRfc2822Address();</span>
 <span class="nc" id="L176">                    addressCc[count++] = new InternetAddress( address );</span>
-<span class="nc" id="L177">                }</span>
+                }
 <span class="nc" id="L178">                msg.setRecipients( Message.RecipientType.CC, addressCc );</span>
             }
 
@@ -186,7 +186,7 @@ import org.codehaus.plexus.util.StringUtils;
                 {
 <span class="nc" id="L187">                    String address = ( (MailMessage.Address ) o ).getRfc2822Address();</span>
 <span class="nc" id="L188">                    addressBcc[count++] = new InternetAddress( address );</span>
-<span class="nc" id="L189">                }</span>
+                }
 <span class="nc" id="L190">                msg.setRecipients( Message.RecipientType.BCC, addressBcc );</span>
             }
 
@@ -197,7 +197,7 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc bnc" id="L197" title="All 2 branches missed.">            if ( mail.getSendDate() != null )</span>
             {
 <span class="nc" id="L199">                msg.setHeader( &quot;Date&quot;, DateFormatUtils.getDateHeader( mail.getSendDate() ) );</span>
-            }
+<span class="nc" id="L200">            }</span>
             else
             {
 <span class="nc" id="L203">                msg.setHeader( &quot;Date&quot;, DateFormatUtils.getDateHeader( new Date() ) );</span>
@@ -205,11 +205,11 @@ import org.codehaus.plexus.util.StringUtils;
 
             // Send the message
 <span class="nc" id="L207">            Transport.send( msg );</span>
-        }
+<span class="nc" id="L208">        }</span>
 <span class="nc" id="L209">        catch ( MessagingException e )</span>
         {
 <span class="nc" id="L211">            throw new MailSenderException( &quot;Error while sending mail.&quot;, e );</span>
-<span class="nc" id="L212">        }</span>
+        }
 <span class="nc" id="L213">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -45,8 +45,8 @@ public class AptIssueListFormater implements IssueListFormater
 
     private boolean versionSeparator;
 
-    public AptIssueListFormater( boolean versionSeparator )
-<span class="nc" id="L49">    {</span>
+<span class="nc" id="L48">    public AptIssueListFormater( boolean versionSeparator )</span>
+    {
 <span class="nc" id="L50">        this.versionSeparator = versionSeparator;</span>
 <span class="nc" id="L51">    }</span>
 
@@ -75,7 +75,7 @@ public class AptIssueListFormater implements IssueListFormater
 <span class="nc" id="L75">            result += ( APT_COLUMN_SPACE + issue.getPriority() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
 <span class="nc" id="L76">            result += ( APT_COLUMN_SPACE + issue.getResolution() + APT_COLUMN_SPACE + COLUMN_SEPARATOR + &quot;\n&quot; );</span>
 <span class="nc" id="L77">            result += LINE;</span>
-<span class="nc" id="L78">        }</span>
+        }
 <span class="nc" id="L79">        return result;</span>
     }
 

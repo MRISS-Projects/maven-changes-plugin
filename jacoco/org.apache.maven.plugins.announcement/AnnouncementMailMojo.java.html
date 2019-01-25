@@ -240,7 +240,7 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc bnc" id="L240" title="All 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
         {
 <span class="nc" id="L242">            getLog().info( &quot;Skipping the announcement mail in this project because it's not the Execution Root&quot; );</span>
-        }
+<span class="nc" id="L243">        }</span>
         else
         {
 <span class="nc" id="L246">            File file = new File( announcementDirectory, announcementFile );</span>
@@ -282,7 +282,7 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc" id="L282">                getLog().info( &quot;Connecting to Host: &quot; + getSmtpHost() + &quot;:&quot; + getSmtpPort() );</span>
 
 <span class="nc" id="L284">                sendMessage();</span>
-            }
+<span class="nc" id="L285">            }</span>
             else
             {
 <span class="nc" id="L288">                throw new MojoExecutionException( &quot;Announcement file &quot; + file + &quot; not found...&quot; );</span>
@@ -321,7 +321,7 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc" id="L321">                email = o1.toString();</span>
 <span class="nc" id="L322">                getLog().info( &quot;Sending mail to &quot; + email + &quot;...&quot; );</span>
 <span class="nc" id="L323">                mailMsg.addTo( email, &quot;&quot; );</span>
-<span class="nc" id="L324">            }</span>
+            }
 
 <span class="nc bnc" id="L326" title="All 2 branches missed.">            if ( getCcAddresses() != null )</span>
             {
@@ -330,7 +330,7 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc" id="L330">                    email = o.toString();</span>
 <span class="nc" id="L331">                    getLog().info( &quot;Sending cc mail to &quot; + email + &quot;...&quot; );</span>
 <span class="nc" id="L332">                    mailMsg.addCc( email, &quot;&quot; );</span>
-<span class="nc" id="L333">                }</span>
+                }
             }
 
 <span class="nc bnc" id="L336" title="All 2 branches missed.">            if ( getBccAddresses() != null )</span>
@@ -340,16 +340,16 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc" id="L340">                    email = o.toString();</span>
 <span class="nc" id="L341">                    getLog().info( &quot;Sending bcc mail to &quot; + email + &quot;...&quot; );</span>
 <span class="nc" id="L342">                    mailMsg.addBcc( email, &quot;&quot; );</span>
-<span class="nc" id="L343">                }</span>
+                }
             }
 
 <span class="nc" id="L346">            mailer.send( mailMsg );</span>
 <span class="nc" id="L347">            getLog().info( &quot;Sent...&quot; );</span>
-        }
+<span class="nc" id="L348">        }</span>
 <span class="nc" id="L349">        catch ( MailSenderException e )</span>
         {
 <span class="nc" id="L351">            throw new MojoExecutionException( &quot;Failed to send email &lt; &quot; + email + &quot; &gt;&quot;, e );</span>
-<span class="nc" id="L352">        }</span>
+        }
 <span class="nc" id="L353">    }</span>
 
     /**
@@ -369,7 +369,7 @@ import org.codehaus.plexus.util.StringUtils;
             {
 <span class="nc" id="L370">                templateEncoding = ReaderFactory.FILE_ENCODING;</span>
 <span class="nc" id="L371">                getLog().warn( &quot;File encoding has not been set, using platform encoding '&quot; + templateEncoding</span>
-                                   + &quot;', i.e. build is platform dependent!&quot; );
+<span class="nc" id="L372">                                   + &quot;', i.e. build is platform dependent!&quot; );</span>
 
             }
 
@@ -446,9 +446,9 @@ import org.codehaus.plexus.util.StringUtils;
                 {
 <span class="nc" id="L447">                    return new MailSender( developer.getName(), developer.getEmail() );</span>
                 }
-<span class="nc" id="L449">            }</span>
+            }
 <span class="nc" id="L450">            throw new MojoExecutionException( &quot;Missing developer with id '&quot; + fromDeveloperId</span>
-                + &quot;' in the &lt;developers&gt; section in your pom.&quot; );
+<span class="nc" id="L451">                + &quot;' in the &lt;developers&gt; section in your pom.&quot; );</span>
         }
     }
 

@@ -243,9 +243,9 @@ import org.codehaus.plexus.util.StringUtils;
         throws MavenReportException
     {
 <span class="nc" id="L245">        failIfUsingDeprecatedParameter( escapeHTML, &quot;escapeHTML&quot;,</span>
-                                        &quot;Using markup inside CDATA sections does not work for all output formats!&quot; );
+<span class="nc" id="L246">                                        &quot;Using markup inside CDATA sections does not work for all output formats!&quot; );</span>
 <span class="nc" id="L247">        failIfUsingDeprecatedParameter( issueLinkTemplate, &quot;issueLinkTemplate&quot;,</span>
-                                        &quot;You must use 'issueLinkTemplatePerSystem' for the system '&quot;
+<span class="nc" id="L248">                                        &quot;You must use 'issueLinkTemplatePerSystem' for the system '&quot;</span>
                                             + ChangesReportGenerator.DEFAULT_ISSUE_SYSTEM_KEY + &quot;' instead.&quot; );
 <span class="nc" id="L250">        Date now = new Date();</span>
 <span class="nc" id="L251">        SimpleDateFormat simpleDateFormat = new SimpleDateFormat( publishDateFormat, new Locale( publishDateLocale ) );</span>
@@ -280,7 +280,7 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc" id="L280">                    releaseList =</span>
 <span class="nc" id="L281">                        releaseUtils.mergeReleases( releaseList, childProject.getName(), childXml.getReleaseList() );</span>
                 }
-<span class="nc" id="L283">            }</span>
+            }
 <span class="nc" id="L284">            changesXml.setReleaseList( releaseList );</span>
         }
 
@@ -296,7 +296,7 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc bnc" id="L296" title="All 2 branches missed.">        if ( issueLinkTemplatePerSystem == null )</span>
         {
 <span class="nc" id="L298">            caseInsensitiveIssueLinkTemplatePerSystem = new CaseInsensitiveMap();</span>
-        }
+<span class="nc" id="L299">        }</span>
         else
         {
 <span class="nc" id="L302">            caseInsensitiveIssueLinkTemplatePerSystem = new CaseInsensitiveMap( issueLinkTemplatePerSystem );</span>
@@ -418,12 +418,12 @@ import org.codehaus.plexus.util.StringUtils;
 
 <span class="nc" id="L419">                final MavenFileFilterRequest mavenFileFilterRequest =</span>
 <span class="nc" id="L420">                    new MavenFileFilterRequest( changesXml, resultFile, true, project, Collections.&lt;String&gt;emptyList(),</span>
-                                                false, encoding, session, additionalProperties );
+<span class="nc" id="L421">                                                false, encoding, session, additionalProperties );</span>
 <span class="nc" id="L422">                mavenFileFilter.copyFile( mavenFileFilterRequest );</span>
 <span class="nc" id="L423">                changesXml = resultFile;</span>
 <span class="nc" id="L424">                xmlStreamReader.close();</span>
 <span class="nc" id="L425">                xmlStreamReader = null;</span>
-            }
+<span class="nc" id="L426">            }</span>
 <span class="nc" id="L427">            catch ( IOException e )</span>
             {
 <span class="nc" id="L429">                throw new MavenReportException( &quot;Exception during filtering changes file : &quot; + e.getMessage(), e );</span>
@@ -466,7 +466,7 @@ import org.codehaus.plexus.util.StringUtils;
     {
 <span class="nc" id="L467">        final String pluginResourcesBase = &quot;org/apache/maven/plugins/changes&quot;;</span>
 <span class="nc" id="L468">        String resourceNames[] = { &quot;images/add.gif&quot;, &quot;images/fix.gif&quot;, &quot;images/icon_help_sml.gif&quot;, &quot;images/remove.gif&quot;,</span>
-            &quot;images/rss.png&quot;, &quot;images/update.gif&quot; };
+<span class="nc" id="L469">            &quot;images/rss.png&quot;, &quot;images/update.gif&quot; };</span>
         try
         {
 <span class="nc" id="L472">            getLog().debug( &quot;Copying static resources.&quot; );</span>
@@ -475,11 +475,11 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc" id="L475">                URL url = this.getClass().getClassLoader().getResource( pluginResourcesBase + &quot;/&quot; + resourceName );</span>
 <span class="nc" id="L476">                FileUtils.copyURLToFile( url, new File( getReportOutputDirectory(), resourceName ) );</span>
             }
-        }
+<span class="nc" id="L478">        }</span>
 <span class="nc" id="L479">        catch ( IOException e )</span>
         {
 <span class="nc" id="L481">            throw new MavenReportException( &quot;Unable to copy static resources.&quot; );</span>
-<span class="nc" id="L482">        }</span>
+        }
 <span class="nc" id="L483">    }</span>
 
     private ResourceBundle getBundle( Locale locale )
@@ -499,13 +499,13 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc bnc" id="L499" title="All 2 branches missed.">            if ( issueLinkTemplatePerSystem == null )</span>
             {
 <span class="nc" id="L501">                getLog().debug( &quot;No issueLinkTemplatePerSystem configuration was found&quot; );</span>
-            }
+<span class="nc" id="L502">            }</span>
             else
             {
 <span class="nc bnc" id="L505" title="All 2 branches missed.">                for ( Entry&lt;String, String&gt; entry : issueLinkTemplatePerSystem.entrySet() )</span>
                 {
 <span class="nc" id="L507">                    getLog().debug( &quot;issueLinkTemplatePerSystem[&quot; + entry.getKey() + &quot;] = &quot; + entry.getValue() );</span>
-<span class="nc" id="L508">                }</span>
+                }
             }
         }
 <span class="nc" id="L511">    }</span>
@@ -528,7 +528,7 @@ import org.codehaus.plexus.util.StringUtils;
         {
 <span class="nc" id="L529">            writer = new FileWriter( new File( getReportOutputDirectory(), &quot;changes.rss&quot; ) );</span>
 <span class="nc" id="L530">            feed.export( changesXml.getReleaseList(), feedType, writer );</span>
-        }
+<span class="nc" id="L531">        }</span>
 <span class="nc" id="L532">        catch ( IOException ex )</span>
         {
 <span class="nc" id="L534">            success = false;</span>
@@ -543,12 +543,12 @@ import org.codehaus.plexus.util.StringUtils;
                 {
 <span class="nc" id="L544">                    writer.close();</span>
                 }
-            }
+<span class="nc" id="L546">            }</span>
 <span class="nc" id="L547">            catch ( IOException ex )</span>
             {
 <span class="nc" id="L549">                getLog().warn( &quot;Failed to close writer: &quot; + ex.getMessage() );</span>
 <span class="nc" id="L550">                getLog().debug( ex );</span>
-<span class="nc" id="L551">            }</span>
+            }
         }
 
 <span class="nc" id="L554">        return success;</span>

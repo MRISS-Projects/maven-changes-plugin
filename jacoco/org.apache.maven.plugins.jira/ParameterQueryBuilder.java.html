@@ -55,8 +55,8 @@ public class ParameterQueryBuilder
     /** Mapping containing all allowed JIRA type values. */
 <span class="nc" id="L56">    private final Map&lt;String, String&gt; typeMap = new HashMap&lt;String, String&gt;( 8 );</span>
 
-    public ParameterQueryBuilder( Log log )
-<span class="nc" id="L59">    {</span>
+<span class="nc" id="L58">    public ParameterQueryBuilder( Log log )</span>
+    {
 <span class="nc" id="L60">        this.log = log;</span>
 
 <span class="nc" id="L62">        priorityMap.put( &quot;Blocker&quot;, &quot;1&quot; );</span>
@@ -131,7 +131,7 @@ public class ParameterQueryBuilder
                 {
 <span class="nc" id="L132">                    query.append( &quot;&amp;component=&quot; ).append( component );</span>
                 }
-<span class="nc" id="L134">            }</span>
+            }
         }
 <span class="nc" id="L136">        return this;</span>
     }
@@ -255,7 +255,7 @@ public class ParameterQueryBuilder
                 {
 <span class="nc" id="L256">                    descending = true;</span>
 <span class="nc" id="L257">                    lowerColumnName = lowerColumnName.substring( 0, lowerColumnName.length() - 4 ).trim();</span>
-                }
+<span class="nc" id="L258">                }</span>
 <span class="nc bnc" id="L259" title="All 2 branches missed.">                else if ( lowerColumnName.endsWith( &quot;asc&quot; ) )</span>
                 {
 <span class="nc" id="L261">                    descending = false;</span>
@@ -265,51 +265,51 @@ public class ParameterQueryBuilder
 <span class="nc bnc" id="L265" title="All 2 branches missed.">                if ( &quot;key&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L267">                    fieldName = &quot;issuekey&quot;;</span>
-                }
+<span class="nc" id="L268">                }</span>
 <span class="nc bnc" id="L269" title="All 2 branches missed.">                else if ( &quot;summary&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L271">                    fieldName = lowerColumnName;</span>
-                }
+<span class="nc" id="L272">                }</span>
 <span class="nc bnc" id="L273" title="All 2 branches missed.">                else if ( &quot;status&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L275">                    fieldName = lowerColumnName;</span>
-                }
+<span class="nc" id="L276">                }</span>
 <span class="nc bnc" id="L277" title="All 2 branches missed.">                else if ( &quot;resolution&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L279">                    fieldName = lowerColumnName;</span>
-                }
+<span class="nc" id="L280">                }</span>
 <span class="nc bnc" id="L281" title="All 2 branches missed.">                else if ( &quot;assignee&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L283">                    fieldName = lowerColumnName;</span>
-                }
+<span class="nc" id="L284">                }</span>
 <span class="nc bnc" id="L285" title="All 2 branches missed.">                else if ( &quot;reporter&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L287">                    fieldName = lowerColumnName;</span>
-                }
+<span class="nc" id="L288">                }</span>
 <span class="nc bnc" id="L289" title="All 2 branches missed.">                else if ( &quot;type&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L291">                    fieldName = &quot;issuetype&quot;;</span>
-                }
+<span class="nc" id="L292">                }</span>
 <span class="nc bnc" id="L293" title="All 2 branches missed.">                else if ( &quot;priority&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L295">                    fieldName = lowerColumnName;</span>
-                }
+<span class="nc" id="L296">                }</span>
 <span class="nc bnc" id="L297" title="All 2 branches missed.">                else if ( &quot;version&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L299">                    fieldName = &quot;versions&quot;;</span>
-                }
+<span class="nc" id="L300">                }</span>
 <span class="nc bnc" id="L301" title="All 2 branches missed.">                else if ( &quot;fix version&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L303">                    fieldName = &quot;fixVersions&quot;;</span>
-                }
+<span class="nc" id="L304">                }</span>
 <span class="nc bnc" id="L305" title="All 2 branches missed.">                else if ( &quot;component&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L307">                    fieldName = &quot;components&quot;;</span>
-                }
+<span class="nc" id="L308">                }</span>
 <span class="nc bnc" id="L309" title="All 2 branches missed.">                else if ( &quot;created&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L311">                    fieldName = lowerColumnName;</span>
-                }
+<span class="nc" id="L312">                }</span>
 <span class="nc bnc" id="L313" title="All 2 branches missed.">                else if ( &quot;updated&quot;.equals( lowerColumnName ) )</span>
                 {
 <span class="nc" id="L315">                    fieldName = lowerColumnName;</span>
@@ -321,19 +321,19 @@ public class ParameterQueryBuilder
 <span class="nc" id="L321">                    query.append( &quot;&amp;sorter/order=&quot; );</span>
 <span class="nc bnc" id="L322" title="All 2 branches missed.">                    query.append( descending ? &quot;DESC&quot; : &quot;ASC&quot; );</span>
 <span class="nc" id="L323">                    validSortColumnNames++;</span>
-                }
+<span class="nc" id="L324">                }</span>
                 else
                 {
                     // Error in the configuration
 <span class="nc" id="L328">                    getLog().error( &quot;maven-changes-plugin: The configured value '&quot; + lowerColumnName</span>
-                        + &quot;' for sortColumnNames is not correct.&quot; );
+<span class="nc" id="L329">                        + &quot;' for sortColumnNames is not correct.&quot; );</span>
                 }
             }
 <span class="nc bnc" id="L332" title="All 2 branches missed.">            if ( validSortColumnNames == 0 )</span>
             {
                 // Error in the configuration
 <span class="nc" id="L335">                getLog().error( &quot;maven-changes-plugin: None of the configured sortColumnNames '&quot; + sortColumnNames</span>
-                    + &quot;' are correct.&quot; );
+<span class="nc" id="L336">                    + &quot;' are correct.&quot; );</span>
             }
         }
 <span class="nc" id="L339">        return this;</span>
@@ -353,7 +353,7 @@ public class ParameterQueryBuilder
 <span class="nc bnc" id="L353" title="All 2 branches missed.">                if ( statusParam != null )</span>
                 {
 <span class="nc" id="L355">                    query.append( &quot;&amp;statusIds=&quot; ).append( statusParam );</span>
-                }
+<span class="nc" id="L356">                }</span>
                 else
                 {
                     // if it's numeric we can handle it too.
@@ -361,11 +361,11 @@ public class ParameterQueryBuilder
                     {
 <span class="nc" id="L362">                        Integer.parseInt( stat );</span>
 <span class="nc" id="L363">                        query.append( &quot;&amp;statusIds=&quot; ).append( stat );</span>
-                    }
+<span class="nc" id="L364">                    }</span>
 <span class="nc" id="L365">                    catch ( NumberFormatException nfe )</span>
                     {
 <span class="nc" id="L367">                        getLog().error( &quot;maven-changes-plugin: invalid statusId &quot; + stat );</span>
-<span class="nc" id="L368">                    }</span>
+                    }
                 }
             }
         }

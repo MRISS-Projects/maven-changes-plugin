@@ -24,18 +24,18 @@
  *
  * @version $Id$
  */
-<span class="fc" id="L27">public enum IssueType</span>
+<span class="nc" id="L27">public enum IssueType</span>
 {
-<span class="fc" id="L29">    ADD( &quot;add&quot; ), FIX( &quot;fix&quot; ), UPDATE( &quot;update&quot; ), REMOVE( &quot;remove&quot; );</span>
+<span class="nc" id="L29">    ADD( &quot;add&quot; ), FIX( &quot;fix&quot; ), UPDATE( &quot;update&quot; ), REMOVE( &quot;remove&quot; );</span>
 
     private String configurationKey;
 
     // CHECKSTYLE_OFF: RedundantModifier
-    private IssueType( String configurationKey )
+<span class="nc" id="L34">    private IssueType( String configurationKey )</span>
     // CHECKSTYLE_ON: RedundantModifier
-<span class="fc" id="L36">    {</span>
-<span class="fc" id="L37">        this.configurationKey = configurationKey;</span>
-<span class="fc" id="L38">    }</span>
+    {
+<span class="nc" id="L37">        this.configurationKey = configurationKey;</span>
+<span class="nc" id="L38">    }</span>
 
     public String configurationKey()
     {
@@ -44,7 +44,7 @@
 
     public String modelRepresentation()
     {
-<span class="fc" id="L47">        return name().toLowerCase();</span>
+<span class="nc" id="L47">        return name().toLowerCase();</span>
     }
 
     public static IssueType lookupByKey( String key )
@@ -52,13 +52,13 @@
         IssueType type;
         try
         {
-<span class="fc" id="L55">            type = IssueType.valueOf( key.toUpperCase() );</span>
-        }
-<span class="fc" id="L57">        catch ( IllegalArgumentException e )</span>
+<span class="nc" id="L55">            type = IssueType.valueOf( key.toUpperCase() );</span>
+<span class="nc" id="L56">        }</span>
+<span class="nc" id="L57">        catch ( IllegalArgumentException e )</span>
         {
-<span class="fc" id="L59">            type = null;</span>
-<span class="fc" id="L60">        }</span>
-<span class="fc" id="L61">        return type;</span>
+<span class="nc" id="L59">            type = null;</span>
+        }
+<span class="nc" id="L61">        return type;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

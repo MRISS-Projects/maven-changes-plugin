@@ -53,42 +53,42 @@ public class JiraXML
 {
     private final List&lt;Issue&gt; issueList;
 
-<span class="fc" id="L56">    private final StringBuilder currentElement = new StringBuilder( 1024 );</span>
+<span class="nc" id="L56">    private final StringBuilder currentElement = new StringBuilder( 1024 );</span>
 
-<span class="fc" id="L58">    private String currentParent = &quot;&quot;;</span>
+<span class="nc" id="L58">    private String currentParent = &quot;&quot;;</span>
 
     private final String datePattern;
 
     private Issue issue;
 
-<span class="fc" id="L64">    private String jiraVersion = null;</span>
+<span class="nc" id="L64">    private String jiraVersion = null;</span>
 
     private final Log log;
 
-<span class="fc" id="L68">    private SimpleDateFormat sdf = null;</span>
+<span class="nc" id="L68">    private SimpleDateFormat sdf = null;</span>
 
     /**
      * @param log not null.
      * @param datePattern may be null.
      * @since 2.4
      */
-    public JiraXML( Log log, String datePattern )
-<span class="fc" id="L76">    {</span>
-<span class="fc" id="L77">        this.log = log;</span>
-<span class="fc" id="L78">        this.datePattern = datePattern;</span>
+<span class="nc" id="L75">    public JiraXML( Log log, String datePattern )</span>
+    {
+<span class="nc" id="L77">        this.log = log;</span>
+<span class="nc" id="L78">        this.datePattern = datePattern;</span>
 
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if ( datePattern == null )</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if ( datePattern == null )</span>
         {
-<span class="fc" id="L82">            sdf = null;</span>
-        }
+<span class="nc" id="L82">            sdf = null;</span>
+<span class="nc" id="L83">        }</span>
         else
         {
             // @todo Do we need to be able to configure the locale of the JIRA server as well?
 <span class="nc" id="L87">            sdf = new SimpleDateFormat( datePattern, Locale.ENGLISH );</span>
         }
 
-<span class="fc" id="L90">        this.issueList = new ArrayList&lt;Issue&gt;( 16 );</span>
-<span class="fc" id="L91">    }</span>
+<span class="nc" id="L90">        this.issueList = new ArrayList&lt;Issue&gt;( 16 );</span>
+<span class="nc" id="L91">    }</span>
 
     /**
      * Parse the given xml file. The list of issues can then be retrieved with {@link #getIssueList()}.
@@ -106,7 +106,7 @@ public class JiraXML
 <span class="nc" id="L106">            xmlStream = new FileInputStream( xmlPath );</span>
 <span class="nc" id="L107">            InputSource inputSource = new InputSource( xmlStream );</span>
 <span class="nc" id="L108">            parse( inputSource );</span>
-        }
+<span class="nc" id="L109">        }</span>
 <span class="nc" id="L110">        catch ( FileNotFoundException e )</span>
         {
 <span class="nc" id="L112">            throw new MojoExecutionException( &quot;Failed to open JIRA XML file &quot; + xmlPath, e );</span>
@@ -122,149 +122,149 @@ public class JiraXML
     {
         try
         {
-<span class="fc" id="L125">            SAXParserFactory factory = SAXParserFactory.newInstance();</span>
-<span class="fc" id="L126">            SAXParser saxParser = factory.newSAXParser();</span>
+<span class="nc" id="L125">            SAXParserFactory factory = SAXParserFactory.newInstance();</span>
+<span class="nc" id="L126">            SAXParser saxParser = factory.newSAXParser();</span>
 
-<span class="fc" id="L128">            saxParser.parse( xmlSource, this );</span>
-        }
+<span class="nc" id="L128">            saxParser.parse( xmlSource, this );</span>
+<span class="nc" id="L129">        }</span>
 <span class="nc" id="L130">        catch ( Throwable t )</span>
         {
 <span class="nc" id="L132">            throw new MojoExecutionException( &quot;Failed to parse JIRA XML.&quot;, t );</span>
-<span class="fc" id="L133">        }</span>
-<span class="fc" id="L134">    }</span>
+        }
+<span class="nc" id="L134">    }</span>
 
     public void startElement( String namespaceURI, String sName, String qName, Attributes attrs )
         throws SAXException
     {
-<span class="fc bfc" id="L139" title="All 2 branches covered.">        if ( qName.equals( &quot;item&quot; ) )</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if ( qName.equals( &quot;item&quot; ) )</span>
         {
-<span class="fc" id="L141">            issue = new Issue();</span>
+<span class="nc" id="L141">            issue = new Issue();</span>
 
-<span class="fc" id="L143">            currentParent = &quot;item&quot;;</span>
-        }
-<span class="fc bfc" id="L145" title="All 2 branches covered.">        else if ( qName.equals( &quot;key&quot; ) )</span>
+<span class="nc" id="L143">            currentParent = &quot;item&quot;;</span>
+<span class="nc" id="L144">        }</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        else if ( qName.equals( &quot;key&quot; ) )</span>
         {
-<span class="fc" id="L147">            String id = attrs.getValue( &quot;id&quot; );</span>
-<span class="pc bpc" id="L148" title="1 of 2 branches missed.">            if ( id != null )</span>
+<span class="nc" id="L147">            String id = attrs.getValue( &quot;id&quot; );</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">            if ( id != null )</span>
             {
-<span class="fc" id="L150">                issue.setId( id.trim() );</span>
+<span class="nc" id="L150">                issue.setId( id.trim() );</span>
             }
-<span class="fc" id="L152">        }</span>
-<span class="fc bfc" id="L153" title="All 2 branches covered.">        else if ( qName.equals( &quot;build-info&quot; ) )</span>
+<span class="nc" id="L152">        }</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        else if ( qName.equals( &quot;build-info&quot; ) )</span>
         {
-<span class="fc" id="L155">            currentParent = &quot;build-info&quot;;</span>
+<span class="nc" id="L155">            currentParent = &quot;build-info&quot;;</span>
         }
-<span class="fc" id="L157">    }</span>
+<span class="nc" id="L157">    }</span>
 
     public void endElement( String namespaceURI, String sName, String qName )
         throws SAXException
     {
-<span class="fc bfc" id="L162" title="All 2 branches covered.">        if ( qName.equals( &quot;item&quot; ) )</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if ( qName.equals( &quot;item&quot; ) )</span>
         {
-<span class="fc" id="L164">            issueList.add( issue );</span>
+<span class="nc" id="L164">            issueList.add( issue );</span>
 
-<span class="fc" id="L166">            currentParent = &quot;&quot;;</span>
-        }
-<span class="fc bfc" id="L168" title="All 2 branches covered.">        else if ( qName.equals( &quot;key&quot; ) )</span>
+<span class="nc" id="L166">            currentParent = &quot;&quot;;</span>
+<span class="nc" id="L167">        }</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">        else if ( qName.equals( &quot;key&quot; ) )</span>
         {
-<span class="fc" id="L170">            issue.setKey( currentElement.toString().trim() );</span>
-        }
-<span class="fc bfc" id="L172" title="All 2 branches covered.">        else if ( qName.equals( &quot;summary&quot; ) )</span>
+<span class="nc" id="L170">            issue.setKey( currentElement.toString().trim() );</span>
+<span class="nc" id="L171">        }</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        else if ( qName.equals( &quot;summary&quot; ) )</span>
         {
-<span class="fc" id="L174">            issue.setSummary( currentElement.toString().trim() );</span>
-        }
-<span class="fc bfc" id="L176" title="All 2 branches covered.">        else if ( qName.equals( &quot;type&quot; ) )</span>
+<span class="nc" id="L174">            issue.setSummary( currentElement.toString().trim() );</span>
+<span class="nc" id="L175">        }</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        else if ( qName.equals( &quot;type&quot; ) )</span>
         {
-<span class="fc" id="L178">            issue.setType( currentElement.toString().trim() );</span>
-        }
-<span class="fc bfc" id="L180" title="All 4 branches covered.">        else if ( qName.equals( &quot;link&quot; ) &amp;&amp; currentParent.equals( &quot;item&quot; ) )</span>
+<span class="nc" id="L178">            issue.setType( currentElement.toString().trim() );</span>
+<span class="nc" id="L179">        }</span>
+<span class="nc bnc" id="L180" title="All 4 branches missed.">        else if ( qName.equals( &quot;link&quot; ) &amp;&amp; currentParent.equals( &quot;item&quot; ) )</span>
         {
-<span class="fc" id="L182">            issue.setLink( currentElement.toString().trim() );</span>
-        }
-<span class="fc bfc" id="L184" title="All 2 branches covered.">        else if ( qName.equals( &quot;priority&quot; ) )</span>
+<span class="nc" id="L182">            issue.setLink( currentElement.toString().trim() );</span>
+<span class="nc" id="L183">        }</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        else if ( qName.equals( &quot;priority&quot; ) )</span>
         {
-<span class="fc" id="L186">            issue.setPriority( currentElement.toString().trim() );</span>
-        }
-<span class="fc bfc" id="L188" title="All 2 branches covered.">        else if ( qName.equals( &quot;status&quot; ) )</span>
+<span class="nc" id="L186">            issue.setPriority( currentElement.toString().trim() );</span>
+<span class="nc" id="L187">        }</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">        else if ( qName.equals( &quot;status&quot; ) )</span>
         {
-<span class="fc" id="L190">            issue.setStatus( currentElement.toString().trim() );</span>
-        }
-<span class="fc bfc" id="L192" title="All 2 branches covered.">        else if ( qName.equals( &quot;resolution&quot; ) )</span>
+<span class="nc" id="L190">            issue.setStatus( currentElement.toString().trim() );</span>
+<span class="nc" id="L191">        }</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        else if ( qName.equals( &quot;resolution&quot; ) )</span>
         {
-<span class="fc" id="L194">            issue.setResolution( currentElement.toString().trim() );</span>
-        }
-<span class="fc bfc" id="L196" title="All 2 branches covered.">        else if ( qName.equals( &quot;assignee&quot; ) )</span>
+<span class="nc" id="L194">            issue.setResolution( currentElement.toString().trim() );</span>
+<span class="nc" id="L195">        }</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        else if ( qName.equals( &quot;assignee&quot; ) )</span>
         {
-<span class="fc" id="L198">            issue.setAssignee( currentElement.toString().trim() );</span>
-        }
-<span class="fc bfc" id="L200" title="All 2 branches covered.">        else if ( qName.equals( &quot;reporter&quot; ) )</span>
+<span class="nc" id="L198">            issue.setAssignee( currentElement.toString().trim() );</span>
+<span class="nc" id="L199">        }</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">        else if ( qName.equals( &quot;reporter&quot; ) )</span>
         {
-<span class="fc" id="L202">            issue.setReporter( currentElement.toString().trim() );</span>
-        }
-<span class="pc bpc" id="L204" title="1 of 4 branches missed.">        else if ( qName.equals( &quot;version&quot; ) &amp;&amp; currentParent.equals( &quot;item&quot; ) )</span>
+<span class="nc" id="L202">            issue.setReporter( currentElement.toString().trim() );</span>
+<span class="nc" id="L203">        }</span>
+<span class="nc bnc" id="L204" title="All 4 branches missed.">        else if ( qName.equals( &quot;version&quot; ) &amp;&amp; currentParent.equals( &quot;item&quot; ) )</span>
         {
 <span class="nc" id="L206">            issue.setVersion( currentElement.toString().trim() );</span>
-        }
-<span class="pc bpc" id="L208" title="1 of 4 branches missed.">        else if ( qName.equals( &quot;version&quot; ) &amp;&amp; currentParent.equals( &quot;build-info&quot; ) )</span>
+<span class="nc" id="L207">        }</span>
+<span class="nc bnc" id="L208" title="All 4 branches missed.">        else if ( qName.equals( &quot;version&quot; ) &amp;&amp; currentParent.equals( &quot;build-info&quot; ) )</span>
         {
-<span class="fc" id="L210">            jiraVersion = currentElement.toString().trim();</span>
-        }
-<span class="pc bpc" id="L212" title="1 of 2 branches missed.">        else if ( qName.equals( &quot;fixVersion&quot; ) )</span>
+<span class="nc" id="L210">            jiraVersion = currentElement.toString().trim();</span>
+<span class="nc" id="L211">        }</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        else if ( qName.equals( &quot;fixVersion&quot; ) )</span>
         {
 <span class="nc" id="L214">            issue.addFixVersion( currentElement.toString().trim() );</span>
-        }
-<span class="pc bpc" id="L216" title="1 of 2 branches missed.">        else if ( qName.equals( &quot;component&quot; ) )</span>
+<span class="nc" id="L215">        }</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        else if ( qName.equals( &quot;component&quot; ) )</span>
         {
 <span class="nc" id="L218">            issue.addComponent( currentElement.toString().trim() );</span>
-        }
-<span class="fc bfc" id="L220" title="All 2 branches covered.">        else if ( qName.equals( &quot;comment&quot; ) )</span>
+<span class="nc" id="L219">        }</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">        else if ( qName.equals( &quot;comment&quot; ) )</span>
         {
-<span class="fc" id="L222">            issue.addComment( currentElement.toString().trim() );</span>
-        }
-<span class="fc bfc" id="L224" title="All 4 branches covered.">        else if ( qName.equals( &quot;title&quot; ) &amp;&amp; currentParent.equals( &quot;item&quot; ) )</span>
+<span class="nc" id="L222">            issue.addComment( currentElement.toString().trim() );</span>
+<span class="nc" id="L223">        }</span>
+<span class="nc bnc" id="L224" title="All 4 branches missed.">        else if ( qName.equals( &quot;title&quot; ) &amp;&amp; currentParent.equals( &quot;item&quot; ) )</span>
         {
-<span class="fc" id="L226">            issue.setTitle( currentElement.toString().trim() );</span>
-        }
-<span class="pc bpc" id="L228" title="2 of 6 branches missed.">        else if ( qName.equals( &quot;created&quot; ) &amp;&amp; currentParent.equals( &quot;item&quot; ) &amp;&amp; sdf != null )</span>
+<span class="nc" id="L226">            issue.setTitle( currentElement.toString().trim() );</span>
+<span class="nc" id="L227">        }</span>
+<span class="nc bnc" id="L228" title="All 6 branches missed.">        else if ( qName.equals( &quot;created&quot; ) &amp;&amp; currentParent.equals( &quot;item&quot; ) &amp;&amp; sdf != null )</span>
         {
             try
             {
 <span class="nc" id="L232">                issue.setCreated( sdf.parse( currentElement.toString().trim() ) );</span>
-            }
+<span class="nc" id="L233">            }</span>
 <span class="nc" id="L234">            catch ( ParseException e )</span>
             {
 <span class="nc" id="L236">                log.warn( &quot;Element \&quot;Created\&quot;. &quot; + e.getMessage() + &quot;. Using the pattern \&quot;&quot; + datePattern + &quot;\&quot;&quot; );</span>
-<span class="nc" id="L237">            }</span>
-        }
-<span class="pc bpc" id="L239" title="2 of 6 branches missed.">        else if ( qName.equals( &quot;updated&quot; ) &amp;&amp; currentParent.equals( &quot;item&quot; ) &amp;&amp; sdf != null )</span>
+            }
+<span class="nc" id="L238">        }</span>
+<span class="nc bnc" id="L239" title="All 6 branches missed.">        else if ( qName.equals( &quot;updated&quot; ) &amp;&amp; currentParent.equals( &quot;item&quot; ) &amp;&amp; sdf != null )</span>
         {
             try
             {
 <span class="nc" id="L243">                issue.setUpdated( sdf.parse( currentElement.toString().trim() ) );</span>
-            }
+<span class="nc" id="L244">            }</span>
 <span class="nc" id="L245">            catch ( ParseException e )</span>
             {
 <span class="nc" id="L247">                log.warn( &quot;Element \&quot;Updated\&quot;. &quot; + e.getMessage() + &quot;. Using the pattern \&quot;&quot; + datePattern + &quot;\&quot;&quot; );</span>
-<span class="nc" id="L248">            }</span>
+            }
         }
 
-<span class="fc" id="L251">        currentElement.setLength( 0 );</span>
-<span class="fc" id="L252">    }</span>
+<span class="nc" id="L251">        currentElement.setLength( 0 );</span>
+<span class="nc" id="L252">    }</span>
 
     public void characters( char[] buf, int offset, int len )
         throws SAXException
     {
-<span class="fc" id="L257">        currentElement.append( buf, offset, len );</span>
-<span class="fc" id="L258">    }</span>
+<span class="nc" id="L257">        currentElement.append( buf, offset, len );</span>
+<span class="nc" id="L258">    }</span>
 
     public List&lt;Issue&gt; getIssueList()
     {
-<span class="fc" id="L262">        return Collections.unmodifiableList( this.issueList );</span>
+<span class="nc" id="L262">        return Collections.unmodifiableList( this.issueList );</span>
     }
 
     public String getJiraVersion()
     {
-<span class="fc" id="L267">        return jiraVersion;</span>
+<span class="nc" id="L267">        return jiraVersion;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

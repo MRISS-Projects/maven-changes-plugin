@@ -66,19 +66,19 @@ public class Issue
 
     private String version;
 
-    public Issue()
-<span class="fc" id="L70">    {</span>
-<span class="fc" id="L71">    }</span>
+<span class="nc" id="L69">    public Issue()</span>
+    {
+<span class="nc" id="L71">    }</span>
 
     public String getAssignee()
     {
-<span class="fc" id="L75">        return assignee;</span>
+<span class="nc" id="L75">        return assignee;</span>
     }
 
     public void setAssignee( String assignee )
     {
-<span class="fc" id="L80">        this.assignee = assignee;</span>
-<span class="fc" id="L81">    }</span>
+<span class="nc" id="L80">        this.assignee = assignee;</span>
+<span class="nc" id="L81">    }</span>
 
     public List&lt;String&gt; getComments()
     {
@@ -87,12 +87,12 @@ public class Issue
 
     public void addComment( String comment )
     {
-<span class="fc bfc" id="L90" title="All 2 branches covered.">        if ( comments == null )</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if ( comments == null )</span>
         {
-<span class="fc" id="L92">            comments = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L92">            comments = new ArrayList&lt;String&gt;();</span>
         }
-<span class="fc" id="L94">        comments.add( comment );</span>
-<span class="fc" id="L95">    }</span>
+<span class="nc" id="L94">        comments.add( comment );</span>
+<span class="nc" id="L95">    }</span>
 
     public List&lt;String&gt; getComponents()
     {
@@ -110,57 +110,57 @@ public class Issue
 
     public Date getCreated()
     {
-<span class="fc" id="L113">        return created;</span>
+<span class="nc" id="L113">        return created;</span>
     }
 
     public void setCreated( Date created )
     {
-<span class="fc" id="L118">        this.created = created;</span>
-<span class="fc" id="L119">    }</span>
+<span class="nc" id="L118">        this.created = created;</span>
+<span class="nc" id="L119">    }</span>
 
     public List&lt;String&gt; getFixVersions()
     {
-<span class="fc" id="L123">        return fixVersions;</span>
+<span class="nc" id="L123">        return fixVersions;</span>
     }
 
     public void addFixVersion( String fixVersion )
     {
-<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        if ( fixVersions == null )</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if ( fixVersions == null )</span>
         {
-<span class="fc" id="L130">            fixVersions = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L130">            fixVersions = new ArrayList&lt;String&gt;();</span>
         }
-<span class="fc" id="L132">        fixVersions.add( fixVersion );</span>
-<span class="fc" id="L133">    }</span>
+<span class="nc" id="L132">        fixVersions.add( fixVersion );</span>
+<span class="nc" id="L133">    }</span>
 
     public String getId()
     {
-<span class="fc" id="L137">        return id;</span>
+<span class="nc" id="L137">        return id;</span>
     }
 
     public void setId( String id )
     {
-<span class="fc" id="L142">        this.id = id;</span>
-<span class="fc" id="L143">    }</span>
+<span class="nc" id="L142">        this.id = id;</span>
+<span class="nc" id="L143">    }</span>
 
     public String getKey()
     {
-<span class="fc" id="L147">        return key;</span>
+<span class="nc" id="L147">        return key;</span>
     }
 
     public void setKey( String key )
     {
-<span class="fc" id="L152">        this.key = key;</span>
-<span class="fc" id="L153">    }</span>
+<span class="nc" id="L152">        this.key = key;</span>
+<span class="nc" id="L153">    }</span>
 
     public String getLink()
     {
-<span class="fc" id="L157">        return link;</span>
+<span class="nc" id="L157">        return link;</span>
     }
 
     public void setLink( String link )
     {
-<span class="fc" id="L162">        this.link = link;</span>
-<span class="fc" id="L163">    }</span>
+<span class="nc" id="L162">        this.link = link;</span>
+<span class="nc" id="L163">    }</span>
 
     public String getPriority()
     {
@@ -169,82 +169,82 @@ public class Issue
 
     public void setPriority( String priority )
     {
-<span class="fc" id="L172">        this.priority = priority;</span>
-<span class="fc" id="L173">    }</span>
+<span class="nc" id="L172">        this.priority = priority;</span>
+<span class="nc" id="L173">    }</span>
 
     public String getReporter()
     {
-<span class="fc" id="L177">        return reporter;</span>
+<span class="nc" id="L177">        return reporter;</span>
     }
 
     public void setReporter( String reporter )
     {
-<span class="fc" id="L182">        this.reporter = reporter;</span>
-<span class="fc" id="L183">    }</span>
+<span class="nc" id="L182">        this.reporter = reporter;</span>
+<span class="nc" id="L183">    }</span>
 
     public String getResolution()
     {
-<span class="fc" id="L187">        return resolution;</span>
+<span class="nc" id="L187">        return resolution;</span>
     }
 
     public void setResolution( String resolution )
     {
-<span class="fc" id="L192">        this.resolution = resolution;</span>
-<span class="fc" id="L193">    }</span>
+<span class="nc" id="L192">        this.resolution = resolution;</span>
+<span class="nc" id="L193">    }</span>
 
     public String getStatus()
     {
-<span class="fc" id="L197">        return status;</span>
+<span class="nc" id="L197">        return status;</span>
     }
 
     public void setStatus( String status )
     {
-<span class="fc" id="L202">        this.status = status;</span>
-<span class="fc" id="L203">    }</span>
+<span class="nc" id="L202">        this.status = status;</span>
+<span class="nc" id="L203">    }</span>
 
     public String getSummary()
     {
-<span class="fc" id="L207">        return summary;</span>
+<span class="nc" id="L207">        return summary;</span>
     }
 
     public void setSummary( String summary )
     {
-<span class="fc" id="L212">        this.summary = summary;</span>
-<span class="fc" id="L213">    }</span>
+<span class="nc" id="L212">        this.summary = summary;</span>
+<span class="nc" id="L213">    }</span>
 
     public String getTitle()
     {
-<span class="fc" id="L217">        return title;</span>
+<span class="nc" id="L217">        return title;</span>
     }
 
     public void setTitle( String title )
     {
-<span class="fc" id="L222">        this.title = title;</span>
-<span class="fc" id="L223">    }</span>
+<span class="nc" id="L222">        this.title = title;</span>
+<span class="nc" id="L223">    }</span>
 
     public String getType()
     {
-<span class="fc" id="L227">        return type;</span>
+<span class="nc" id="L227">        return type;</span>
     }
 
     public void setType( String type )
     {
-<span class="fc" id="L232">        this.type = type;</span>
-<span class="fc" id="L233">    }</span>
+<span class="nc" id="L232">        this.type = type;</span>
+<span class="nc" id="L233">    }</span>
 
     public Date getUpdated()
     {
-<span class="fc" id="L237">        return updated;</span>
+<span class="nc" id="L237">        return updated;</span>
     }
 
     public void setUpdated( Date updated )
     {
-<span class="fc" id="L242">        this.updated = updated;</span>
-<span class="fc" id="L243">    }</span>
+<span class="nc" id="L242">        this.updated = updated;</span>
+<span class="nc" id="L243">    }</span>
 
     public String getVersion()
     {
-<span class="fc" id="L247">        return version;</span>
+<span class="nc" id="L247">        return version;</span>
     }
 
     public void setVersion( String version )
@@ -254,8 +254,8 @@ public class Issue
 
     public String toString()
     {
-<span class="fc" id="L257">        return this.getClass().getSimpleName() + &quot;[id='&quot; + this.getId() + &quot;'&quot; + &quot;, title='&quot; + this.getTitle() + &quot;'&quot;</span>
-<span class="fc" id="L258">            + &quot;, fixVersions='&quot; + this.getFixVersions() + &quot;'&quot; + &quot;]&quot;;</span>
+<span class="nc" id="L257">        return this.getClass().getSimpleName() + &quot;[id='&quot; + this.getId() + &quot;'&quot; + &quot;, title='&quot; + this.getTitle() + &quot;'&quot;</span>
+<span class="nc" id="L258">            + &quot;, fixVersions='&quot; + this.getFixVersions() + &quot;'&quot; + &quot;]&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

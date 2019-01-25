@@ -151,7 +151,7 @@ import org.apache.xmlrpc.XmlRpcException;
         {
             // This can happen if the user has configured column names and they are all invalid
 <span class="nc" id="L153">            throw new MavenReportException( &quot;maven-changes-plugin: None of the configured columnNames '&quot; + columnNames</span>
-                + &quot;' are valid.&quot; );
+<span class="nc" id="L154">                + &quot;' are valid.&quot; );</span>
         }
 
         try
@@ -169,12 +169,12 @@ import org.apache.xmlrpc.XmlRpcException;
             {
 <span class="nc" id="L170">                report.doGenerateEmptyReport( getBundle( locale ), getSink() );</span>
 <span class="nc" id="L171">                getLog().warn( &quot;No ticket has matched.&quot; );</span>
-            }
+<span class="nc" id="L172">            }</span>
             else
             {
 <span class="nc" id="L175">                report.doGenerateReport( getBundle( locale ), getSink(), issueList );</span>
             }
-        }
+<span class="nc" id="L177">        }</span>
 <span class="nc" id="L178">        catch ( MalformedURLException e )</span>
         {
             // Rethrow this error so that the build fails
@@ -188,7 +188,7 @@ import org.apache.xmlrpc.XmlRpcException;
 <span class="nc" id="L188">        catch ( Exception e )</span>
         {
 <span class="nc" id="L190">            e.printStackTrace();</span>
-<span class="nc" id="L191">        }</span>
+        }
 <span class="nc" id="L192">    }</span>
 
     public String getDescription( Locale locale )
