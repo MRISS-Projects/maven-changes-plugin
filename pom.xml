@@ -692,6 +692,7 @@
                         <version>1.6.0</version>
                         <executions>
                             <execution>
+                                <id>replacing-readme</id>
                                 <phase>process-sources</phase>
                                 <goals>
                                     <goal>replace</goal>
