@@ -88,8 +88,8 @@ import com.fasterxml.jackson.databind.MappingJsonFactory;
     {
         private static final long serialVersionUID = 6970088805270319624L;
 
-<span class="nc" id="L91">        public NoRest()</span>
-        {
+        public NoRest()
+<span class="nc" id="L92">        {</span>
             // blank on purpose.
 <span class="nc" id="L94">        }</span>
 
@@ -99,8 +99,8 @@ import com.fasterxml.jackson.databind.MappingJsonFactory;
 <span class="nc" id="L99">        }</span>
     }
 
-<span class="nc" id="L102">    public RestJiraDownloader()</span>
-    {
+    public RestJiraDownloader()
+<span class="nc" id="L103">    {</span>
 <span class="nc" id="L104">        jsonFactory = new MappingJsonFactory();</span>
         // 2012-07-17T06:26:47.723-0500
 <span class="nc" id="L106">        dateFormat = new SimpleDateFormat( &quot;yyyy-MM-dd'T'HH:mm:ss.SSSZ&quot; );</span>
@@ -192,7 +192,7 @@ import com.fasterxml.jackson.databind.MappingJsonFactory;
                 {
 <span class="nc" id="L193">                    getLog().error( messages.get( mx ).asText() );</span>
                 }
-<span class="nc" id="L195">            }</span>
+            }
             else
             {
 <span class="nc" id="L198">                JsonNode message = errorTree.get( &quot;message&quot; );</span>
@@ -209,9 +209,9 @@ import com.fasterxml.jackson.databind.MappingJsonFactory;
         throws IOException, MojoExecutionException, MojoFailureException
     {
 <span class="nc" id="L211">        resolveList( resolvedComponentIds, client, &quot;components&quot;, component, &quot;/rest/api/2/project/{key}/components&quot;,</span>
-<span class="nc" id="L212">                     jiraProject );</span>
+                     jiraProject );
 <span class="nc" id="L213">        resolveList( resolvedFixVersionIds, client, &quot;fixVersions&quot;, fixVersionIds, &quot;/rest/api/2/project/{key}/versions&quot;,</span>
-<span class="nc" id="L214">                     jiraProject );</span>
+                     jiraProject );
 <span class="nc" id="L215">        resolveList( resolvedStatusIds, client, &quot;status&quot;, statusIds, &quot;/rest/api/2/status&quot; );</span>
 <span class="nc" id="L216">        resolveList( resolvedResolutionIds, client, &quot;resolution&quot;, resolutionIds, &quot;/rest/api/2/resolution&quot; );</span>
 <span class="nc" id="L217">        resolveList( resolvedTypeIds, client, &quot;type&quot;, typeIds, &quot;/rest/api/2/issuetype&quot; );</span>
@@ -230,7 +230,7 @@ import com.fasterxml.jackson.databind.MappingJsonFactory;
         {
 <span class="nc" id="L231">            client.replacePath( &quot;/&quot; );</span>
 <span class="nc" id="L232">            client.path( listRestUrlPattern, listUrlArgs );</span>
-<span class="nc" id="L233">        }</span>
+        }
         else
         {
 <span class="nc" id="L236">            client.replacePath( listRestUrlPattern );</span>
@@ -443,11 +443,11 @@ import com.fasterxml.jackson.databind.MappingJsonFactory;
             try
             {
 <span class="nc" id="L445">                issue.setCreated( parseDate( val ) );</span>
-<span class="nc" id="L446">            }</span>
+            }
 <span class="nc" id="L447">            catch ( ParseException e )</span>
             {
 <span class="nc" id="L449">                getLog().warn( &quot;Invalid created date &quot; + val.asText() );</span>
-            }
+<span class="nc" id="L450">            }</span>
         }
 <span class="nc" id="L452">    }</span>
 
@@ -458,11 +458,11 @@ import com.fasterxml.jackson.databind.MappingJsonFactory;
             try
             {
 <span class="nc" id="L460">                issue.setUpdated( parseDate( val ) );</span>
-<span class="nc" id="L461">            }</span>
+            }
 <span class="nc" id="L462">            catch ( ParseException e )</span>
             {
 <span class="nc" id="L464">                getLog().warn( &quot;Invalid updated date &quot; + val.asText() );</span>
-            }
+<span class="nc" id="L465">            }</span>
         }
 <span class="nc" id="L467">    }</span>
 

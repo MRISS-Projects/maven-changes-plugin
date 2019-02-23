@@ -106,11 +106,11 @@ import org.codehaus.plexus.util.StringUtils;
         try
         {
 <span class="nc" id="L108">            config.setServerURL( new URL( getUrl() + &quot;/login/xmlrpc&quot; ) );</span>
-<span class="nc" id="L109">        }</span>
+        }
 <span class="nc" id="L110">        catch ( MalformedURLException e )</span>
         {
 <span class="nc" id="L112">            throw new MalformedURLException( &quot;The Trac URL is incorrect.&quot; );</span>
-        }
+<span class="nc" id="L113">        }</span>
 <span class="nc" id="L114">        config.setBasicUserName( tracUser );</span>
 <span class="nc" id="L115">        config.setBasicPassword( tracPassword );</span>
 
@@ -142,11 +142,11 @@ import org.codehaus.plexus.util.StringUtils;
 <span class="nc" id="L142">                ticketGetResult = (Object[]) client.execute( &quot;ticket.get&quot;, params );</span>
 <span class="nc" id="L143">                issueList.add( createIssue( ticketGetResult ) );</span>
             }
-<span class="nc" id="L145">        }</span>
+        }
 <span class="nc" id="L146">        catch ( XmlRpcException e )</span>
         {
 <span class="nc" id="L148">            throw new XmlRpcException( &quot;XmlRpc Error.&quot;, e );</span>
-        }
+<span class="nc" id="L149">        }</span>
 <span class="nc" id="L150">        return issueList;</span>
     }
 

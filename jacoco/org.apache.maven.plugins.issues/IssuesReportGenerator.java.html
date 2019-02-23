@@ -50,10 +50,10 @@ public class IssuesReportGenerator
     /**
      * @param includedColumns The id:s of the columns to include in the report
      */
-<span class="nc" id="L53">    public IssuesReportGenerator( int[] includedColumns )</span>
-    {
-<span class="nc" id="L55">        this.columns = includedColumns;</span>
-<span class="nc" id="L56">    }</span>
+    public IssuesReportGenerator( int[] includedColumns )
+<span class="fc" id="L54">    {</span>
+<span class="fc" id="L55">        this.columns = includedColumns;</span>
+<span class="fc" id="L56">    }</span>
 
     public void doGenerateEmptyReport( ResourceBundle bundle, Sink sink )
     {
@@ -70,36 +70,36 @@ public class IssuesReportGenerator
 
     public void doGenerateReport( ResourceBundle bundle, Sink sink, List&lt;Issue&gt; issueList )
     {
-<span class="nc" id="L73">        sinkBeginReport( sink, bundle );</span>
+<span class="fc" id="L73">        sinkBeginReport( sink, bundle );</span>
 
-<span class="nc" id="L75">        constructHeaderRow( sink, issueList, bundle );</span>
+<span class="fc" id="L75">        constructHeaderRow( sink, issueList, bundle );</span>
 
         // Always use the international date format as recommended by the W3C:
         // http://www.w3.org/QA/Tips/iso-date
         // This date format is used in the Swedish locale.
-<span class="nc" id="L80">        constructDetailRows( sink, issueList, bundle, new Locale( &quot;sv&quot; ) );</span>
+<span class="fc" id="L80">        constructDetailRows( sink, issueList, bundle, new Locale( &quot;sv&quot; ) );</span>
 
-<span class="nc" id="L82">        sinkEndReport( sink );</span>
-<span class="nc" id="L83">    }</span>
+<span class="fc" id="L82">        sinkEndReport( sink );</span>
+<span class="fc" id="L83">    }</span>
 
     private void constructHeaderRow( Sink sink, List&lt;Issue&gt; issueList, ResourceBundle bundle )
     {
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        if ( issueList == null )</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if ( issueList == null )</span>
         {
 <span class="nc" id="L89">            return;</span>
         }
 
-<span class="nc" id="L92">        sink.table();</span>
+<span class="fc" id="L92">        sink.table();</span>
 
-<span class="nc" id="L94">        sink.tableRow();</span>
+<span class="fc" id="L94">        sink.tableRow();</span>
 
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        for ( int column : columns )</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        for ( int column : columns )</span>
         {
-<span class="nc bnc" id="L98" title="All 15 branches missed.">            switch ( column )</span>
+<span class="pc bpc" id="L98" title="10 of 15 branches missed.">            switch ( column )</span>
             {
                 case IssuesReportHelper.COLUMN_ASSIGNEE:
-<span class="nc" id="L101">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.assignee&quot; ) );</span>
-<span class="nc" id="L102">                    break;</span>
+<span class="fc" id="L101">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.assignee&quot; ) );</span>
+<span class="fc" id="L102">                    break;</span>
 
                 case IssuesReportHelper.COLUMN_COMPONENT:
 <span class="nc" id="L105">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.component&quot; ) );</span>
@@ -118,8 +118,8 @@ public class IssuesReportGenerator
 <span class="nc" id="L118">                    break;</span>
 
                 case IssuesReportHelper.COLUMN_KEY:
-<span class="nc" id="L121">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.key&quot; ) );</span>
-<span class="nc" id="L122">                    break;</span>
+<span class="fc" id="L121">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.key&quot; ) );</span>
+<span class="fc" id="L122">                    break;</span>
 
                 case IssuesReportHelper.COLUMN_PRIORITY:
 <span class="nc" id="L125">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.priority&quot; ) );</span>
@@ -130,16 +130,16 @@ public class IssuesReportGenerator
 <span class="nc" id="L130">                    break;</span>
 
                 case IssuesReportHelper.COLUMN_RESOLUTION:
-<span class="nc" id="L133">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.resolution&quot; ) );</span>
-<span class="nc" id="L134">                    break;</span>
+<span class="fc" id="L133">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.resolution&quot; ) );</span>
+<span class="fc" id="L134">                    break;</span>
 
                 case IssuesReportHelper.COLUMN_STATUS:
-<span class="nc" id="L137">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.status&quot; ) );</span>
-<span class="nc" id="L138">                    break;</span>
+<span class="fc" id="L137">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.status&quot; ) );</span>
+<span class="fc" id="L138">                    break;</span>
 
                 case IssuesReportHelper.COLUMN_SUMMARY:
-<span class="nc" id="L141">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.summary&quot; ) );</span>
-<span class="nc" id="L142">                    break;</span>
+<span class="fc" id="L141">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.summary&quot; ) );</span>
+<span class="fc" id="L142">                    break;</span>
 
                 case IssuesReportHelper.COLUMN_TYPE:
 <span class="nc" id="L145">                    sinkHeader( sink, bundle.getString( &quot;report.issues.label.type&quot; ) );</span>
@@ -159,30 +159,30 @@ public class IssuesReportGenerator
             }
         }
 
-<span class="nc" id="L162">        sink.tableRow_();</span>
-<span class="nc" id="L163">    }</span>
+<span class="fc" id="L162">        sink.tableRow_();</span>
+<span class="fc" id="L163">    }</span>
 
     private void constructDetailRows( Sink sink, List&lt;Issue&gt; issueList, ResourceBundle bundle, Locale locale )
     {
-<span class="nc bnc" id="L167" title="All 2 branches missed.">        if ( issueList == null )</span>
+<span class="pc bpc" id="L167" title="1 of 2 branches missed.">        if ( issueList == null )</span>
         {
 <span class="nc" id="L169">            return;</span>
         }
 
-<span class="nc bnc" id="L172" title="All 2 branches missed.">        for ( Issue issue : issueList )</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        for ( Issue issue : issueList )</span>
         {
             // Use a DateFormat based on the Locale
-<span class="nc" id="L175">            DateFormat df = DateFormat.getDateInstance( DateFormat.SHORT, locale );</span>
+<span class="fc" id="L175">            DateFormat df = DateFormat.getDateInstance( DateFormat.SHORT, locale );</span>
 
-<span class="nc" id="L177">            sink.tableRow();</span>
+<span class="fc" id="L177">            sink.tableRow();</span>
 
-<span class="nc bnc" id="L179" title="All 2 branches missed.">            for ( int column : columns )</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">            for ( int column : columns )</span>
             {
-<span class="nc bnc" id="L181" title="All 15 branches missed.">                switch ( column )</span>
+<span class="pc bpc" id="L181" title="10 of 15 branches missed.">                switch ( column )</span>
                 {
                     case IssuesReportHelper.COLUMN_ASSIGNEE:
-<span class="nc" id="L184">                        sinkCell( sink, issue.getAssignee() );</span>
-<span class="nc" id="L185">                        break;</span>
+<span class="fc" id="L184">                        sinkCell( sink, issue.getAssignee() );</span>
+<span class="fc" id="L185">                        break;</span>
 
                     case IssuesReportHelper.COLUMN_COMPONENT:
 <span class="nc" id="L188">                        sinkCell( sink, IssuesReportHelper.printValues( issue.getComponents() ) );</span>
@@ -210,12 +210,12 @@ public class IssuesReportGenerator
 <span class="nc" id="L210">                        break;</span>
 
                     case IssuesReportHelper.COLUMN_KEY:
-<span class="nc" id="L213">                        sink.tableCell();</span>
-<span class="nc" id="L214">                        sink.link( issue.getLink() );</span>
-<span class="nc" id="L215">                        sink.text( issue.getKey() );</span>
-<span class="nc" id="L216">                        sink.link_();</span>
-<span class="nc" id="L217">                        sink.tableCell_();</span>
-<span class="nc" id="L218">                        break;</span>
+<span class="fc" id="L213">                        sink.tableCell();</span>
+<span class="fc" id="L214">                        sink.link( issue.getLink() );</span>
+<span class="fc" id="L215">                        sink.text( issue.getKey() );</span>
+<span class="fc" id="L216">                        sink.link_();</span>
+<span class="fc" id="L217">                        sink.tableCell_();</span>
+<span class="fc" id="L218">                        break;</span>
 
                     case IssuesReportHelper.COLUMN_PRIORITY:
 <span class="nc" id="L221">                        sinkCell( sink, issue.getPriority() );</span>
@@ -226,16 +226,16 @@ public class IssuesReportGenerator
 <span class="nc" id="L226">                        break;</span>
 
                     case IssuesReportHelper.COLUMN_RESOLUTION:
-<span class="nc" id="L229">                        sinkCell( sink, issue.getResolution() );</span>
-<span class="nc" id="L230">                        break;</span>
+<span class="fc" id="L229">                        sinkCell( sink, issue.getResolution() );</span>
+<span class="fc" id="L230">                        break;</span>
 
                     case IssuesReportHelper.COLUMN_STATUS:
-<span class="nc" id="L233">                        sinkCell( sink, issue.getStatus() );</span>
-<span class="nc" id="L234">                        break;</span>
+<span class="fc" id="L233">                        sinkCell( sink, issue.getStatus() );</span>
+<span class="fc" id="L234">                        break;</span>
 
                     case IssuesReportHelper.COLUMN_SUMMARY:
-<span class="nc" id="L237">                        sinkCell( sink, issue.getSummary() );</span>
-<span class="nc" id="L238">                        break;</span>
+<span class="fc" id="L237">                        sinkCell( sink, issue.getSummary() );</span>
+<span class="fc" id="L238">                        break;</span>
 
                     case IssuesReportHelper.COLUMN_TYPE:
 <span class="nc" id="L241">                        sinkCell( sink, issue.getType() );</span>
@@ -260,10 +260,10 @@ public class IssuesReportGenerator
                 }
             }
 
-<span class="nc" id="L263">            sink.tableRow_();</span>
-        }
+<span class="fc" id="L263">            sink.tableRow_();</span>
+<span class="fc" id="L264">        }</span>
 
-<span class="nc" id="L266">        sink.table_();</span>
-<span class="nc" id="L267">    }</span>
+<span class="fc" id="L266">        sink.table_();</span>
+<span class="fc" id="L267">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

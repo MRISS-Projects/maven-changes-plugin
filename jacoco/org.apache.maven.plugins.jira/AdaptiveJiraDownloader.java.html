@@ -43,14 +43,14 @@ import org.apache.maven.plugins.issues.Issue;
         try
         {
 <span class="nc" id="L45">            effectiveDownloader.doExecute();</span>
-<span class="nc" id="L46">        }</span>
+        }
 <span class="nc" id="L47">        catch ( RestJiraDownloader.NoRest nre )</span>
         {
 <span class="nc" id="L49">            getLog().info( &quot;Falling back to RSS for issue download: &quot; + nre.getMessage() );</span>
 <span class="nc" id="L50">            effectiveDownloader = new ClassicJiraDownloader();</span>
 <span class="nc" id="L51">            copySettings( effectiveDownloader );</span>
 <span class="nc" id="L52">            effectiveDownloader.doExecute();</span>
-        }
+<span class="nc" id="L53">        }</span>
 <span class="nc" id="L54">    }</span>
 
     private void copySettings( AbstractJiraDownloader target )

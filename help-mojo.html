@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="Date-Revision-yyyymmdd" content="20190223" />
     <meta http-equiv="Content-Language" content="en" />
-    <title>Apache Maven Changes Plugin &#x2013; changes:changes-check</title>
+    <title>Apache Maven Changes Plugin &#x2013; changes:help</title>
     <link rel="stylesheet" href="./css/apache-maven-fluido-1.5.min.css" />
     <link rel="stylesheet" href="./css/site.css" />
     <link rel="stylesheet" href="./css/print.css" media="print" />
@@ -74,7 +74,7 @@
         Apache Maven Changes Plugin</a>
                     <span class="divider">/</span>
       </li>
-        <li class="active ">changes:changes-check</li>
+        <li class="active ">changes:help</li>
         
               
                   <li id="publishDate" class="pull-right"><span class="divider">|</span> Last Published: 2019-02-23</li>
@@ -427,67 +427,24 @@
             
   
     <div class="section">
-<h2><a name="changes:changes-check"></a>changes:changes-check</h2>
+<h2><a name="changes:help"></a>changes:help</h2>
       
 <p><b>Full name</b>:</p>
       
-<p>org.apache.maven.plugins:maven-changes-plugin:2.12.3:changes-check</p>
+<p>org.apache.maven.plugins:maven-changes-plugin:2.12.3:help</p>
       
 <p><b>Description</b>:</p>
       
-<div>Goal which checks that the changes.xml file has the necessary data
-to generate an announcement or a report for the current release.</div>
+<div>Display help information on maven-changes-plugin.<br />
+Call <tt>mvn changes:help -Ddetail=true
+-Dgoal=&lt;goal-name&gt;</tt> to display parameter details.</div>
       
 <p><b>Attributes</b>:</p>
       
 <ul>
         
-<li>Requires a Maven project to be executed.</li>
-        
 <li>The goal is thread-safe and supports parallel builds.</li>
-        
-<li>Since version: <tt>2.4</tt>.</li>
       </ul>
-      
-<div class="section">
-<h3><a name="Required_Parameters"></a>Required Parameters</h3>
-        
-<table class="table table-striped" border="0">
-          
-<tr class="a">
-            
-<th>Name</th>
-            
-<th>Type</th>
-            
-<th>Since</th>
-            
-<th>Description</th>
-          </tr>
-          
-<tr class="b">
-            
-<td><b><a href="#basedir">basedir</a></b></td>
-            
-<td><tt>String</tt></td>
-            
-<td><tt>2.1</tt></td>
-            
-<td>The current project base directory.<br /><b>User property is</b>: <tt>basedir</tt>.</td>
-          </tr>
-          
-<tr class="a">
-            
-<td><b><a href="#version">version</a></b></td>
-            
-<td><tt>String</tt></td>
-            
-<td><tt>2.4</tt></td>
-            
-<td>Version of the artifact.<br /><b>Default value is</b>: <tt>${project.version}</tt>.<br /><b>User property is</b>: <tt>changes.version</tt>.</td>
-          </tr>
-        </table>
-      </div>
       
 <div class="section">
 <h3><a name="Optional_Parameters"></a>Optional Parameters</h3>
@@ -507,73 +464,48 @@ to generate an announcement or a report for the current release.</div>
           
 <tr class="b">
             
-<td><b><a href="#releaseDateFormat">releaseDateFormat</a></b></td>
+<td><b><a href="#detail">detail</a></b></td>
             
-<td><tt>String</tt></td>
+<td><tt>boolean</tt></td>
             
-<td><tt>2.4</tt></td>
+<td><tt>-</tt></td>
             
-<td>The format that a correct release date should have. This value will
-be used as a pattern to try to parse a date.<br /><b>Default value is</b>: <tt>yyyy-MM-dd</tt>.<br /><b>User property is</b>: <tt>changes.releaseDateFormat</tt>.</td>
+<td>If <tt>true</tt>, display all settable properties for each
+goal.<br /><b>Default value is</b>: <tt>false</tt>.<br /><b>User property is</b>: <tt>detail</tt>.</td>
           </tr>
           
 <tr class="a">
             
-<td><b><a href="#releaseDateLocale">releaseDateLocale</a></b></td>
+<td><b><a href="#goal">goal</a></b></td>
             
 <td><tt>String</tt></td>
             
-<td><tt>2.10</tt></td>
+<td><tt>-</tt></td>
             
-<td>The locale that a correct release date should have. This value will
-be used as a locale to try to parse a date.<br /><b>User property is</b>: <tt>changes.releaseDateLocale</tt>.</td>
+<td>The name of the goal for which to show help. If unspecified, all
+goals will be displayed.<br /><b>User property is</b>: <tt>goal</tt>.</td>
           </tr>
           
 <tr class="b">
             
-<td><b><a href="#removeSnapshotSuffix">removeSnapshotSuffix</a></b></td>
+<td><b><a href="#indentSize">indentSize</a></b></td>
             
-<td><tt>boolean</tt></td>
+<td><tt>int</tt></td>
             
-<td><tt>2.12.3</tt></td>
+<td><tt>-</tt></td>
             
-<td>If &quot;-SNAPSHOT&quot; suffix should be removed when searching for issues.<br /><b>Default value is</b>: <tt>true</tt>.<br /><b>User property is</b>: <tt>changes.removeSnapshotSuffix</tt>.</td>
+<td>The number of spaces per indentation level, should be positive.<br /><b>Default value is</b>: <tt>2</tt>.<br /><b>User property is</b>: <tt>indentSize</tt>.</td>
           </tr>
           
 <tr class="a">
             
-<td><b><a href="#runOnlyAtExecutionRoot">runOnlyAtExecutionRoot</a></b></td>
+<td><b><a href="#lineLength">lineLength</a></b></td>
             
-<td><tt>boolean</tt></td>
+<td><tt>int</tt></td>
             
-<td><tt>2.9</tt></td>
+<td><tt>-</tt></td>
             
-<td>This will cause the execution to be run only at the top of a given
-module tree. That is, run in the project contained in the same
-folder where the mvn execution was launched.<br /><b>Default value is</b>: <tt>false</tt>.<br /><b>User property is</b>: <tt>changes.runOnlyAtExecutionRoot</tt>.</td>
-          </tr>
-          
-<tr class="b">
-            
-<td><b><a href="#skipSnapshots">skipSnapshots</a></b></td>
-            
-<td><tt>boolean</tt></td>
-            
-<td><tt>2.7</tt></td>
-            
-<td>Flag controlling snapshot processing. If set, versions ending with
-<tt>-SNAPSHOT</tt> won't be checked.<br /><b>Default value is</b>: <tt>false</tt>.<br /><b>User property is</b>: <tt>changes.skipSnapshots</tt>.</td>
-          </tr>
-          
-<tr class="a">
-            
-<td><b><a href="#xmlPath">xmlPath</a></b></td>
-            
-<td><tt>File</tt></td>
-            
-<td><tt>2.4</tt></td>
-            
-<td>The path of the <tt>changes.xml</tt> file that will be checked.<br /><b>Default value is</b>: <tt>src/changes/changes.xml</tt>.<br /><b>User property is</b>: <tt>changes.xmlPath</tt>.</td>
+<td>The maximum length of a display line, should be positive.<br /><b>Default value is</b>: <tt>80</tt>.<br /><b>User property is</b>: <tt>lineLength</tt>.</td>
           </tr>
         </table>
       </div>
@@ -581,134 +513,61 @@ folder where the mvn execution was launched.<br /><b>Default value is</b>: <tt>f
 <div class="section">
 <h3><a name="Parameter_Details"></a>Parameter Details</h3>
         
-<p><b><a name="basedir">basedir</a>:</b></p>
+<p><b><a name="detail">detail</a>:</b></p>
         
-<div>The current project base directory.</div>
-        
-<ul>
-          
-<li><b>Type</b>: <tt>java.lang.String</tt></li>
-          
-<li><b>Since</b>: <tt>2.1</tt></li>
-          
-<li><b>Required</b>: <tt>Yes</tt></li>
-          
-<li><b>User Property</b>: <tt>basedir</tt></li>
-        </ul><hr />
-<p><b><a name="releaseDateFormat">releaseDateFormat</a>:</b></p>
-        
-<div>The format that a correct release date should have. This value will
-be used as a pattern to try to parse a date.</div>
-        
-<ul>
-          
-<li><b>Type</b>: <tt>java.lang.String</tt></li>
-          
-<li><b>Since</b>: <tt>2.4</tt></li>
-          
-<li><b>Required</b>: <tt>No</tt></li>
-          
-<li><b>User Property</b>: <tt>changes.releaseDateFormat</tt></li>
-          
-<li><b>Default</b>: <tt>yyyy-MM-dd</tt></li>
-        </ul><hr />
-<p><b><a name="releaseDateLocale">releaseDateLocale</a>:</b></p>
-        
-<div>The locale that a correct release date should have. This value will
-be used as a locale to try to parse a date.</div>
-        
-<ul>
-          
-<li><b>Type</b>: <tt>java.lang.String</tt></li>
-          
-<li><b>Since</b>: <tt>2.10</tt></li>
-          
-<li><b>Required</b>: <tt>No</tt></li>
-          
-<li><b>User Property</b>: <tt>changes.releaseDateLocale</tt></li>
-        </ul><hr />
-<p><b><a name="removeSnapshotSuffix">removeSnapshotSuffix</a>:</b></p>
-        
-<div>If &quot;-SNAPSHOT&quot; suffix should be removed when searching for issues.</div>
+<div>If <tt>true</tt>, display all settable properties for each
+goal.</div>
         
 <ul>
           
 <li><b>Type</b>: <tt>boolean</tt></li>
           
-<li><b>Since</b>: <tt>2.12.3</tt></li>
-          
 <li><b>Required</b>: <tt>No</tt></li>
           
-<li><b>User Property</b>: <tt>changes.removeSnapshotSuffix</tt></li>
-          
-<li><b>Default</b>: <tt>true</tt></li>
-        </ul><hr />
-<p><b><a name="runOnlyAtExecutionRoot">runOnlyAtExecutionRoot</a>:</b></p>
-        
-<div>This will cause the execution to be run only at the top of a given
-module tree. That is, run in the project contained in the same
-folder where the mvn execution was launched.</div>
-        
-<ul>
-          
-<li><b>Type</b>: <tt>boolean</tt></li>
-          
-<li><b>Since</b>: <tt>2.9</tt></li>
-          
-<li><b>Required</b>: <tt>No</tt></li>
-          
-<li><b>User Property</b>: <tt>changes.runOnlyAtExecutionRoot</tt></li>
+<li><b>User Property</b>: <tt>detail</tt></li>
           
 <li><b>Default</b>: <tt>false</tt></li>
         </ul><hr />
-<p><b><a name="skipSnapshots">skipSnapshots</a>:</b></p>
+<p><b><a name="goal">goal</a>:</b></p>
         
-<div>Flag controlling snapshot processing. If set, versions ending with
-<tt>-SNAPSHOT</tt> won't be checked.</div>
-        
-<ul>
-          
-<li><b>Type</b>: <tt>boolean</tt></li>
-          
-<li><b>Since</b>: <tt>2.7</tt></li>
-          
-<li><b>Required</b>: <tt>No</tt></li>
-          
-<li><b>User Property</b>: <tt>changes.skipSnapshots</tt></li>
-          
-<li><b>Default</b>: <tt>false</tt></li>
-        </ul><hr />
-<p><b><a name="version">version</a>:</b></p>
-        
-<div>Version of the artifact.</div>
+<div>The name of the goal for which to show help. If unspecified, all
+goals will be displayed.</div>
         
 <ul>
           
 <li><b>Type</b>: <tt>java.lang.String</tt></li>
           
-<li><b>Since</b>: <tt>2.4</tt></li>
+<li><b>Required</b>: <tt>No</tt></li>
           
-<li><b>Required</b>: <tt>Yes</tt></li>
-          
-<li><b>User Property</b>: <tt>changes.version</tt></li>
-          
-<li><b>Default</b>: <tt>${project.version}</tt></li>
+<li><b>User Property</b>: <tt>goal</tt></li>
         </ul><hr />
-<p><b><a name="xmlPath">xmlPath</a>:</b></p>
+<p><b><a name="indentSize">indentSize</a>:</b></p>
         
-<div>The path of the <tt>changes.xml</tt> file that will be checked.</div>
+<div>The number of spaces per indentation level, should be positive.</div>
         
 <ul>
           
-<li><b>Type</b>: <tt>java.io.File</tt></li>
-          
-<li><b>Since</b>: <tt>2.4</tt></li>
+<li><b>Type</b>: <tt>int</tt></li>
           
 <li><b>Required</b>: <tt>No</tt></li>
           
-<li><b>User Property</b>: <tt>changes.xmlPath</tt></li>
+<li><b>User Property</b>: <tt>indentSize</tt></li>
           
-<li><b>Default</b>: <tt>src/changes/changes.xml</tt></li>
+<li><b>Default</b>: <tt>2</tt></li>
+        </ul><hr />
+<p><b><a name="lineLength">lineLength</a>:</b></p>
+        
+<div>The maximum length of a display line, should be positive.</div>
+        
+<ul>
+          
+<li><b>Type</b>: <tt>int</tt></li>
+          
+<li><b>Required</b>: <tt>No</tt></li>
+          
+<li><b>User Property</b>: <tt>lineLength</tt></li>
+          
+<li><b>Default</b>: <tt>80</tt></li>
         </ul>
       </div>
     </div>

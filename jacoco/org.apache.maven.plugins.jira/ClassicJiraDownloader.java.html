@@ -56,8 +56,8 @@ import org.codehaus.plexus.util.StringUtils;
 public final class ClassicJiraDownloader
     extends AbstractJiraDownloader
 {
-<span class="nc" id="L59">    public ClassicJiraDownloader()</span>
-    {
+    public ClassicJiraDownloader()
+<span class="nc" id="L60">    {</span>
 <span class="nc" id="L61">    }</span>
 
     /**
@@ -108,7 +108,7 @@ public final class ClassicJiraDownloader
 <span class="nc bnc" id="L108" title="All 2 branches missed.">                if ( useJql )</span>
                 {
 <span class="nc" id="L110">                    fullUrl = getJqlQueryURL();</span>
-<span class="nc" id="L111">                }</span>
+                }
                 else
                 {
 <span class="nc" id="L114">                    fullUrl = getParameterBasedQueryURL( client );</span>
@@ -121,18 +121,18 @@ public final class ClassicJiraDownloader
                 // execute the GET
 <span class="nc" id="L122">                download( client, fullUrl );</span>
             }
-<span class="nc" id="L124">        }</span>
+        }
 <span class="nc" id="L125">        catch ( Exception e )</span>
         {
 <span class="nc bnc" id="L127" title="All 2 branches missed.">            if ( project.getIssueManagement() != null )</span>
             {
 <span class="nc" id="L129">                getLog().error( &quot;Error accessing &quot; + project.getIssueManagement().getUrl(), e );</span>
-<span class="nc" id="L130">            }</span>
+            }
             else
             {
 <span class="nc" id="L133">                getLog().error( &quot;Error accessing mock project issues&quot;, e );</span>
             }
-        }
+<span class="nc" id="L135">        }</span>
 <span class="nc" id="L136">    }</span>
 
     private String getJqlQueryURL()
@@ -154,7 +154,7 @@ public final class ClassicJiraDownloader
 <span class="nc" id="L154">                new JqlQueryBuilder( log ).project( jiraProject ).fixVersion( getFixFor() ).fixVersionIds( fixVersionIds ).statusIds( statusIds ).priorityIds( priorityIds ).resolutionIds( resolutionIds ).components( component ).typeIds( typeIds ).sortColumnNames( sortColumnNames ).build();</span>
 
 <span class="nc" id="L156">            String url =</span>
-<span class="nc" id="L157">                new UrlBuilder( jiraUrl,</span>
+                new UrlBuilder( jiraUrl,
 <span class="nc" id="L158">                                &quot;sr/jira.issueviews:searchrequest-xml/temp/SearchRequest.xml&quot; ).addParameter( &quot;tempMax&quot;,</span>
 <span class="nc" id="L159">                                                                                                              nbEntriesMax ).addParameter( &quot;reset&quot;,</span>
 <span class="nc" id="L160">                                                                                                                                           &quot;true&quot; ).addParameter( &quot;jqlQuery&quot;,</span>
@@ -174,7 +174,7 @@ public final class ClassicJiraDownloader
 <span class="nc bnc" id="L174" title="All 4 branches missed.">        if ( jiraId == null || jiraId.length() == 0 )</span>
         {
 <span class="nc" id="L176">            log.debug( &quot;The JIRA URL &quot; + project.getIssueManagement().getUrl()</span>
-<span class="nc" id="L177">                + &quot; doesn't include a pid, trying to extract it from JIRA.&quot; );</span>
+                + &quot; doesn't include a pid, trying to extract it from JIRA.&quot; );
 <span class="nc" id="L178">            jiraId = JiraHelper.getPidFromJira( log, project.getIssueManagement().getUrl(), client );</span>
         }
 
@@ -226,7 +226,7 @@ public final class ClassicJiraDownloader
 <span class="nc" id="L226">            getLog().debug( &quot;Using username: &quot; + webUser + &quot; for Basic Authentication.&quot; );</span>
 
 <span class="nc" id="L228">            client.getState().setCredentials( new AuthScope( null, AuthScope.ANY_PORT, null, AuthScope.ANY_SCHEME ),</span>
-<span class="nc" id="L229">                                              defaultcreds );</span>
+                                              defaultcreds );
         }
 <span class="nc" id="L231">    }</span>
 
@@ -276,18 +276,18 @@ public final class ClassicJiraDownloader
             {
 <span class="nc" id="L277">                getLog().warn( &quot;Was unable to login into JIRA: wrong username and/or password.&quot; );</span>
             }
-<span class="nc" id="L279">        }</span>
+        }
 <span class="nc" id="L280">        catch ( Exception e )</span>
         {
 <span class="nc bnc" id="L282" title="All 2 branches missed.">            if ( getLog().isDebugEnabled() )</span>
             {
 <span class="nc" id="L284">                getLog().error( &quot;Error trying to login into JIRA.&quot;, e );</span>
-<span class="nc" id="L285">            }</span>
+            }
             else
             {
 <span class="nc" id="L288">                getLog().error( &quot;Error trying to login into JIRA. Cause is: &quot; + e.getLocalizedMessage() );</span>
             }
-        }
+<span class="nc" id="L290">        }</span>
 <span class="nc" id="L291">        return false;</span>
     }
 
@@ -329,8 +329,8 @@ public final class ClassicJiraDownloader
 <span class="nc" id="L329">                getLog().debug( &quot;Using proxy user: &quot; + proxyUser );</span>
 
 <span class="nc" id="L331">                client.getState().setProxyCredentials( new AuthScope( null, AuthScope.ANY_PORT, null,</span>
-<span class="nc" id="L332">                                                                      AuthScope.ANY_SCHEME ),</span>
-<span class="nc" id="L333">                                                       new UsernamePasswordCredentials( proxyUser, proxyPass ) );</span>
+                                                                      AuthScope.ANY_SCHEME ),
+                                                       new UsernamePasswordCredentials( proxyUser, proxyPass ) );
             }
         }
 <span class="nc" id="L336">    }</span>
@@ -372,7 +372,7 @@ public final class ClassicJiraDownloader
 <span class="nc bnc" id="L372" title="All 2 branches missed.">                if ( locationHeader == null )</span>
                 {
 <span class="nc" id="L374">                    getLog().warn( &quot;Site sent redirect, but did not set Location header&quot; );</span>
-<span class="nc" id="L375">                }</span>
+                }
                 else
                 {
 <span class="nc" id="L378">                    String newLink = locationHeader.getValue();</span>
@@ -401,18 +401,18 @@ public final class ClassicJiraDownloader
 <span class="nc" id="L401">                in = null;</span>
 
 <span class="nc" id="L403">                getLog().debug( &quot;Downloading from JIRA was successful&quot; );</span>
-<span class="nc" id="L404">            }</span>
+            }
             else
             {
 <span class="nc" id="L407">                getLog().warn( &quot;Downloading from JIRA failed. Received: [&quot; + gm.getStatusCode() + &quot;]&quot; );</span>
             }
-<span class="nc" id="L409">        }</span>
+        }
 <span class="nc" id="L410">        catch ( HttpException e )</span>
         {
 <span class="nc bnc" id="L412" title="All 2 branches missed.">            if ( getLog().isDebugEnabled() )</span>
             {
 <span class="nc" id="L414">                getLog().error( &quot;Error downloading issues from JIRA:&quot;, e );</span>
-<span class="nc" id="L415">            }</span>
+            }
             else
             {
 <span class="nc" id="L418">                getLog().error( &quot;Error downloading issues from JIRA url: &quot; + e.getLocalizedMessage() );</span>
@@ -424,7 +424,7 @@ public final class ClassicJiraDownloader
 <span class="nc bnc" id="L424" title="All 2 branches missed.">            if ( getLog().isDebugEnabled() )</span>
             {
 <span class="nc" id="L426">                getLog().error( &quot;Error downloading issues from JIRA:&quot;, e );</span>
-<span class="nc" id="L427">            }</span>
+            }
             else
             {
 <span class="nc" id="L430">                getLog().error( &quot;Error downloading issues from JIRA. Cause is &quot; + e.getLocalizedMessage() );</span>

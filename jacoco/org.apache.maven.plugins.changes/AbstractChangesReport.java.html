@@ -59,7 +59,7 @@ import org.codehaus.plexus.util.ReaderFactory;
  *
  * @author &lt;a href=&quot;mailto:brett@apache.org&quot;&gt;Brett Porter&lt;/a&gt;
  */
-<span class="nc" id="L62">public abstract class AbstractChangesReport</span>
+<span class="fc" id="L62">public abstract class AbstractChangesReport</span>
     extends AbstractMavenReport
 {
     /**
@@ -137,16 +137,16 @@ import org.codehaus.plexus.util.ReaderFactory;
     private File getSkinArtifactFile()
         throws MojoExecutionException
     {
-<span class="nc" id="L140">        Skin skin = Skin.getDefaultSkin();</span>
-<span class="nc" id="L141">        DefaultArtifactCoordinate coordinate = new DefaultArtifactCoordinate();</span>
-<span class="nc" id="L142">        coordinate.setGroupId( skin.getGroupId() );</span>
-<span class="nc" id="L143">        coordinate.setArtifactId( skin.getArtifactId() );</span>
-<span class="nc" id="L144">        coordinate.setVersion( skin.getVersion() );</span>
-<span class="nc" id="L145">        ProjectBuildingRequest pbr = new DefaultProjectBuildingRequest( mavenSession.getProjectBuildingRequest() );</span>
-<span class="nc" id="L146">        pbr.setRemoteRepositories( project.getRemoteArtifactRepositories() );</span>
+<span class="fc" id="L140">        Skin skin = Skin.getDefaultSkin();</span>
+<span class="fc" id="L141">        DefaultArtifactCoordinate coordinate = new DefaultArtifactCoordinate();</span>
+<span class="fc" id="L142">        coordinate.setGroupId( skin.getGroupId() );</span>
+<span class="fc" id="L143">        coordinate.setArtifactId( skin.getArtifactId() );</span>
+<span class="fc" id="L144">        coordinate.setVersion( skin.getVersion() );</span>
+<span class="fc" id="L145">        ProjectBuildingRequest pbr = new DefaultProjectBuildingRequest( mavenSession.getProjectBuildingRequest() );</span>
+<span class="fc" id="L146">        pbr.setRemoteRepositories( project.getRemoteArtifactRepositories() );</span>
         try
         {
-<span class="nc" id="L149">            return resolver.resolveArtifact( pbr, coordinate ).getArtifact().getFile();</span>
+<span class="fc" id="L149">            return resolver.resolveArtifact( pbr, coordinate ).getArtifact().getFile();</span>
         }
 <span class="nc" id="L151">        catch ( ArtifactResolverException e )</span>
         {
@@ -157,62 +157,62 @@ import org.codehaus.plexus.util.ReaderFactory;
     public void execute()
         throws MojoExecutionException
     {
-<span class="nc bnc" id="L160" title="All 2 branches missed.">        if ( !canGenerateReport() )</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if ( !canGenerateReport() )</span>
         {
 <span class="nc" id="L162">            return;</span>
         }
 
         // TODO: push to a helper? Could still be improved by taking more of the site information from the site plugin
-<span class="nc" id="L166">        Writer writer = null;</span>
+<span class="fc" id="L166">        Writer writer = null;</span>
         try
         {
-<span class="nc" id="L169">            DecorationModel model = new DecorationModel();</span>
-<span class="nc" id="L170">            model.setBody( new Body() );</span>
-<span class="nc" id="L171">            Map&lt;String, String&gt; attributes = new HashMap&lt;String, String&gt;();</span>
-<span class="nc" id="L172">            attributes.put( &quot;outputEncoding&quot;, getOutputEncoding() );</span>
-<span class="nc" id="L173">            Locale locale = Locale.getDefault();</span>
-<span class="nc" id="L174">            SiteRenderingContext siteContext = siteRenderer.createContextForSkin( getSkinArtifactFile(), attributes,</span>
-<span class="nc" id="L175">                                                                                  model, getName( locale ), locale );</span>
-<span class="nc" id="L176">            siteContext.setOutputEncoding( getOutputEncoding() );</span>
+<span class="fc" id="L169">            DecorationModel model = new DecorationModel();</span>
+<span class="fc" id="L170">            model.setBody( new Body() );</span>
+<span class="fc" id="L171">            Map&lt;String, String&gt; attributes = new HashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L172">            attributes.put( &quot;outputEncoding&quot;, getOutputEncoding() );</span>
+<span class="fc" id="L173">            Locale locale = Locale.getDefault();</span>
+<span class="fc" id="L174">            SiteRenderingContext siteContext = siteRenderer.createContextForSkin( getSkinArtifactFile(), attributes,</span>
+<span class="fc" id="L175">                                                                                  model, getName( locale ), locale );</span>
+<span class="fc" id="L176">            siteContext.setOutputEncoding( getOutputEncoding() );</span>
 
-<span class="nc" id="L178">            RenderingContext context = new RenderingContext( outputDirectory, getOutputName() + &quot;.html&quot; );</span>
+<span class="fc" id="L178">            RenderingContext context = new RenderingContext( outputDirectory, getOutputName() + &quot;.html&quot; );</span>
 
-<span class="nc" id="L180">            SiteRendererSink sink = new SiteRendererSink( context );</span>
-<span class="nc" id="L181">            generate( sink, null, locale );</span>
+<span class="fc" id="L180">            SiteRendererSink sink = new SiteRendererSink( context );</span>
+<span class="fc" id="L181">            generate( sink, null, locale );</span>
 
-<span class="nc" id="L183">            outputDirectory.mkdirs();</span>
+<span class="fc" id="L183">            outputDirectory.mkdirs();</span>
 
-<span class="nc" id="L185">            File file = new File( outputDirectory, getOutputName() + &quot;.html&quot; );</span>
-<span class="nc" id="L186">            writer = new OutputStreamWriter( new FileOutputStream( file ), getOutputEncoding() );</span>
+<span class="fc" id="L185">            File file = new File( outputDirectory, getOutputName() + &quot;.html&quot; );</span>
+<span class="fc" id="L186">            writer = new OutputStreamWriter( new FileOutputStream( file ), getOutputEncoding() );</span>
 
-<span class="nc" id="L188">            siteRenderer.generateDocument( writer, sink, siteContext );</span>
+<span class="fc" id="L188">            siteRenderer.generateDocument( writer, sink, siteContext );</span>
 
-<span class="nc" id="L190">            writer.close();</span>
-<span class="nc" id="L191">            writer = null;</span>
+<span class="fc" id="L190">            writer.close();</span>
+<span class="fc" id="L191">            writer = null;</span>
 
-<span class="nc" id="L193">            siteRenderer.copyResources( siteContext, new File( project.getBasedir(), &quot;src/site/resources&quot; ),</span>
-<span class="nc" id="L194">                                        outputDirectory );</span>
-<span class="nc" id="L195">        }</span>
+<span class="fc" id="L193">            siteRenderer.copyResources( siteContext, new File( project.getBasedir(), &quot;src/site/resources&quot; ),</span>
+                                        outputDirectory );
+        }
 <span class="nc" id="L196">        catch ( RendererException e )</span>
         {
 <span class="nc" id="L198">            throw new MojoExecutionException( &quot;An error has occurred in &quot; + getName( Locale.ENGLISH )</span>
-<span class="nc" id="L199">                + &quot; report generation.&quot;, e );</span>
+                + &quot; report generation.&quot;, e );
         }
 <span class="nc" id="L201">        catch ( IOException e )</span>
         {
 <span class="nc" id="L203">            throw new MojoExecutionException( &quot;An error has occurred in &quot; + getName( Locale.ENGLISH )</span>
-<span class="nc" id="L204">                + &quot; report generation.&quot;, e );</span>
+                + &quot; report generation.&quot;, e );
         }
 <span class="nc" id="L206">        catch ( MavenReportException e )</span>
         {
 <span class="nc" id="L208">            throw new MojoExecutionException( &quot;An error has occurred in &quot; + getName( Locale.ENGLISH )</span>
-<span class="nc" id="L209">                + &quot; report generation.&quot;, e );</span>
+                + &quot; report generation.&quot;, e );
         }
         finally
         {
-<span class="nc" id="L213">            IOUtils.closeQuietly( writer );</span>
+<span class="fc" id="L213">            IOUtils.closeQuietly( writer );</span>
         }
-<span class="nc" id="L215">    }</span>
+<span class="fc" id="L215">    }</span>
 
     /**
      * @see org.apache.maven.reporting.AbstractMavenReport#getOutputDirectory()
@@ -230,7 +230,7 @@ import org.codehaus.plexus.util.ReaderFactory;
      */
     protected String getOutputEncoding()
     {
-<span class="nc bnc" id="L233" title="All 2 branches missed.">        return ( outputEncoding != null ) ? outputEncoding : ReaderFactory.UTF_8;</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">        return ( outputEncoding != null ) ? outputEncoding : ReaderFactory.UTF_8;</span>
     }
 
     /**
@@ -263,7 +263,7 @@ import org.codehaus.plexus.util.ReaderFactory;
 <span class="nc bnc" id="L263" title="All 2 branches missed.">        if ( result )</span>
         {
 <span class="nc" id="L265">            getLog().debug( &quot;This is the execution root.&quot; );</span>
-<span class="nc" id="L266">        }</span>
+        }
         else
         {
 <span class="nc" id="L269">            getLog().debug( &quot;This is NOT the execution root.&quot; );</span>

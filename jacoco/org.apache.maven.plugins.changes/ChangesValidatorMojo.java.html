@@ -40,7 +40,7 @@ import org.xml.sax.SAXParseException;
  * @since 2.1
  */
 @Mojo( name = &quot;changes-validate&quot;, threadSafe = true )
-<span class="nc" id="L43">public class ChangesValidatorMojo</span>
+<span class="fc" id="L43">public class ChangesValidatorMojo</span>
     extends AbstractChangesMojo
 {
 
@@ -74,13 +74,13 @@ import org.xml.sax.SAXParseException;
         throws MojoExecutionException, MojoFailureException
     {
         // Run only at the execution root
-<span class="nc bnc" id="L77" title="All 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+<span class="pc bpc" id="L77" title="3 of 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
         {
 <span class="nc" id="L79">            getLog().info( &quot;Skipping the changes validate in this project because it's not the Execution Root&quot; );</span>
-<span class="nc" id="L80">        }</span>
+        }
         else
         {
-<span class="nc bnc" id="L83" title="All 2 branches missed.">            if ( !xmlPath.exists() )</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">            if ( !xmlPath.exists() )</span>
             {
 <span class="nc" id="L85">                getLog().warn( &quot;changes.xml file &quot; + xmlPath.getAbsolutePath() + &quot; does not exist.&quot; );</span>
 <span class="nc" id="L86">                return;</span>
@@ -88,43 +88,43 @@ import org.xml.sax.SAXParseException;
 
             try
             {
-<span class="nc" id="L91">                XmlValidationHandler xmlValidationHandler =</span>
-<span class="nc" id="L92">                    changesSchemaValidator.validateXmlWithSchema( xmlPath, changesXsdVersion, failOnError );</span>
-<span class="nc bnc" id="L93" title="All 2 branches missed.">                boolean hasErrors = !xmlValidationHandler.getErrors().isEmpty();</span>
-<span class="nc bnc" id="L94" title="All 2 branches missed.">                if ( hasErrors )</span>
+<span class="fc" id="L91">                XmlValidationHandler xmlValidationHandler =</span>
+<span class="fc" id="L92">                    changesSchemaValidator.validateXmlWithSchema( xmlPath, changesXsdVersion, failOnError );</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">                boolean hasErrors = !xmlValidationHandler.getErrors().isEmpty();</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">                if ( hasErrors )</span>
                 {
-<span class="nc" id="L96">                    logSchemaValidation( xmlValidationHandler.getErrors() );</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">                    if ( failOnError )</span>
+<span class="fc" id="L96">                    logSchemaValidation( xmlValidationHandler.getErrors() );</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">                    if ( failOnError )</span>
                     {
 <span class="nc" id="L99">                        throw new MojoExecutionException( &quot;changes.xml file &quot; + xmlPath.getAbsolutePath()</span>
-<span class="nc" id="L100">                            + &quot; is not valid, see previous errors.&quot; );</span>
+                            + &quot; is not valid, see previous errors.&quot; );
                     }
                     else
                     {
-<span class="nc" id="L104">                        getLog().info( &quot; skip previous validation errors due to failOnError=false.&quot; );</span>
+<span class="fc" id="L104">                        getLog().info( &quot; skip previous validation errors due to failOnError=false.&quot; );</span>
                     }
                 }
-<span class="nc" id="L107">            }</span>
-<span class="nc" id="L108">            catch ( SchemaValidatorException e )</span>
-            {
-<span class="nc bnc" id="L110" title="All 2 branches missed.">                if ( failOnError )</span>
-                {
-<span class="nc" id="L112">                    throw new MojoExecutionException( &quot;failed to validate changes.xml file &quot; + xmlPath.getAbsolutePath()</span>
-<span class="nc" id="L113">                        + &quot;: &quot; + e.getMessage(), e );</span>
-                }
             }
+<span class="fc" id="L108">            catch ( SchemaValidatorException e )</span>
+            {
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">                if ( failOnError )</span>
+                {
+<span class="fc" id="L112">                    throw new MojoExecutionException( &quot;failed to validate changes.xml file &quot; + xmlPath.getAbsolutePath()</span>
+<span class="fc" id="L113">                        + &quot;: &quot; + e.getMessage(), e );</span>
+                }
+<span class="fc" id="L115">            }</span>
         }
-<span class="nc" id="L117">    }</span>
+<span class="fc" id="L117">    }</span>
 
     private void logSchemaValidation( List&lt;SAXParseException&gt; errors )
     {
-<span class="nc" id="L121">        getLog().warn( &quot;failed to validate changes.xml file &quot; + xmlPath.getAbsolutePath() );</span>
-<span class="nc" id="L122">        getLog().warn( &quot;validation errors: &quot; );</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">        for ( SAXParseException error : errors )</span>
+<span class="fc" id="L121">        getLog().warn( &quot;failed to validate changes.xml file &quot; + xmlPath.getAbsolutePath() );</span>
+<span class="fc" id="L122">        getLog().warn( &quot;validation errors: &quot; );</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for ( SAXParseException error : errors )</span>
         {
-<span class="nc" id="L125">            getLog().warn( error.getMessage() );</span>
-        }
-<span class="nc" id="L127">    }</span>
+<span class="fc" id="L125">            getLog().warn( error.getMessage() );</span>
+<span class="fc" id="L126">        }</span>
+<span class="fc" id="L127">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

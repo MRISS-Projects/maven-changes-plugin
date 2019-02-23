@@ -46,34 +46,34 @@ import org.apache.maven.plugin.MojoExecutionException;
     public static List&lt;Issue&gt; filterIssuesWithVersionPrefix( List&lt;Issue&gt; issues, String prefix )
         throws MojoExecutionException
     {
-<span class="nc" id="L49">        List&lt;Issue&gt; filteredIssues = new ArrayList&lt;Issue&gt;();</span>
-<span class="nc" id="L50">        boolean isFound = false;</span>
+<span class="fc" id="L49">        List&lt;Issue&gt; filteredIssues = new ArrayList&lt;Issue&gt;();</span>
+<span class="fc" id="L50">        boolean isFound = false;</span>
         Issue issue;
 
-<span class="nc bnc" id="L53" title="All 2 branches missed.">        for ( Issue issue1 : issues )</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        for ( Issue issue1 : issues )</span>
         {
-<span class="nc" id="L55">            issue = issue1;</span>
+<span class="fc" id="L55">            issue = issue1;</span>
 
-<span class="nc bnc" id="L57" title="All 2 branches missed.">            if ( issue.getFixVersions() != null )</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">            if ( issue.getFixVersions() != null )</span>
             {
-<span class="nc bnc" id="L59" title="All 2 branches missed.">                for ( String fixVersion : issue.getFixVersions() )</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">                for ( String fixVersion : issue.getFixVersions() )</span>
                 {
-<span class="nc bnc" id="L61" title="All 4 branches missed.">                    if ( prefix == null || fixVersion.startsWith( prefix ) )</span>
+<span class="fc bfc" id="L61" title="All 4 branches covered.">                    if ( prefix == null || fixVersion.startsWith( prefix ) )</span>
                     {
-<span class="nc" id="L63">                        isFound = true;</span>
-<span class="nc" id="L64">                        filteredIssues.add( issue );</span>
-<span class="nc" id="L65">                        break;</span>
+<span class="fc" id="L63">                        isFound = true;</span>
+<span class="fc" id="L64">                        filteredIssues.add( issue );</span>
+<span class="fc" id="L65">                        break;</span>
                     }
-                }
+<span class="fc" id="L67">                }</span>
             }
-        }
+<span class="fc" id="L69">        }</span>
 
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        if ( !isFound )</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if ( !isFound )</span>
         {
-<span class="nc" id="L73">            throw new MojoExecutionException( &quot;Couldn't find any issues with a Fix Version prefix of '&quot; + prefix</span>
-<span class="nc" id="L74">                + &quot;' among the supplied issues: &quot; + toString( issues ) );</span>
+<span class="fc" id="L73">            throw new MojoExecutionException( &quot;Couldn't find any issues with a Fix Version prefix of '&quot; + prefix</span>
+<span class="fc" id="L74">                + &quot;' among the supplied issues: &quot; + toString( issues ) );</span>
         }
-<span class="nc" id="L76">        return filteredIssues;</span>
+<span class="fc" id="L76">        return filteredIssues;</span>
     }
 
     /**
@@ -90,44 +90,44 @@ import org.apache.maven.plugin.MojoExecutionException;
     public static List&lt;Issue&gt; getIssuesForVersion( List&lt;Issue&gt; issues, String version, boolean removeSnapshotSuffix )
         throws MojoExecutionException
     {
-<span class="nc" id="L93">        List&lt;Issue&gt; issuesForVersion = new ArrayList&lt;Issue&gt;();</span>
-<span class="nc" id="L94">        boolean isFound = false;</span>
+<span class="fc" id="L93">        List&lt;Issue&gt; issuesForVersion = new ArrayList&lt;Issue&gt;();</span>
+<span class="fc" id="L94">        boolean isFound = false;</span>
         Issue issue;
-<span class="nc" id="L96">        String releaseVersion = version;</span>
+<span class="fc" id="L96">        String releaseVersion = version;</span>
 
         // Remove &quot;-SNAPSHOT&quot; from the end of the version, if it's there
-<span class="nc bnc" id="L99" title="All 6 branches missed.">        if ( version != null &amp;&amp; version.endsWith( SNAPSHOT_SUFFIX ) &amp;&amp; removeSnapshotSuffix )</span>
+<span class="pc bpc" id="L99" title="3 of 6 branches missed.">        if ( version != null &amp;&amp; version.endsWith( SNAPSHOT_SUFFIX ) &amp;&amp; removeSnapshotSuffix )</span>
         {
-<span class="nc" id="L101">            releaseVersion = version.substring( 0, version.length() - SNAPSHOT_SUFFIX.length() );</span>
+<span class="fc" id="L101">            releaseVersion = version.substring( 0, version.length() - SNAPSHOT_SUFFIX.length() );</span>
         }
 
-<span class="nc bnc" id="L104" title="All 2 branches missed.">        for ( Issue issue1 : issues )</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        for ( Issue issue1 : issues )</span>
         {
-<span class="nc" id="L106">            issue = issue1;</span>
+<span class="fc" id="L106">            issue = issue1;</span>
 
-<span class="nc bnc" id="L108" title="All 4 branches missed.">            if ( issue.getFixVersions() != null &amp;&amp; issue.getFixVersions().contains( releaseVersion ) )</span>
+<span class="pc bpc" id="L108" title="2 of 4 branches missed.">            if ( issue.getFixVersions() != null &amp;&amp; issue.getFixVersions().contains( releaseVersion ) )</span>
             {
 <span class="nc" id="L110">                isFound = true;</span>
 <span class="nc" id="L111">                issuesForVersion.add( issue );</span>
             }
-        }
+<span class="fc" id="L113">        }</span>
 
-<span class="nc bnc" id="L115" title="All 2 branches missed.">        if ( !isFound )</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        if ( !isFound )</span>
         {
-<span class="nc" id="L117">            throw new MojoExecutionException( &quot;Couldn't find any issues for the version '&quot; + releaseVersion</span>
-<span class="nc" id="L118">                + &quot;' among the supplied issues: &quot; + toString( issues ) );</span>
+<span class="fc" id="L117">            throw new MojoExecutionException( &quot;Couldn't find any issues for the version '&quot; + releaseVersion</span>
+<span class="fc" id="L118">                + &quot;' among the supplied issues: &quot; + toString( issues ) );</span>
         }
 <span class="nc" id="L120">        return issuesForVersion;</span>
     }
 
     public static String toString( List&lt;Issue&gt; issues )
     {
-<span class="nc" id="L125">        List&lt;String&gt; issueStrings = new ArrayList&lt;String&gt;( issues.size() );</span>
-<span class="nc bnc" id="L126" title="All 2 branches missed.">        for ( Issue issue : issues )</span>
+<span class="fc" id="L125">        List&lt;String&gt; issueStrings = new ArrayList&lt;String&gt;( issues.size() );</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">        for ( Issue issue : issues )</span>
         {
-<span class="nc" id="L128">            issueStrings.add( issue.toString() );</span>
-        }
-<span class="nc" id="L130">        return issueStrings.toString();</span>
+<span class="fc" id="L128">            issueStrings.add( issue.toString() );</span>
+<span class="fc" id="L129">        }</span>
+<span class="fc" id="L130">        return issueStrings.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

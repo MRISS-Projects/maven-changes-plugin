@@ -63,11 +63,11 @@ public class FeedGenerator
      *
      * @param locale a locale for i18n.
      */
-<span class="nc" id="L66">    public FeedGenerator( final Locale locale )</span>
-    {
-<span class="nc" id="L68">        this.feed = new SyndFeedImpl();</span>
-<span class="nc" id="L69">        this.rbundle = ResourceBundle.getBundle( &quot;changes-report&quot;, locale, this.getClass().getClassLoader() );</span>
-<span class="nc" id="L70">    }</span>
+    public FeedGenerator( final Locale locale )
+<span class="fc" id="L67">    {</span>
+<span class="fc" id="L68">        this.feed = new SyndFeedImpl();</span>
+<span class="fc" id="L69">        this.rbundle = ResourceBundle.getBundle( &quot;changes-report&quot;, locale, this.getClass().getClassLoader() );</span>
+<span class="fc" id="L70">    }</span>
 
     /**
      * The author of the feed.
@@ -86,8 +86,8 @@ public class FeedGenerator
      */
     public void setAuthor( final String author )
     {
-<span class="nc" id="L89">        this.author = author.trim(); // this also assures that author is not null.</span>
-<span class="nc" id="L90">    }</span>
+<span class="fc" id="L89">        this.author = author.trim(); // this also assures that author is not null.</span>
+<span class="fc" id="L90">    }</span>
 
     /**
      * The title of the feed.
@@ -106,8 +106,8 @@ public class FeedGenerator
      */
     public void setTitle( final String title )
     {
-<span class="nc" id="L109">        this.title = title.trim(); // this also assures that title is not null.</span>
-<span class="nc" id="L110">    }</span>
+<span class="fc" id="L109">        this.title = title.trim(); // this also assures that title is not null.</span>
+<span class="fc" id="L110">    }</span>
 
     /**
      * The DateFormat.
@@ -126,8 +126,8 @@ public class FeedGenerator
      */
     public void setDateFormat( final DateFormat dateFormat )
     {
-<span class="nc" id="L129">        this.dateFormat = dateFormat;</span>
-<span class="nc" id="L130">    }</span>
+<span class="fc" id="L129">        this.dateFormat = dateFormat;</span>
+<span class="fc" id="L130">    }</span>
 
     /**
      * The main link of the feed.
@@ -146,8 +146,8 @@ public class FeedGenerator
      */
     public void setLink( final String link )
     {
-<span class="nc" id="L149">        this.link = link.trim(); // this also assures that link is not null.</span>
-<span class="nc" id="L150">    }</span>
+<span class="fc" id="L149">        this.link = link.trim(); // this also assures that link is not null.</span>
+<span class="fc" id="L150">    }</span>
 
     /**
      * Determine if a given feed type is supported. The currently supported values are:
@@ -159,7 +159,7 @@ public class FeedGenerator
      */
     public boolean isSupportedFeedType( final String type )
     {
-<span class="nc" id="L162">        return getSupportedFeedTypes().contains( type );</span>
+<span class="fc" id="L162">        return getSupportedFeedTypes().contains( type );</span>
     }
 
     /**
@@ -171,7 +171,7 @@ public class FeedGenerator
     @SuppressWarnings( &quot;unchecked&quot; )
     public List&lt;String&gt; getSupportedFeedTypes()
     {
-<span class="nc" id="L174">        return feed.getSupportedFeedTypes();</span>
+<span class="fc" id="L174">        return feed.getSupportedFeedTypes();</span>
     }
 
     /**
@@ -186,77 +186,77 @@ public class FeedGenerator
     public void export( final List&lt;Release&gt; releases, final String feedType, final Writer writer )
         throws IOException
     {
-<span class="nc" id="L189">        feed.setFeedType( feedType );</span>
-<span class="nc" id="L190">        feed.setTitle( title );</span>
-<span class="nc" id="L191">        feed.setAuthor( author );</span>
-<span class="nc" id="L192">        feed.setPublishedDate( new Date() );</span>
-<span class="nc" id="L193">        feed.setLink( link );</span>
-<span class="nc" id="L194">        feed.setDescription( rbundle.getString( &quot;report.changes.text.rssfeed.description&quot; ) );</span>
-<span class="nc" id="L195">        feed.setLanguage( rbundle.getLocale().getLanguage() );</span>
+<span class="fc" id="L189">        feed.setFeedType( feedType );</span>
+<span class="fc" id="L190">        feed.setTitle( title );</span>
+<span class="fc" id="L191">        feed.setAuthor( author );</span>
+<span class="fc" id="L192">        feed.setPublishedDate( new Date() );</span>
+<span class="fc" id="L193">        feed.setLink( link );</span>
+<span class="fc" id="L194">        feed.setDescription( rbundle.getString( &quot;report.changes.text.rssfeed.description&quot; ) );</span>
+<span class="fc" id="L195">        feed.setLanguage( rbundle.getLocale().getLanguage() );</span>
         // feed.setCopyright( );
         // feed.setEncoding();
-<span class="nc" id="L198">        feed.setEntries( getEntries( releases ) );</span>
+<span class="fc" id="L198">        feed.setEntries( getEntries( releases ) );</span>
 
         try
         {
-<span class="nc" id="L202">            new SyndFeedOutput().output( feed, writer );</span>
-<span class="nc" id="L203">        }</span>
-<span class="nc" id="L204">        catch ( FeedException ex )</span>
-        {
-<span class="nc" id="L206">            IOException ioex = new IOException( ex.getMessage() );</span>
-<span class="nc" id="L207">            ioex.initCause( ex );</span>
-<span class="nc" id="L208">            throw ioex;</span>
+<span class="fc" id="L202">            new SyndFeedOutput().output( feed, writer );</span>
         }
-<span class="nc" id="L210">    }</span>
+<span class="fc" id="L204">        catch ( FeedException ex )</span>
+        {
+<span class="fc" id="L206">            IOException ioex = new IOException( ex.getMessage() );</span>
+<span class="fc" id="L207">            ioex.initCause( ex );</span>
+<span class="fc" id="L208">            throw ioex;</span>
+<span class="fc" id="L209">        }</span>
+<span class="fc" id="L210">    }</span>
 
     private List&lt;SyndEntry&gt; getEntries( final List&lt;Release&gt; releases )
     {
-<span class="nc" id="L214">        final List&lt;SyndEntry&gt; entries = new ArrayList&lt;SyndEntry&gt;( 1 );</span>
+<span class="fc" id="L214">        final List&lt;SyndEntry&gt; entries = new ArrayList&lt;SyndEntry&gt;( 1 );</span>
 
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        if ( releases.size() &gt; 0 )</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        if ( releases.size() &gt; 0 )</span>
         {
-<span class="nc" id="L218">            final Release release = releases.get( 0 ); // TODO: is this guaranteed to be the latest?</span>
+<span class="fc" id="L218">            final Release release = releases.get( 0 ); // TODO: is this guaranteed to be the latest?</span>
 
-<span class="nc" id="L220">            final SyndEntry entry = new SyndEntryImpl();</span>
-<span class="nc" id="L221">            entry.setTitle( release.getVersion() );</span>
-<span class="nc" id="L222">            entry.setLink( link + &quot;#&quot; + HtmlTools.encodeId( release.getVersion() ) );</span>
-<span class="nc" id="L223">            entry.setDescription( getSyndContent( release ) );</span>
-<span class="nc" id="L224">            entry.setPublishedDate( getDate( release.getDateRelease(), dateFormat ) );</span>
+<span class="fc" id="L220">            final SyndEntry entry = new SyndEntryImpl();</span>
+<span class="fc" id="L221">            entry.setTitle( release.getVersion() );</span>
+<span class="fc" id="L222">            entry.setLink( link + &quot;#&quot; + HtmlTools.encodeId( release.getVersion() ) );</span>
+<span class="fc" id="L223">            entry.setDescription( getSyndContent( release ) );</span>
+<span class="fc" id="L224">            entry.setPublishedDate( getDate( release.getDateRelease(), dateFormat ) );</span>
 
-<span class="nc" id="L226">            entries.add( entry );</span>
+<span class="fc" id="L226">            entries.add( entry );</span>
         }
 
-<span class="nc" id="L229">        return entries;</span>
+<span class="fc" id="L229">        return entries;</span>
     }
 
     private static SyndContent getSyndContent( final Release release )
     {
-<span class="nc" id="L234">        final SyndContent syndContent = new SyndContentImpl();</span>
-<span class="nc" id="L235">        syndContent.setType( &quot;text/html&quot; );</span>
+<span class="fc" id="L234">        final SyndContent syndContent = new SyndContentImpl();</span>
+<span class="fc" id="L235">        syndContent.setType( &quot;text/html&quot; );</span>
 
-<span class="nc" id="L237">        final StringBuilder sb = new StringBuilder( 512 );</span>
+<span class="fc" id="L237">        final StringBuilder sb = new StringBuilder( 512 );</span>
 
-<span class="nc" id="L239">        final String description = release.getDescription();</span>
+<span class="fc" id="L239">        final String description = release.getDescription();</span>
 
-<span class="nc bnc" id="L241" title="All 4 branches missed.">        if ( description != null &amp;&amp; description.trim().length() &gt; 0 )</span>
+<span class="pc bpc" id="L241" title="3 of 4 branches missed.">        if ( description != null &amp;&amp; description.trim().length() &gt; 0 )</span>
         {
 <span class="nc" id="L243">            sb.append( &quot;&lt;p&gt;&quot; ).append( description ).append( &quot;&lt;/p&gt;&quot; );</span>
         }
 
         // TODO: localize?
-<span class="nc" id="L247">        sb.append( &quot;&lt;p&gt;Version &quot; ).append( release.getVersion() ).append( &quot; is available with &quot; );</span>
-<span class="nc" id="L248">        sb.append( release.getActions().size() ).append( &quot; fixed issues.&lt;/p&gt;&quot; );</span>
+<span class="fc" id="L247">        sb.append( &quot;&lt;p&gt;Version &quot; ).append( release.getVersion() ).append( &quot; is available with &quot; );</span>
+<span class="fc" id="L248">        sb.append( release.getActions().size() ).append( &quot; fixed issues.&lt;/p&gt;&quot; );</span>
 
-<span class="nc" id="L250">        syndContent.setValue( sb.toString() );</span>
+<span class="fc" id="L250">        syndContent.setValue( sb.toString() );</span>
 
-<span class="nc" id="L252">        return syndContent;</span>
+<span class="fc" id="L252">        return syndContent;</span>
     }
 
     private static Date getDate( final String dateRelease, final DateFormat dateFormat )
     {
-<span class="nc bnc" id="L257" title="All 2 branches missed.">        if ( dateFormat == null )</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">        if ( dateFormat == null )</span>
         {
-<span class="nc" id="L259">            return new Date();</span>
+<span class="fc" id="L259">            return new Date();</span>
         }
 
         try

@@ -48,14 +48,14 @@ public class IssueAdapter
      *
      * @param ims The issue management system that has the data that should be adapted
      */
-<span class="nc" id="L51">    public IssueAdapter( IssueManagementSystem ims )</span>
-    {
-<span class="nc" id="L53">        this.ims = ims;</span>
-<span class="nc" id="L54">    }</span>
+    public IssueAdapter( IssueManagementSystem ims )
+<span class="fc" id="L52">    {</span>
+<span class="fc" id="L53">        this.ims = ims;</span>
+<span class="fc" id="L54">    }</span>
 
     private Map&lt;String, IssueType&gt; getIssueTypeMap()
     {
-<span class="nc" id="L58">        return ims.getIssueTypeMap();</span>
+<span class="fc" id="L58">        return ims.getIssueTypeMap();</span>
     }
 
     /**
@@ -90,16 +90,16 @@ public class IssueAdapter
                     // Add this issue as an Action to this release
 <span class="nc" id="L91">                    Action action = createAction( issue );</span>
 <span class="nc" id="L92">                    release.addAction( action );</span>
-                }
+<span class="nc" id="L93">                }</span>
             }
-        }
+<span class="nc" id="L95">        }</span>
 
         // Extract the releases from the Map to a List
 <span class="nc" id="L98">        List&lt;Release&gt; releasesList = new ArrayList&lt;Release&gt;();</span>
 <span class="nc bnc" id="L99" title="All 2 branches missed.">        for ( Release release : releasesMap.values() )</span>
         {
 <span class="nc" id="L101">            releasesList.add( release );</span>
-        }
+<span class="nc" id="L102">        }</span>
 <span class="nc" id="L103">        return releasesList;</span>
     }
 
@@ -111,30 +111,30 @@ public class IssueAdapter
      */
     public Action createAction( Issue issue )
     {
-<span class="nc" id="L114">        Action action = new Action();</span>
+<span class="fc" id="L114">        Action action = new Action();</span>
 
         // @todo We need to add something like issue.getPresentationIdentifier() to be able to support other IMSes
         // beside JIRA
-<span class="nc" id="L118">        action.setIssue( issue.getKey() );</span>
+<span class="fc" id="L118">        action.setIssue( issue.getKey() );</span>
 
         // Try to map the IMS-specific issue type to one that is used in a changes.xml file
         IssueType type;
-<span class="nc bnc" id="L122" title="All 2 branches missed.">        if ( getIssueTypeMap().containsKey( issue.getType() ) )</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if ( getIssueTypeMap().containsKey( issue.getType() ) )</span>
         {
-<span class="nc" id="L124">            type = getIssueTypeMap().get( issue.getType() );</span>
-<span class="nc" id="L125">            action.setType( type.modelRepresentation() );</span>
-<span class="nc" id="L126">        }</span>
+<span class="fc" id="L124">            type = getIssueTypeMap().get( issue.getType() );</span>
+<span class="fc" id="L125">            action.setType( type.modelRepresentation() );</span>
+        }
         else
         {
-<span class="nc" id="L129">            action.setType( UNKNOWN_ISSUE_TYPE );</span>
+<span class="fc" id="L129">            action.setType( UNKNOWN_ISSUE_TYPE );</span>
         }
 
-<span class="nc" id="L132">        action.setDev( issue.getAssignee() );</span>
+<span class="fc" id="L132">        action.setDev( issue.getAssignee() );</span>
 
-<span class="nc bnc" id="L134" title="All 2 branches missed.">        action.setDueTo( issue.getReporter() == null ? &quot;&quot; : issue.getReporter() );</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">        action.setDueTo( issue.getReporter() == null ? &quot;&quot; : issue.getReporter() );</span>
 
-<span class="nc" id="L136">        action.setAction( issue.getSummary() );</span>
-<span class="nc" id="L137">        return action;</span>
+<span class="fc" id="L136">        action.setAction( issue.getSummary() );</span>
+<span class="fc" id="L137">        return action;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

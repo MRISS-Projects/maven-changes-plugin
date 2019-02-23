@@ -41,10 +41,10 @@ public abstract class AbstractIssueManagementSystem
 {
     protected Map&lt;String, IssueType&gt; issueTypeMap;
 
-<span class="nc" id="L44">    protected AbstractIssueManagementSystem()</span>
-    {
-<span class="nc" id="L46">        issueTypeMap = new HashMap&lt;String, IssueType&gt;();</span>
-<span class="nc" id="L47">    }</span>
+    protected AbstractIssueManagementSystem()
+<span class="fc" id="L45">    {</span>
+<span class="fc" id="L46">        issueTypeMap = new HashMap&lt;String, IssueType&gt;();</span>
+<span class="fc" id="L47">    }</span>
 
     /*
      * (non-Javadoc)
@@ -52,7 +52,7 @@ public abstract class AbstractIssueManagementSystem
      */
     public Map&lt;String, IssueType&gt; getIssueTypeMap()
     {
-<span class="nc" id="L55">        return issueTypeMap;</span>
+<span class="fc" id="L55">        return issueTypeMap;</span>
     }
 
     /*
@@ -68,20 +68,20 @@ public abstract class AbstractIssueManagementSystem
     public void applyConfiguration( Map&lt;String, String&gt; issueTypes )
         throws MojoExecutionException
     {
-<span class="nc bnc" id="L71" title="All 2 branches missed.">        for ( Map.Entry&lt;String, String&gt; me : issueTypes.entrySet() )</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        for ( Map.Entry&lt;String, String&gt; me : issueTypes.entrySet() )</span>
         {
-<span class="nc" id="L73">            IssueType type = IssueType.lookupByKey( me.getKey() );</span>
-<span class="nc bnc" id="L74" title="All 2 branches missed.">            if ( type == null )</span>
+<span class="fc" id="L73">            IssueType type = IssueType.lookupByKey( me.getKey() );</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">            if ( type == null )</span>
             {
-<span class="nc" id="L76">                throw new MojoExecutionException( &quot;Invalid issue action &quot; + me.getKey() );</span>
+<span class="fc" id="L76">                throw new MojoExecutionException( &quot;Invalid issue action &quot; + me.getKey() );</span>
             }
-<span class="nc" id="L78">            String imsTypes = me.getValue();</span>
-<span class="nc" id="L79">            String[] imsTypeArray = imsTypes.split( &quot;,&quot; );</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">            for ( String imsType : imsTypeArray )</span>
+<span class="fc" id="L78">            String imsTypes = me.getValue();</span>
+<span class="fc" id="L79">            String[] imsTypeArray = imsTypes.split( &quot;,&quot; );</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            for ( String imsType : imsTypeArray )</span>
             {
-<span class="nc" id="L82">                issueTypeMap.put( imsType, type );</span>
+<span class="fc" id="L82">                issueTypeMap.put( imsType, type );</span>
             }
-        }
-<span class="nc" id="L85">    }</span>
+<span class="fc" id="L84">        }</span>
+<span class="fc" id="L85">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
