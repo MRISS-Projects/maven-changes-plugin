@@ -25,14 +25,15 @@ set -e
 cp maven/settings-security.xml $HOME/.m2
 cp maven/settings-security.xml $HOME/.settings-security.xml
 
-git checkout ${TRAVIS_BRANCH}
+echo Travis Pull Request: ${TRAVIS_PULL_REQUEST}
 if [ "${TRAVIS_PULL_REQUEST}" = "true" ]; then
   echo This is a PR. Just testing ...
   mvn -s settings.xml clean install
 else
+  git checkout ${TRAVIS_BRANCH}
   if [ "${TRAVIS_BRANCH}" = "master" ]; then
     echo This is an official release at master. Deploying artifact and site ...
-    mvn -s settings.xml -P deployment clean deploy && mvn -P deployment site-deploy
+    mvn -s settings.xml -P deployment clean deploy && mvn -s settings.xml -P deployment site-deploy
   else
     if [ "${TRAVIS_BRANCH}" = "DEVELOP" ]; then
       echo This is a new on-goging development version. Just commit the coverage results ...
