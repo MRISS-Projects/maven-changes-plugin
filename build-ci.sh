@@ -26,7 +26,7 @@ cp maven/settings-security.xml $HOME/.m2
 cp maven/settings-security.xml $HOME/.settings-security.xml
 
 echo Travis Pull Request: ${TRAVIS_PULL_REQUEST}
-if [ "${TRAVIS_PULL_REQUEST}" = "true" ]; then
+if [ "${TRAVIS_PULL_REQUEST}" != "false" ]; then
   echo This is a PR. Just testing ...
   mvn -s settings.xml clean install
 else
