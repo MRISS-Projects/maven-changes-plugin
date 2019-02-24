@@ -19,7 +19,10 @@
  <!--- NOTE: For help with the syntax of this file, see: --->
  <!--- http://maven.apache.org/doxia/references/apt-format.html --->
 
-# Maven Changes Plugin - Adapted Version ![altText](jacoco-badge/jacoco.svg "title") 
+[![Build Status](https://travis-ci.org/MRISS-Projects/maven-changes-plugin.svg?branch=DEVELOP)](https://travis-ci.org/MRISS-Projects/maven-changes-plugin)
+![altText](jacoco-badge/jacoco.svg "title")
+
+# Maven Changes Plugin - Adapted Version
 
 This is a forked version from [original maven changes plugin](https://github.com/apache/maven-changes-plugin) with two
 new additions:

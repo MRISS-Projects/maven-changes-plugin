@@ -17,7 +17,7 @@
     </parent>
 
     <artifactId>maven-changes-plugin</artifactId>
-    <version>2.12.3</version>
+    <version>2.12.4</version>
     <packaging>maven-plugin</packaging>
 
     <name>Apache Maven Changes Plugin</name>
@@ -417,6 +417,27 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>MRISS-Projects-maven-repo</id>
+            <url>https://raw.githubusercontent.com/MRISS-Projects/maven-repo/master</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>MRISS-Projects-maven-repo</id>
+            <url>https://raw.githubusercontent.com/MRISS-Projects/maven-repo/master</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+
+
     <build>
         <pluginManagement>
             <plugins>
@@ -437,9 +458,35 @@
                         </excludes>
                     </configuration>
                 </plugin>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                                        <artifactId>replacer</artifactId>
+                                        <versionRange>[1.6.0,)</versionRange>
+                                        <goals>
+                                            <goal>replace</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -635,16 +682,37 @@
             <properties>
                 <project.scm.id>github</project.scm.id>
                 <deploymentUrl>file://${project.build.directory}/maven-repo</deploymentUrl>
+                <branch.name>${env.TRAVIS_BRANCH}</branch.name>
             </properties>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>com.google.code.maven-replacer-plugin</groupId>
+                        <artifactId>replacer</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>replacing-readme</id>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>replace</goal>
+                                </goals>
+                                <configuration>
+                                    <file>README.md</file>
+                                    <regex>true</regex>
+                                    <token>\?branch=(.*)\)]</token>
+                                    <value>?branch=${branch.name})]</value>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-scm-publish-plugin</artifactId>
                         <version>3.0.0</version>
                         <executions>
                             <execution>
-                                <id>publish-to-github</id>
+                                <id>publish-site-to-github</id>
                                 <phase>site-deploy</phase>
                                 <goals>
                                     <goal>publish-scm</goal>
@@ -656,6 +724,7 @@
                                     <pubScmUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</pubScmUrl>
                                     <content>${project.build.directory}/site-deploy</content>
                                     <checkoutDirectory>${project.build.directory}/site-deploy-checkout</checkoutDirectory>
+                                    <skipDeletedFiles>true</skipDeletedFiles>
                                 </configuration>
                             </execution>
                             <execution>
@@ -670,6 +739,7 @@
                                     <pubScmUrl>scm:git:https://github.com/MRISS-Projects/maven-repo</pubScmUrl>
                                     <content>${project.build.directory}/maven-repo</content>
                                     <checkoutDirectory>${project.build.directory}/artifact-deploy-checkout</checkoutDirectory>
+                                    <skipDeletedFiles>true</skipDeletedFiles>
                                 </configuration>
                             </execution>
                         </executions>
@@ -689,6 +759,23 @@
                                     <basedir>${basedir}/jacoco-badge</basedir>
                                     <includes>jacoco.svg</includes>
                                     <message>Jacoco coverage badge</message>
+                                    <connectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</connectionUrl>
+                                    <developerConnectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</developerConnectionUrl>
+                                </configuration>
+                                <inherited>false</inherited>
+                            </execution>
+                            <execution>
+                                <id>commit-readme</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>checkin</goal>
+                                </goals>
+                                <configuration>
+                                    <basedir>${basedir}</basedir>
+                                    <includes>README.md</includes>
+                                    <message>Readme file</message>
+                                    <connectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</connectionUrl>
+                                    <developerConnectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</developerConnectionUrl>
                                 </configuration>
                                 <inherited>false</inherited>
                             </execution>
@@ -712,6 +799,41 @@
                     </plugin>
                 </plugins>
             </reporting>
+        </profile>
+        <profile>
+            <id>update-coverage</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <project.scm.id>github</project.scm.id>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-scm-plugin</artifactId>
+                        <version>1.9.5</version>
+                        <executions>
+                            <execution>
+                                <id>commit-jacoco-svg</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>checkin</goal>
+                                </goals>
+                                <configuration>
+                                    <basedir>${basedir}/jacoco-badge</basedir>
+                                    <includes>jacoco.svg</includes>
+                                    <message>Jacoco coverage badge</message>
+                                    <connectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</connectionUrl>
+                                    <developerConnectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</developerConnectionUrl>
+                                </configuration>
+                                <inherited>false</inherited>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
