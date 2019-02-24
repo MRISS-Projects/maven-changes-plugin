@@ -46,37 +46,37 @@ public class AptIssueListFormater implements IssueListFormater
     private boolean versionSeparator;
 
     public AptIssueListFormater( boolean versionSeparator )
-<span class="nc" id="L49">    {</span>
-<span class="nc" id="L50">        this.versionSeparator = versionSeparator;</span>
-<span class="nc" id="L51">    }</span>
+<span class="fc" id="L49">    {</span>
+<span class="fc" id="L50">        this.versionSeparator = versionSeparator;</span>
+<span class="fc" id="L51">    }</span>
 
     @Override
     public String formatIssueList( List&lt;Issue&gt; issueList )
     {
-<span class="nc" id="L56">        String result = &quot;&quot;;</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">        if ( !versionSeparator )</span>
+<span class="fc" id="L56">        String result = &quot;&quot;;</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">        if ( !versionSeparator )</span>
         {
-<span class="nc" id="L59">            result = LINE + HEADER + LINE;</span>
+<span class="fc" id="L59">            result = LINE + HEADER + LINE;</span>
         }
-<span class="nc" id="L61">        String version = &quot;&quot;;</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">        for ( Iterator&lt;Issue&gt; iterator = issueList.iterator(); iterator.hasNext(); )</span>
+<span class="fc" id="L61">        String version = &quot;&quot;;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        for ( Iterator&lt;Issue&gt; iterator = issueList.iterator(); iterator.hasNext(); )</span>
         {
-<span class="nc" id="L64">            Issue issue = (Issue) iterator.next();</span>
-<span class="nc bnc" id="L65" title="All 4 branches missed.">            if ( !issue.getVersion().equals( version ) &amp;&amp; versionSeparator )</span>
+<span class="fc" id="L64">            Issue issue = (Issue) iterator.next();</span>
+<span class="pc bpc" id="L65" title="2 of 4 branches missed.">            if ( !issue.getVersion().equals( version ) &amp;&amp; versionSeparator )</span>
             {
 <span class="nc" id="L67">                version = issue.getVersion();</span>
 <span class="nc" id="L68">                result += ( &quot;\n Version &quot; + issue.getVersion() + &quot;\n\n&quot; );</span>
 <span class="nc" id="L69">                result += ( LINE + HEADER + LINE );</span>
             }
-<span class="nc" id="L71">            result += ( APT_LINE_PREFIX + COLUMN_SEPARATOR );</span>
-<span class="nc" id="L72">            result += ( APT_COLUMN_SPACE + issue.getId() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
-<span class="nc" id="L73">            result += ( APT_COLUMN_SPACE + issue.getSummary() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
-<span class="nc" id="L74">            result += ( APT_COLUMN_SPACE + issue.getType() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
-<span class="nc" id="L75">            result += ( APT_COLUMN_SPACE + issue.getPriority() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
-<span class="nc" id="L76">            result += ( APT_COLUMN_SPACE + issue.getResolution() + APT_COLUMN_SPACE + COLUMN_SEPARATOR + &quot;\n&quot; );</span>
-<span class="nc" id="L77">            result += LINE;</span>
-<span class="nc" id="L78">        }</span>
-<span class="nc" id="L79">        return result;</span>
+<span class="fc" id="L71">            result += ( APT_LINE_PREFIX + COLUMN_SEPARATOR );</span>
+<span class="fc" id="L72">            result += ( APT_COLUMN_SPACE + issue.getId() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="fc" id="L73">            result += ( APT_COLUMN_SPACE + issue.getSummary() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="fc" id="L74">            result += ( APT_COLUMN_SPACE + issue.getType() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="fc" id="L75">            result += ( APT_COLUMN_SPACE + issue.getPriority() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );</span>
+<span class="fc" id="L76">            result += ( APT_COLUMN_SPACE + issue.getResolution() + APT_COLUMN_SPACE + COLUMN_SEPARATOR + &quot;\n&quot; );</span>
+<span class="fc" id="L77">            result += LINE;</span>
+<span class="fc" id="L78">        }</span>
+<span class="fc" id="L79">        return result;</span>
     }
 
 }
