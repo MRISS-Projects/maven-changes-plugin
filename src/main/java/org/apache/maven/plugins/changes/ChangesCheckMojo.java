@@ -82,7 +82,14 @@ public class ChangesCheckMojo
      * @since 2.12.3
      */
     @Parameter( property = "changes.removeSnapshotSuffix", defaultValue = "true" )
-    private boolean removeSnapshotSuffix;    
+    private boolean removeSnapshotSuffix;  
+    
+    /**
+     * Mojo failure in case of exception when getting no release for supplied arguments. 
+     * If false only a warning will be logged.
+     */
+    @Parameter( property = "changes.check.failOnError", defaultValue = "true" )
+    private boolean failOnError;
 
     /**
      * Check that the latest release contains a valid release date.
@@ -106,16 +113,18 @@ public class ChangesCheckMojo
             else if ( xmlPath.exists() )
             {
                 ChangesXML xml = new ChangesXML( xmlPath, getLog() );
-                ReleaseUtils releaseUtils = new ReleaseUtils( getLog() );
+                ReleaseUtils releaseUtils = new ReleaseUtils( getLog(), failOnError );
                 Release release =
                     releaseUtils.getLatestRelease( releaseUtils.convertReleaseList( xml.getReleaseList() ), version, 
                        removeSnapshotSuffix );
 
-                if ( !isValidDate( release.getDateRelease(), releaseDateFormat, releaseDateLocale ) )
+                if ( release != null && !isValidDate( release.getDateRelease(), releaseDateFormat, releaseDateLocale ) )
                 {
-                    throw new MojoExecutionException( "The file " + xmlPath.getAbsolutePath()
-                        + " has an invalid release date." );
-
+                    if ( failOnError ) 
+                    {
+                        throw new MojoExecutionException( "The file " + xmlPath.getAbsolutePath()
+                        + " has an invalid release date." );                        
+                    }
                 }
             }
             else

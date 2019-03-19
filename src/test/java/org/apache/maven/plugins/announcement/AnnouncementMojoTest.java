@@ -90,6 +90,82 @@ public class AnnouncementMojoTest extends AbstractMojoTestCase
         assertContains( "Deleted the erroneous code.", result );
     }
 
+    public void testFailAnnounceWithNoReleaseFound() throws Exception
+    {
+        File pom = new File( getBasedir(), "/src/test/unit/plugin-config.xml" );
+        AnnouncementMojo mojo = (AnnouncementMojo) lookupMojo( "announcement-generate", pom );
+
+        setVariableValueToObject( mojo, "xmlPath", new File( getBasedir(), "/src/test/unit/announce-changes.xml" ) );
+
+        File announcementDirectory = new File( getBasedir(), "target/test" );
+
+        if ( announcementDirectory.exists() )
+        {
+            FileUtils.deleteDirectory( announcementDirectory );
+            announcementDirectory.mkdirs();
+        }
+        else
+        {
+            announcementDirectory.mkdirs();
+        }
+        setVariableValueToObject( mojo, "announcementDirectory", announcementDirectory );
+        setVariableValueToObject( mojo, "version", "1.2" );
+        setVariableValueToObject( mojo, "template", "announcement.vm" );
+        setVariableValueToObject( mojo, "templateDirectory",
+                "/src/main/resources/org/apache/maven/plugins/announcement/" );
+        setVariableValueToObject( mojo, "basedir", getBasedir() );
+        setVariableValueToObject( mojo, "introduction", "Nice library" );
+        setVariableValueToObject( mojo, "failOnError", true );
+        
+        Exception result = null;
+        try
+        {
+            mojo.execute();
+        }
+        catch ( Exception e )
+        {
+            result = e;
+        }
+        assertNotNull( result );
+
+    }
+    
+    public void testNotFailAnnounceWithNoReleaseFound() throws Exception
+    {
+        File pom = new File( getBasedir(), "/src/test/unit/plugin-config.xml" );
+        AnnouncementMojo mojo = (AnnouncementMojo) lookupMojo( "announcement-generate", pom );
+
+        setVariableValueToObject( mojo, "xmlPath", new File( getBasedir(), "/src/test/unit/announce-changes.xml" ) );
+
+        File announcementDirectory = new File( getBasedir(), "target/test" );
+
+        if ( announcementDirectory.exists() )
+        {
+            FileUtils.deleteDirectory( announcementDirectory );
+            announcementDirectory.mkdirs();
+        }
+        else
+        {
+            announcementDirectory.mkdirs();
+        }
+        setVariableValueToObject( mojo, "announcementDirectory", announcementDirectory );
+        setVariableValueToObject( mojo, "version", "1.2" );
+        setVariableValueToObject( mojo, "template", "announcement.vm" );
+        setVariableValueToObject( mojo, "templateDirectory",
+                "/src/main/resources/org/apache/maven/plugins/announcement/" );
+        setVariableValueToObject( mojo, "basedir", getBasedir() );
+        setVariableValueToObject( mojo, "introduction", "Nice library" );
+        setVariableValueToObject( mojo, "failOnError", false );
+        mojo.execute();
+
+        FileReader fileReader = new FileReader( new File( announcementDirectory, "announcement.vm" ) );
+        String result = IOUtil.toString( fileReader );
+
+        fileReader.close();
+
+    }
+    
+    
     protected void assertContains( String content, String announce )
     {
         assertTrue( announce.indexOf( content ) > 0 );

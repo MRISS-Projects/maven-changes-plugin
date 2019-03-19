@@ -41,9 +41,12 @@ public class ReleaseUtils
 
     private Log log;
 
-    public ReleaseUtils( Log log )
+    private boolean failOnError;
+
+    public ReleaseUtils( Log log, boolean failOnError )
     {
         this.log = log;
+        this.failOnError = failOnError;
     }
 
     /**
@@ -69,8 +72,16 @@ public class ReleaseUtils
 
         if ( release == null )
         {
-            throw new MojoExecutionException( "Couldn't find the release '" + pomVersion
-                + "' among the supplied releases: " + toString( releases ) );
+            if ( failOnError ) 
+            {
+                throw new MojoExecutionException( "Couldn't find the release '" + pomVersion
+                        + "' among the supplied releases: " + toString( releases ) );                
+            } 
+            else 
+            {
+                log.warn( "Couldn't find the release '" + pomVersion
+                        + "' among the supplied releases: " + toString( releases ) );
+            }
         }
 
         return release;

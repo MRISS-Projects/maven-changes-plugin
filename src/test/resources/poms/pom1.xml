@@ -37,8 +37,7 @@
                             </_decryptors>
                         </securityDispatcher> 
                     </settingsDecrypter>
-                    <issueListPropertyName>issues.text.list
-                    </issueListPropertyName>
+                    <issueListPropertyName>issues.text.list</issueListPropertyName>
                     <textListFormater>markdown</textListFormater>
                     <githubAPIServerId>github.com</githubAPIServerId>
                     <githubAPIScheme>https</githubAPIScheme>
