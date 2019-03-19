@@ -119,15 +119,15 @@ public class MarkdownIssueListFormater implements IssueListFormater
 <span class="fc" id="L119">                continue;</span>
             }
 <span class="fc" id="L121">            String issueVersion = getVersion( issue );</span>
-<span class="pc bpc" id="L122" title="3 of 8 branches missed.">            if ( issueVersion == null &amp;&amp; version != null &amp;&amp; isOpened( issue ) &amp;&amp; versionSeparator )</span>
+<span class="pc bpc" id="L122" title="7 of 8 branches missed.">            if ( issueVersion == null &amp;&amp; version != null &amp;&amp; isOpened( issue ) &amp;&amp; versionSeparator )</span>
             {
-<span class="pc bpc" id="L124" title="1 of 2 branches missed.">                if ( !version.isEmpty() )</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                if ( !version.isEmpty() )</span>
                 {
-<span class="fc" id="L126">                    result += &quot;\n&quot;;</span>
+<span class="nc" id="L126">                    result += &quot;\n&quot;;</span>
                 }
-<span class="fc" id="L128">                version = issueVersion;</span>
-<span class="fc" id="L129">                result += ( StringUtils.repeat( &quot;#&quot;, subtitleLevelNumber ) + &quot; Opened Issues\n\n&quot; );</span>
-<span class="fc" id="L130">                result += ( header );</span>
+<span class="nc" id="L128">                version = issueVersion;</span>
+<span class="nc" id="L129">                result += ( StringUtils.repeat( &quot;#&quot;, subtitleLevelNumber ) + &quot; Opened Issues\n\n&quot; );</span>
+<span class="nc" id="L130">                result += ( header );</span>
             }
 <span class="pc bpc" id="L132" title="2 of 6 branches missed.">            else if ( issueVersion != null &amp;&amp; !issueVersion.equals( version ) &amp;&amp; versionSeparator )</span>
             {
@@ -250,7 +250,7 @@ public class MarkdownIssueListFormater implements IssueListFormater
 
     private boolean isOpened( Issue issue )
     {
-<span class="pc bpc" id="L253" title="2 of 4 branches missed.">        return issue.getStatus() != null &amp;&amp; !issue.getStatus().equalsIgnoreCase( &quot;closed&quot; );</span>
+<span class="nc bnc" id="L253" title="All 4 branches missed.">        return issue.getStatus() != null &amp;&amp; !issue.getStatus().equalsIgnoreCase( &quot;closed&quot; );</span>
     }
 
     private String getVersion( Issue issue )
@@ -259,9 +259,9 @@ public class MarkdownIssueListFormater implements IssueListFormater
 <span class="pc bpc" id="L259" title="1 of 2 branches missed.">        if ( StringUtils.isEmpty( version ) )</span>
         {
 <span class="fc" id="L261">            List&lt;String&gt; fixVersions = issue.getFixVersions();</span>
-<span class="pc bpc" id="L262" title="1 of 4 branches missed.">            if ( fixVersions == null || fixVersions.isEmpty() )</span>
+<span class="pc bpc" id="L262" title="2 of 4 branches missed.">            if ( fixVersions == null || fixVersions.isEmpty() )</span>
             {
-<span class="fc" id="L264">                return null;</span>
+<span class="nc" id="L264">                return null;</span>
             }
             else
             {

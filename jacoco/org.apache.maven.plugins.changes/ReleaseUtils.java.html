@@ -41,10 +41,13 @@ public class ReleaseUtils
 
     private Log log;
 
-    public ReleaseUtils( Log log )
-<span class="fc" id="L45">    {</span>
-<span class="fc" id="L46">        this.log = log;</span>
-<span class="fc" id="L47">    }</span>
+    private boolean failOnError;
+
+    public ReleaseUtils( Log log, boolean failOnError )
+<span class="fc" id="L47">    {</span>
+<span class="fc" id="L48">        this.log = log;</span>
+<span class="fc" id="L49">        this.failOnError = failOnError;</span>
+<span class="fc" id="L50">    }</span>
 
     /**
      * Get the latest release by matching the supplied releases with the version from the pom.
@@ -59,26 +62,34 @@ public class ReleaseUtils
         throws MojoExecutionException
     {
         // Remove &quot;-SNAPSHOT&quot; from the end, if it's there
-<span class="pc bpc" id="L62" title="4 of 6 branches missed.">        if ( pomVersion != null &amp;&amp; pomVersion.endsWith( SNAPSHOT_SUFFIX ) &amp;&amp; removeSnapshotSuffix )</span>
+<span class="pc bpc" id="L65" title="4 of 6 branches missed.">        if ( pomVersion != null &amp;&amp; pomVersion.endsWith( SNAPSHOT_SUFFIX ) &amp;&amp; removeSnapshotSuffix )</span>
         {
-<span class="nc" id="L64">            pomVersion = pomVersion.substring( 0, pomVersion.length() - SNAPSHOT_SUFFIX.length() );</span>
+<span class="nc" id="L67">            pomVersion = pomVersion.substring( 0, pomVersion.length() - SNAPSHOT_SUFFIX.length() );</span>
         }
-<span class="fc" id="L66">        getLog().debug( &quot;Found &quot; + releases.size() + &quot; releases.&quot; );</span>
+<span class="fc" id="L69">        getLog().debug( &quot;Found &quot; + releases.size() + &quot; releases.&quot; );</span>
 
-<span class="fc" id="L68">        Release release = getRelease( releases, pomVersion );</span>
+<span class="fc" id="L71">        Release release = getRelease( releases, pomVersion );</span>
 
-<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if ( release == null )</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">        if ( release == null )</span>
         {
-<span class="nc" id="L72">            throw new MojoExecutionException( &quot;Couldn't find the release '&quot; + pomVersion</span>
-<span class="nc" id="L73">                + &quot;' among the supplied releases: &quot; + toString( releases ) );</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            if ( failOnError ) </span>
+            {
+<span class="fc" id="L77">                throw new MojoExecutionException( &quot;Couldn't find the release '&quot; + pomVersion</span>
+<span class="fc" id="L78">                        + &quot;' among the supplied releases: &quot; + toString( releases ) );                </span>
+            } 
+            else 
+            {
+<span class="fc" id="L82">                log.warn( &quot;Couldn't find the release '&quot; + pomVersion</span>
+<span class="fc" id="L83">                        + &quot;' among the supplied releases: &quot; + toString( releases ) );</span>
+            }
         }
 
-<span class="fc" id="L76">        return release;</span>
+<span class="fc" id="L87">        return release;</span>
     }
 
     private Log getLog()
     {
-<span class="fc" id="L81">        return log;</span>
+<span class="fc" id="L92">        return log;</span>
     }
 
     /**
@@ -90,39 +101,39 @@ public class ReleaseUtils
      */
     protected Release getRelease( List&lt;Release&gt; releases, String version )
     {
-<span class="fc bfc" id="L93" title="All 2 branches covered.">        for ( Release release : releases )</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        for ( Release release : releases )</span>
         {
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">            if ( getLog().isDebugEnabled() )</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">            if ( getLog().isDebugEnabled() )</span>
             {
-<span class="nc" id="L97">                getLog().debug( &quot;The release: &quot; + release.getVersion() + &quot; has &quot; + release.getActions().size()</span>
+<span class="nc" id="L108">                getLog().debug( &quot;The release: &quot; + release.getVersion() + &quot; has &quot; + release.getActions().size()</span>
                     + &quot; actions.&quot; );
             }
 
-<span class="pc bpc" id="L101" title="1 of 4 branches missed.">            if ( release.getVersion() != null &amp;&amp; release.getVersion().equals( version ) )</span>
+<span class="pc bpc" id="L112" title="1 of 4 branches missed.">            if ( release.getVersion() != null &amp;&amp; release.getVersion().equals( version ) )</span>
             {
-<span class="pc bpc" id="L103" title="1 of 2 branches missed.">                if ( getLog().isDebugEnabled() )</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">                if ( getLog().isDebugEnabled() )</span>
                 {
-<span class="nc" id="L105">                    getLog().debug( &quot;Found the correct release: &quot; + release.getVersion() );</span>
-<span class="nc" id="L106">                    logRelease( release );</span>
+<span class="nc" id="L116">                    getLog().debug( &quot;Found the correct release: &quot; + release.getVersion() );</span>
+<span class="nc" id="L117">                    logRelease( release );</span>
                 }
-<span class="fc" id="L108">                return release;</span>
+<span class="fc" id="L119">                return release;</span>
             }
-<span class="fc" id="L110">        }</span>
-<span class="fc" id="L111">        return null;</span>
+<span class="fc" id="L121">        }</span>
+<span class="fc" id="L122">        return null;</span>
     }
 
     protected void logRelease( Release release )
     {
         Action action;
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        for ( Action action1 : release.getActions() )</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        for ( Action action1 : release.getActions() )</span>
         {
-<span class="nc" id="L119">            action = action1;</span>
-<span class="nc" id="L120">            getLog().debug( &quot;o &quot; + action.getType() );</span>
-<span class="nc" id="L121">            getLog().debug( &quot;issue : &quot; + action.getIssue() );</span>
-<span class="nc" id="L122">            getLog().debug( &quot;action : &quot; + action.getAction() );</span>
-<span class="nc" id="L123">            getLog().debug( &quot;dueTo : &quot; + action.getDueTo() );</span>
-<span class="nc" id="L124">        }</span>
-<span class="nc" id="L125">    }</span>
+<span class="nc" id="L130">            action = action1;</span>
+<span class="nc" id="L131">            getLog().debug( &quot;o &quot; + action.getType() );</span>
+<span class="nc" id="L132">            getLog().debug( &quot;issue : &quot; + action.getIssue() );</span>
+<span class="nc" id="L133">            getLog().debug( &quot;action : &quot; + action.getAction() );</span>
+<span class="nc" id="L134">            getLog().debug( &quot;dueTo : &quot; + action.getDueTo() );</span>
+<span class="nc" id="L135">        }</span>
+<span class="nc" id="L136">    }</span>
 
     /**
      * Merge releases from one issue tracker with releases from another issue tracker. If a release is found in both
@@ -134,47 +145,47 @@ public class ReleaseUtils
      */
     public List&lt;Release&gt; mergeReleases( final List&lt;Release&gt; firstReleases, final List&lt;Release&gt; secondReleases )
     {
-<span class="pc bpc" id="L137" title="1 of 4 branches missed.">        if ( firstReleases == null &amp;&amp; secondReleases == null )</span>
+<span class="pc bpc" id="L148" title="1 of 4 branches missed.">        if ( firstReleases == null &amp;&amp; secondReleases == null )</span>
         {
-<span class="nc" id="L139">            return Collections.emptyList();</span>
+<span class="nc" id="L150">            return Collections.emptyList();</span>
         }
-<span class="fc bfc" id="L141" title="All 2 branches covered.">        if ( firstReleases == null )</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if ( firstReleases == null )</span>
         {
-<span class="fc" id="L143">            return secondReleases;</span>
+<span class="fc" id="L154">            return secondReleases;</span>
         }
-<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        if ( secondReleases == null )</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">        if ( secondReleases == null )</span>
         {
-<span class="nc" id="L147">            return firstReleases;</span>
+<span class="nc" id="L158">            return firstReleases;</span>
         }
 
-<span class="fc" id="L150">        List&lt;Release&gt; mergedReleases = new ArrayList&lt;Release&gt;();</span>
+<span class="fc" id="L161">        List&lt;Release&gt; mergedReleases = new ArrayList&lt;Release&gt;();</span>
 
         // Loop through the releases from the first issue tracker, merging in
         // actions from releases with the same version from the second issue
         // tracker
-<span class="fc bfc" id="L155" title="All 2 branches covered.">        for ( Release firstRelease : firstReleases )</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">        for ( Release firstRelease : firstReleases )</span>
         {
-<span class="fc" id="L157">            Release secondRelease = getRelease( secondReleases, firstRelease.getVersion() );</span>
-<span class="fc bfc" id="L158" title="All 2 branches covered.">            if ( secondRelease != null )</span>
+<span class="fc" id="L168">            Release secondRelease = getRelease( secondReleases, firstRelease.getVersion() );</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">            if ( secondRelease != null )</span>
             {
-<span class="pc bpc" id="L160" title="1 of 2 branches missed.">                if ( secondRelease.getActions() != null )</span>
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">                if ( secondRelease.getActions() != null )</span>
                 {
-<span class="fc" id="L162">                    firstRelease.getActions().addAll( secondRelease.getActions() );</span>
+<span class="fc" id="L173">                    firstRelease.getActions().addAll( secondRelease.getActions() );</span>
                 }
             }
-<span class="fc" id="L165">            mergedReleases.add( firstRelease );</span>
-<span class="fc" id="L166">        }</span>
+<span class="fc" id="L176">            mergedReleases.add( firstRelease );</span>
+<span class="fc" id="L177">        }</span>
 
         // Handle releases that are only in the second issue tracker
-<span class="fc bfc" id="L169" title="All 2 branches covered.">        for ( Release secondRelease : secondReleases )</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        for ( Release secondRelease : secondReleases )</span>
         {
-<span class="fc" id="L171">            Release mergedRelease = getRelease( mergedReleases, secondRelease.getVersion() );</span>
-<span class="fc bfc" id="L172" title="All 2 branches covered.">            if ( mergedRelease == null )</span>
+<span class="fc" id="L182">            Release mergedRelease = getRelease( mergedReleases, secondRelease.getVersion() );</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">            if ( mergedRelease == null )</span>
             {
-<span class="fc" id="L174">                mergedReleases.add( secondRelease );</span>
+<span class="fc" id="L185">                mergedReleases.add( secondRelease );</span>
             }
-<span class="fc" id="L176">        }</span>
-<span class="fc" id="L177">        return mergedReleases;</span>
+<span class="fc" id="L187">        }</span>
+<span class="fc" id="L188">        return mergedReleases;</span>
     }
 
     /**
@@ -186,16 +197,16 @@ public class ReleaseUtils
      */
     public List&lt;Release&gt; convertReleaseList( List&lt;Release&gt; changesReleases )
     {
-<span class="nc" id="L189">        List&lt;Release&gt; releases = new ArrayList&lt;Release&gt;();</span>
+<span class="nc" id="L200">        List&lt;Release&gt; releases = new ArrayList&lt;Release&gt;();</span>
 
         // Loop through the List of releases from changes.xml and casting each
         // release to a Release
-<span class="nc bnc" id="L193" title="All 2 branches missed.">        for ( Object changesRelease : changesReleases )</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        for ( Object changesRelease : changesReleases )</span>
         {
-<span class="nc" id="L195">            Release release = (Release) changesRelease;</span>
-<span class="nc" id="L196">            releases.add( release );</span>
-<span class="nc" id="L197">        }</span>
-<span class="nc" id="L198">        return releases;</span>
+<span class="nc" id="L206">            Release release = (Release) changesRelease;</span>
+<span class="nc" id="L207">            releases.add( release );</span>
+<span class="nc" id="L208">        }</span>
+<span class="nc" id="L209">        return releases;</span>
     }
 
     /**
@@ -211,63 +222,63 @@ public class ReleaseUtils
     public List&lt;Release&gt; mergeReleases( final List&lt;Release&gt; releases, final String componentName,
                                         final List&lt;Release&gt; componentReleases )
     {
-<span class="nc bnc" id="L214" title="All 4 branches missed.">        if ( releases == null &amp;&amp; componentReleases == null )</span>
+<span class="nc bnc" id="L225" title="All 4 branches missed.">        if ( releases == null &amp;&amp; componentReleases == null )</span>
         {
-<span class="nc" id="L216">            return Collections.emptyList();</span>
+<span class="nc" id="L227">            return Collections.emptyList();</span>
         }
-<span class="nc bnc" id="L218" title="All 2 branches missed.">        if ( componentReleases == null )</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">        if ( componentReleases == null )</span>
         {
-<span class="nc" id="L220">            return releases;</span>
+<span class="nc" id="L231">            return releases;</span>
         }
 
-<span class="nc" id="L223">        final List&lt;Release&gt; mergedReleases = new ArrayList&lt;Release&gt;();</span>
+<span class="nc" id="L234">        final List&lt;Release&gt; mergedReleases = new ArrayList&lt;Release&gt;();</span>
 
-<span class="nc bnc" id="L225" title="All 2 branches missed.">        if ( releases != null )</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">        if ( releases != null )</span>
         {
-<span class="nc bnc" id="L227" title="All 2 branches missed.">            for ( Object release1 : releases )</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">            for ( Object release1 : releases )</span>
             {
-<span class="nc" id="L229">                final Release release = (Release) release1;</span>
-<span class="nc" id="L230">                final Release componentRelease = getRelease( componentReleases, release.getVersion() );</span>
-<span class="nc bnc" id="L231" title="All 2 branches missed.">                if ( componentRelease != null )</span>
+<span class="nc" id="L240">                final Release release = (Release) release1;</span>
+<span class="nc" id="L241">                final Release componentRelease = getRelease( componentReleases, release.getVersion() );</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">                if ( componentRelease != null )</span>
                 {
-<span class="nc" id="L233">                    release.addComponent( componentName, componentRelease );</span>
+<span class="nc" id="L244">                    release.addComponent( componentName, componentRelease );</span>
                 }
-<span class="nc" id="L235">                mergedReleases.add( release );</span>
-<span class="nc" id="L236">            }</span>
+<span class="nc" id="L246">                mergedReleases.add( release );</span>
+<span class="nc" id="L247">            }</span>
         }
 
-<span class="nc bnc" id="L239" title="All 2 branches missed.">        for ( Object componentRelease1 : componentReleases )</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">        for ( Object componentRelease1 : componentReleases )</span>
         {
-<span class="nc" id="L241">            final Release release = (Release) componentRelease1;</span>
-<span class="nc" id="L242">            final Release mergedRelease = getRelease( mergedReleases, release.getVersion() );</span>
-<span class="nc bnc" id="L243" title="All 2 branches missed.">            if ( mergedRelease == null )</span>
+<span class="nc" id="L252">            final Release release = (Release) componentRelease1;</span>
+<span class="nc" id="L253">            final Release mergedRelease = getRelease( mergedReleases, release.getVersion() );</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">            if ( mergedRelease == null )</span>
             {
-<span class="nc" id="L245">                final Release componentRelease = new Release();</span>
-<span class="nc" id="L246">                componentRelease.setVersion( release.getVersion() );</span>
-<span class="nc" id="L247">                componentRelease.setDateRelease( release.getDateRelease() );</span>
-<span class="nc" id="L248">                componentRelease.addComponent( componentName, release );</span>
-<span class="nc" id="L249">                mergedReleases.add( componentRelease );</span>
+<span class="nc" id="L256">                final Release componentRelease = new Release();</span>
+<span class="nc" id="L257">                componentRelease.setVersion( release.getVersion() );</span>
+<span class="nc" id="L258">                componentRelease.setDateRelease( release.getDateRelease() );</span>
+<span class="nc" id="L259">                componentRelease.addComponent( componentName, release );</span>
+<span class="nc" id="L260">                mergedReleases.add( componentRelease );</span>
             }
-<span class="nc" id="L251">        }</span>
+<span class="nc" id="L262">        }</span>
 
-<span class="nc" id="L253">        return mergedReleases;</span>
+<span class="nc" id="L264">        return mergedReleases;</span>
     }
 
     private static String toString( Release release )
     {
-<span class="fc" id="L258">        return release.getClass().getSimpleName() + &quot;[version='&quot; + release.getVersion() + &quot;'&quot; + &quot;, date='&quot;</span>
-<span class="fc" id="L259">            + release.getDateRelease() + &quot;'&quot; + &quot;, description='&quot; + release.getDescription() + &quot;'&quot; + &quot;, actionsSize=&quot;</span>
-<span class="fc" id="L260">            + release.getActions().size() + &quot;]&quot;;</span>
+<span class="fc" id="L269">        return release.getClass().getSimpleName() + &quot;[version='&quot; + release.getVersion() + &quot;'&quot; + &quot;, date='&quot;</span>
+<span class="fc" id="L270">            + release.getDateRelease() + &quot;'&quot; + &quot;, description='&quot; + release.getDescription() + &quot;'&quot; + &quot;, actionsSize=&quot;</span>
+<span class="fc" id="L271">            + release.getActions().size() + &quot;]&quot;;</span>
     }
 
     public static String toString( List&lt;Release&gt; releases )
     {
-<span class="fc" id="L265">        List&lt;String&gt; releaseStrings = new ArrayList&lt;String&gt;( releases.size() );</span>
-<span class="fc bfc" id="L266" title="All 2 branches covered.">        for ( Release release : releases )</span>
+<span class="fc" id="L276">        List&lt;String&gt; releaseStrings = new ArrayList&lt;String&gt;( releases.size() );</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">        for ( Release release : releases )</span>
         {
-<span class="fc" id="L268">            releaseStrings.add( toString( release ) );</span>
-<span class="fc" id="L269">        }</span>
-<span class="fc" id="L270">        return releaseStrings.toString();</span>
+<span class="fc" id="L279">            releaseStrings.add( toString( release ) );</span>
+<span class="fc" id="L280">        }</span>
+<span class="fc" id="L281">        return releaseStrings.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
