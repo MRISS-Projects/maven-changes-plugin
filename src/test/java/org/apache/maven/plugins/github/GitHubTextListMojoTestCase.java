@@ -79,6 +79,25 @@ public class GitHubTextListMojoTestCase extends AbstractMojoTestCase
             assertNotNull( e );
         }
     }
+    
+    /**
+     * Remove snapshot suffix, but this won't cause a failure
+     */
+    public void testExecuteRemoveSnapshotSuffixNoFail()
+    {
+        Exception result = null;
+        try
+        {
+            testPom( "pom4" );
+        }
+        catch ( Exception e )
+        {
+            result = e;
+        }
+        assertNull( result );
+        
+    }
+    
 
     private void testPom( String testPomName ) throws Exception
     {

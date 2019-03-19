@@ -28,7 +28,7 @@
                     <settings
                         implementation="org.apache.maven.plugins.github.stubs.SettingsStub" />
                     <project
-                        implementation="org.apache.maven.plugins.github.stubs.RemoveSnapshotSuffixStub" />
+                        implementation="org.apache.maven.plugins.github.stubs.RemoveSnapshotSuffixStubNoFail" />
                     <settingsDecrypter implementation="org.apache.maven.settings.crypto.DefaultSettingsDecrypter">
                         <securityDispatcher implementation="org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher">
                             <_cipher implementation="org.sonatype.plexus.components.cipher.DefaultPlexusCipher" />
@@ -52,7 +52,7 @@
                     <onlyCurrentVersion>true</onlyCurrentVersion>
                     <removeSnapshotSuffix>true</removeSnapshotSuffix>
                     <subtitleLevelNumber>3</subtitleLevelNumber>
-                    <failOnError>true</failOnError>
+                    <failOnError>false</failOnError>
                 </configuration>
             </plugin>
         </plugins>
