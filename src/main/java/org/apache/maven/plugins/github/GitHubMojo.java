@@ -20,6 +20,7 @@ package org.apache.maven.plugins.github;
  */
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -48,6 +49,13 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
 @Mojo( name = "github-report", threadSafe = true )
 public class GitHubMojo extends AbstractChangesReport
 {
+
+    /**
+     * Mojo failure in case of exception when getting no issues for supplied arguments. 
+     * If false only a warning will be logged.
+     */
+    @Parameter( property = "github.failOnError", defaultValue = "true" )
+    private boolean failOnError;
 
     /**
      * Valid Github columns.
@@ -216,7 +224,15 @@ public class GitHubMojo extends AbstractChangesReport
         }
         catch ( Exception e )
         {
-            throw new MavenReportException( e.getMessage(), e );
+            if ( failOnError ) 
+            {
+                throw new MavenReportException( e.getMessage(), e );
+            }
+            else 
+            {
+                getLog().warn( e.getMessage() );
+                generateReport( locale, columnIds, new ArrayList<Issue>() );
+            }            
         }
     }
 

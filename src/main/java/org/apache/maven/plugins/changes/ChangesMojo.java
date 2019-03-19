@@ -219,8 +219,16 @@ public class ChangesMojo
      */
     @Parameter( property = "changes.xmlPath", defaultValue = "src/changes/changes.xml" )
     private File xmlPath;
+    
+    /**
+     * Mojo failure in case of exception when getting no release for supplied arguments. 
+     * If false only a warning will be logged.
+     */
+    @Parameter( property = "changes.failOnError", defaultValue = "true" )
+    private boolean failOnError;
 
-    private ReleaseUtils releaseUtils = new ReleaseUtils( getLog() );
+
+    private ReleaseUtils releaseUtils = new ReleaseUtils( getLog(), failOnError );
 
     private CaseInsensitiveMap caseInsensitiveIssueLinkTemplatePerSystem;
 

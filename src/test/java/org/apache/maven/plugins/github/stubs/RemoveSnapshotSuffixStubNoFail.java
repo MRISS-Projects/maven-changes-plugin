@@ -28,7 +28,7 @@ import org.apache.maven.model.Model;
  * @author <a href="mailto:marcelo.riss@gmail.com">Marcelo Riss</a>
  * @version 2018 Oct, 4
  */
-public class RemoveSnapshotSuffixStub extends ChangesPluginProjectStub
+public class RemoveSnapshotSuffixStubNoFail extends ChangesPluginProjectStub
 {
 
     private Properties properties;
@@ -36,7 +36,7 @@ public class RemoveSnapshotSuffixStub extends ChangesPluginProjectStub
     @Override
     protected String getPOM()
     {
-        return "pom4.xml";
+        return "pom3.xml";
     }
 
     @Override

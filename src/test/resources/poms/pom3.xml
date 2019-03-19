@@ -52,6 +52,7 @@
                     <onlyCurrentVersion>true</onlyCurrentVersion>
                     <removeSnapshotSuffix>true</removeSnapshotSuffix>
                     <subtitleLevelNumber>3</subtitleLevelNumber>
+                    <failOnError>true</failOnError>
                 </configuration>
             </plugin>
         </plugins>

@@ -28,7 +28,7 @@
                     <settings
                         implementation="org.apache.maven.plugins.github.stubs.SettingsStub" />
                     <project
-                        implementation="org.apache.maven.plugins.github.stubs.ChangesIssueSystemStub" />
+                        implementation="org.apache.maven.plugins.github.stubs.RemoveSnapshotSuffixStubNoFail" />
                     <settingsDecrypter implementation="org.apache.maven.settings.crypto.DefaultSettingsDecrypter">
                         <securityDispatcher implementation="org.sonatype.plexus.components.sec.dispatcher.DefaultSecDispatcher">
                             <_cipher implementation="org.sonatype.plexus.components.cipher.DefaultPlexusCipher" />
@@ -36,8 +36,9 @@
                                 <type>test</type>
                             </_decryptors>
                         </securityDispatcher> 
-                    </settingsDecrypter>
-                    <issueListPropertyName>issues.text.list</issueListPropertyName>
+                    </settingsDecrypter>                        
+                    <issueListPropertyName>issues.text.list
+                    </issueListPropertyName>
                     <textListFormater>markdown</textListFormater>
                     <githubAPIServerId>github.com</githubAPIServerId>
                     <githubAPIScheme>https</githubAPIScheme>
@@ -46,9 +47,12 @@
                     </localRepository>
                     <outputDirectory>target/site</outputDirectory>
                     <columnNames>Id,Type,Summary,Assignee,Reporter,Status,Created,Updated,Fix Version</columnNames>
-                    <onlyMilestoneIssues>false</onlyMilestoneIssues>
-                    <includeOpenIssues>true</includeOpenIssues>
+                    <includeOpenIssues>false</includeOpenIssues>
+                    <onlyMilestoneIssues>true</onlyMilestoneIssues>
+                    <onlyCurrentVersion>true</onlyCurrentVersion>
+                    <removeSnapshotSuffix>true</removeSnapshotSuffix>
                     <subtitleLevelNumber>3</subtitleLevelNumber>
+                    <failOnError>false</failOnError>
                 </configuration>
             </plugin>
         </plugins>

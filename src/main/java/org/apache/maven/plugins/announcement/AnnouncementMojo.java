@@ -466,8 +466,16 @@ public class AnnouncementMojo
      */
     @Parameter( defaultValue = "false" )
     private boolean includeOpenIssues;
+    
+    /**
+     * Mojo failure in case of exception when getting no release for supplied arguments. 
+     * If false only a warning will be logged.
+     */
+    @Parameter( property = "announcement.failOnError", defaultValue = "true" )
+    private boolean failOnError;
 
-    private ReleaseUtils releaseUtils = new ReleaseUtils( getLog() );
+
+    private ReleaseUtils releaseUtils;
 
     private ChangesXML xml;
 
@@ -488,6 +496,8 @@ public class AnnouncementMojo
         failIfUsingDeprecatedParameter( generateJiraAnnouncement, "generateJiraAnnouncement",
                                         "issueManagementSystems " );
         failIfUsingDeprecatedParameter( jiraMerge, "jiraMerge", "issueManagementSystems " );
+        
+        releaseUtils = new ReleaseUtils( getLog(), failOnError );
 
         // Run only at the execution root
         if ( runOnlyAtExecutionRoot && !isThisTheExecutionRoot() )

@@ -40,7 +40,7 @@ public class ReleaseUtilsTestCase
         throws Exception
     {
         Log log = new SilentLog();
-        ReleaseUtils releaseUtils = new ReleaseUtils( log );
+        ReleaseUtils releaseUtils = new ReleaseUtils( log, true );
 
         List<Release> firstReleases = new ArrayList<Release>();
         List<Release> secondReleases = new ArrayList<Release>();
