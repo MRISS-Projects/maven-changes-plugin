@@ -38,7 +38,10 @@ else
     if [ "${TRAVIS_BRANCH}" = "DEVELOP" ]; then
       echo This is a new on-goging development version. Just commit the coverage results ...
       mvn -s settings.xml -P update-coverage clean install
-    fi
+    else
+      echo This is a feature branch. Just testing ...
+      mvn -s settings.xml clean install
+    fi 
   fi
 fi
 rm -rf settings.xml

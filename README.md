@@ -270,7 +270,7 @@ the the variable replaced by a markdown table having the list of issues.
 #### Live Example
 
 An example with a list of issues in markdown format can be found in the README at
-[this link](https://github.com/MRISS-Projects/dsh/tree/feature/firstDist#release-notes).
+[this link](https://github.com/MRISS-Projects/dsh#release-notes).
 
 ### Maven Repository Where to Find the Adapted Plugin Version
 
