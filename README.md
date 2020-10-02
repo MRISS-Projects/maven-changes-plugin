@@ -19,7 +19,7 @@
  <!--- NOTE: For help with the syntax of this file, see: --->
  <!--- http://maven.apache.org/doxia/references/apt-format.html --->
 
-[![Build Status](https://travis-ci.org/MRISS-Projects/maven-changes-plugin.svg?branch=DEVELOP)](https://travis-ci.org/MRISS-Projects/maven-changes-plugin)
+[![Build Status](https://34.70.246.135/jenkins/buildStatus/icon?job=maven-changes-plugin-snapshot)](https://34.70.246.135/jenkins/view/maven-changes-plugin/job/maven-changes-plugin-snapshot/)
 ![altText](jacoco-badge/jacoco.svg "title")
 
 # Maven Changes Plugin - Adapted Version
