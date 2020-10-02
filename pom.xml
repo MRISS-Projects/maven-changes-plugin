@@ -557,7 +557,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.2</version>
+                <version>0.8.6</version>
                 <configuration>
                     <excludes>
                         <!-- Any exclusions you require, *.class -->
@@ -686,26 +686,6 @@
             </properties>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>com.google.code.maven-replacer-plugin</groupId>
-                        <artifactId>replacer</artifactId>
-                        <version>1.6.0</version>
-                        <executions>
-                            <execution>
-                                <id>replacing-readme</id>
-                                <phase>process-sources</phase>
-                                <goals>
-                                    <goal>replace</goal>
-                                </goals>
-                                <configuration>
-                                    <file>README.md</file>
-                                    <regex>true</regex>
-                                    <token>\?branch=(.*)\)]</token>
-                                    <value>?branch=${branch.name})]</value>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-scm-publish-plugin</artifactId>
