@@ -758,7 +758,7 @@
                                 <configuration>
                                     <basedir>${basedir}/jacoco-badge</basedir>
                                     <includes>jacoco.svg</includes>
-                                    <message>[skip travis] Jacoco coverage badge</message>
+                                    <message>[skip jenkins] Jacoco coverage badge</message>
                                     <connectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</connectionUrl>
                                     <developerConnectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</developerConnectionUrl>
                                 </configuration>
@@ -773,7 +773,7 @@
                                 <configuration>
                                     <basedir>${basedir}</basedir>
                                     <includes>README.md</includes>
-                                    <message>[skip travis] Update README</message>
+                                    <message>[skip jenkins] Update README</message>
                                     <connectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</connectionUrl>
                                     <developerConnectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</developerConnectionUrl>
                                 </configuration>
