@@ -36,20 +36,21 @@
                                 <type>test</type>
                             </_decryptors>
                         </securityDispatcher> 
-                    </settingsDecrypter>                        
+                    </settingsDecrypter>
                     <issueListPropertyName>issues.text.list
                     </issueListPropertyName>
                     <textListFormater>markdown</textListFormater>
                     <githubAPIServerId>github.com</githubAPIServerId>
                     <githubAPIScheme>https</githubAPIScheme>
                     <githubAPIPort>443</githubAPIPort>
-                    <localRepository>${localRepository}
+                    <localRepository>\${localRepository}
                     </localRepository>
                     <outputDirectory>target/site</outputDirectory>
                     <columnNames>Id,Type,Summary,Assignee,Reporter,Status,Created,Updated,Fix Version</columnNames>
                     <includeOpenIssues>false</includeOpenIssues>
                     <onlyMilestoneIssues>true</onlyMilestoneIssues>
                     <subtitleLevelNumber>3</subtitleLevelNumber>
+                    <personalToken>${github.personal.token}</personalToken>
                 </configuration>
             </plugin>
         </plugins>

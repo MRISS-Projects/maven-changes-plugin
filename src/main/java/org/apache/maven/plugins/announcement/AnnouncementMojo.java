@@ -264,6 +264,13 @@ public class AnnouncementMojo
     @Parameter( property = "changes.removeSnapshotSuffix", defaultValue = "true" )
     private boolean removeSnapshotSuffix;
 
+    /**
+     * Github personal token. If informed, it will take precedence for user and password associated with
+     * serverId which will be ignored.
+     */
+    @Parameter
+    private String personalToken;
+
     // =======================================//
     // JIRA-Announcement Needed Parameters //
     // =======================================//
@@ -872,7 +879,8 @@ public class AnnouncementMojo
             
             issueDownloader.configureProxy( settings );
 
-            issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, getLog() );
+            issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, personalToken,
+                    getLog() );
 
             return getReleases( issueDownloader.getIssueList(), new GitHubIssueManagementSystem() );
         }

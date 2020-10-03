@@ -446,6 +446,25 @@
 
 
     <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+                <excludes>
+                    <exclude>poms/**</exclude>
+                </excludes>
+                <filtering>false</filtering>
+            </testResource>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <includes>
+                    <include>poms/**</include>
+                </includes>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -495,7 +514,13 @@
             </plugins>
         </pluginManagement>
         <plugins>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <escapeString>\</escapeString>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
@@ -583,28 +608,29 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.sigpwned</groupId>
-                <artifactId>jacoco-badge-maven-plugin</artifactId>
-                <version>0.1.4</version>
-                <executions>
-                    <execution>
-                        <id>generate-jacoco-badge</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>badge</goal> <!-- Generate a badge from a unified JaCoCo report -->
-                        </goals>
-                        <configuration>
-                            <!-- What coverage level is considered passing? Optional, default 70. -->
-                            <passing>70</passing>
-                            <!-- Legal values: instruction, branch, line, method. Optional, default instruction. -->
-                            <metric>instruction</metric>
-                            <badgeFile>jacoco-badge/jacoco.svg</badgeFile>
-                            <reportFile>${project.reporting.outputDirectory}/jacoco/jacoco.csv</reportFile>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+    <plugin>
+        <groupId>com.sigpwned</groupId>
+        <artifactId>jacoco-badge-maven-plugin</artifactId>
+        <version>0.1.4</version>
+        <executions>
+            <execution>
+                <id>generate-jacoco-badge</id>
+                <phase>verify</phase>
+                <goals>
+                    <goal>badge</goal>
+                    <!-- Generate a badge from a unified JaCoCo report -->
+                </goals>
+                <configuration>
+                    <!-- What coverage level is considered passing? Optional, default 70. -->
+                    <passing>70</passing>
+                    <!-- Legal values: instruction, branch, line, method. Optional, default instruction.-->
+                    <metric>instruction</metric>
+                    <badgeFile>jacoco-badge/jacoco.svg</badgeFile>
+                    <reportFile>${project.reporting.outputDirectory}/jacoco/jacoco.csv</reportFile>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
         </plugins>
     </build>
 
