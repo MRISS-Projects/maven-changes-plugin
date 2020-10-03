@@ -71,8 +71,6 @@
         <mavenVersion>3.0</mavenVersion>
         <sitePluginVersion>3.3</sitePluginVersion>
         <wagonVersion>1.0-beta-6</wagonVersion>
-        <!-- Set nexus server as a system property at command line -->
-        <deploymentUrl>${nexus.server}/content/repositories/releases/</deploymentUrl>
     </properties>
 
     <dependencies>
@@ -682,7 +680,6 @@
             <properties>
                 <project.scm.id>github</project.scm.id>
                 <deploymentUrl>file://${project.build.directory}/maven-repo</deploymentUrl>
-                <branch.name>${env.TRAVIS_BRANCH}</branch.name>
             </properties>
             <build>
                 <plugins>
