@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>maven-changes-plugin</artifactId>
-    <version>2.12.16</version>
+    <version>2.12.6</version>
     <packaging>maven-plugin</packaging>
 
     <name>Apache Maven Changes Plugin</name>
