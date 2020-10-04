@@ -45,7 +45,7 @@ new additions:
    using APT or Markdown format and set a build property with the resulting table. Thus, one might
    put a maven property following the standard `${my.property}` in a README file, filter it and will
    have the final README with the list. The mojo usage documentation can be found [here](https://mriss-projects.github.io/maven-changes-plugin/github-text-list-mojo.html).
-3. ** New Github mojo configuration parameter to use Github personal token**: If this config parameter is set, it will
+3. **New Github mojo configuration parameter to use Github personal token**: If this config parameter is set, it will
    be preferred over user and password which will be ignored. Instructions on how to used can be found 
    [here](https://mriss-projects.github.io/maven-changes-plugin/github-text-list-mojo.html#personalToken).
 
