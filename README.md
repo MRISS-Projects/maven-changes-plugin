@@ -46,7 +46,7 @@ new additions:
    put a maven property following the standard `${my.property}` in a README file, filter it and will
    have the final README with the list. The mojo usage documentation can be found [here](https://mriss-projects.github.io/maven-changes-plugin/github-text-list-mojo.html).
 3. **New Github mojo configuration parameter to use Github personal token**: If this config parameter is set, it will
-   be preferred over user and password which will be ignored. Instructions on how to used can be found 
+   be preferred over user and password which will be ignored. Instructions on how to used it can be found 
    [here](https://mriss-projects.github.io/maven-changes-plugin/github-text-list-mojo.html#personalToken).
 
 ## Discussion on New Mojo to Generate Issue List in Text Format
