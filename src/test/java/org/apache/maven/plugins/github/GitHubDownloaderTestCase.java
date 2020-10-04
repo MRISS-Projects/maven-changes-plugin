@@ -95,7 +95,7 @@ public class GitHubDownloaderTestCase extends TestCase
         when( result.getServer() ).thenReturn( server );
         when( decrypter.decrypt( any( SettingsDecryptionRequest.class ) ) ).thenReturn( result );
 
-        gitHubDownloader.configureAuthentication( decrypter, "github-server", settings, log );
+        gitHubDownloader.configureAuthentication( decrypter, "github-server", settings, null, log );
 
         verify( log ).error( "Ups github-server", null );
         ArgumentCaptor<SettingsDecryptionRequest> argument = ArgumentCaptor.forClass( SettingsDecryptionRequest.class );
@@ -120,7 +120,7 @@ public class GitHubDownloaderTestCase extends TestCase
         when( result.getServer() ).thenReturn( server );
         when( decrypter.decrypt( new DefaultSettingsDecryptionRequest( server ) ) ).thenReturn( result );
 
-        gitHubDownloader.configureAuthentication( decrypter, "github-server", settings, log );
+        gitHubDownloader.configureAuthentication( decrypter, "github-server", settings, null, log );
 
         verify( log ).warn( "Can't find server id [github-server] configured in githubAPIServerId." );
     }

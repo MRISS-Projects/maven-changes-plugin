@@ -242,29 +242,40 @@ public class GitHubDownloader
     }
 
     public void configureAuthentication( SettingsDecrypter decrypter, String githubAPIServerId, Settings settings,
-            Log log )
+            String personalToken, Log log )
     {
 
         boolean configured = false;
 
-        List<Server> servers = settings.getServers();
-
-        for ( Server server : servers )
+        if ( personalToken != null && !personalToken.isEmpty() ) 
         {
-            if ( server.getId().equals( githubAPIServerId ) )
-            {
-                SettingsDecryptionResult result = decrypter.decrypt( new DefaultSettingsDecryptionRequest( server ) );
-                for ( SettingsProblem problem : result.getProblems() )
-                {
-                    log.error( problem.getMessage(), problem.getException() );
-                }
-                server = result.getServer();
-                String user = server.getUsername();
-                String password = server.getPassword();
-                this.client.setCredentials( user, password );
+            log.info( "Using developer personal access token for authentication." );
+            this.client.setCredentials( null, null );
+            this.client.setOAuth2Token( personalToken );
+            configured = true;
+        }
+        else
+        {
+            List<Server> servers = settings.getServers();
 
-                configured = true;
-                break;
+            for ( Server server : servers )
+            {
+                if ( server.getId().equals( githubAPIServerId ) )
+                {
+                    SettingsDecryptionResult result = 
+                            decrypter.decrypt( new DefaultSettingsDecryptionRequest( server ) );
+                    for ( SettingsProblem problem : result.getProblems() )
+                    {
+                        log.error( problem.getMessage(), problem.getException() );
+                    }
+                    server = result.getServer();
+                    String user = server.getUsername();
+                    String password = server.getPassword();
+                    this.client.setCredentials( user, password );
+
+                    configured = true;
+                    break;
+                }
             }
         }
 

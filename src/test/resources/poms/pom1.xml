@@ -42,13 +42,14 @@
                     <githubAPIServerId>github.com</githubAPIServerId>
                     <githubAPIScheme>https</githubAPIScheme>
                     <githubAPIPort>443</githubAPIPort>
-                    <localRepository>${localRepository}
+                    <localRepository>\${localRepository}
                     </localRepository>
                     <outputDirectory>target/site</outputDirectory>
                     <columnNames>Id,Type,Summary,Assignee,Reporter,Status,Created,Updated,Fix Version</columnNames>
                     <onlyMilestoneIssues>false</onlyMilestoneIssues>
                     <includeOpenIssues>true</includeOpenIssues>
                     <subtitleLevelNumber>3</subtitleLevelNumber>
+                    <personalToken>${github.personal.token}</personalToken>
                 </configuration>
             </plugin>
         </plugins>

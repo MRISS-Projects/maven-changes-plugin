@@ -36,14 +36,14 @@
                                 <type>test</type>
                             </_decryptors>
                         </securityDispatcher> 
-                    </settingsDecrypter>                        
+                    </settingsDecrypter>
                     <issueListPropertyName>issues.text.list
                     </issueListPropertyName>
                     <textListFormater>markdown</textListFormater>
                     <githubAPIServerId>github.com</githubAPIServerId>
                     <githubAPIScheme>https</githubAPIScheme>
                     <githubAPIPort>443</githubAPIPort>
-                    <localRepository>${localRepository}
+                    <localRepository>\${localRepository}
                     </localRepository>
                     <outputDirectory>target/site</outputDirectory>
                     <columnNames>Id,Type,Summary,Assignee,Reporter,Status,Created,Updated,Fix Version</columnNames>
@@ -53,6 +53,7 @@
                     <removeSnapshotSuffix>true</removeSnapshotSuffix>
                     <subtitleLevelNumber>3</subtitleLevelNumber>
                     <failOnError>true</failOnError>
+                    <personalToken>${github.personal.token}</personalToken>
                 </configuration>
             </plugin>
         </plugins>

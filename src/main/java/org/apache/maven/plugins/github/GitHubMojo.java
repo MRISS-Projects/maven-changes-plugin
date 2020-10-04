@@ -145,6 +145,13 @@ public class GitHubMojo extends AbstractChangesReport
     @Parameter( property = "changes.removeSnapshotSuffix", defaultValue = "true" )
     private boolean removeSnapshotSuffix;
 
+    /**
+     * Github personal token. If informed, it will take precedence for user and password associated with
+     * serverId which will be ignored.
+     */
+    @Parameter( property = "changes.personalToken" )
+    private String personalToken;
+
     public String getOutputName()
     {
         return "github-report";
@@ -204,7 +211,8 @@ public class GitHubMojo extends AbstractChangesReport
 
             issueDownloader.configureProxy( settings );
 
-            issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, getLog() );
+            issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, personalToken,
+                    getLog() );
 
             List<Issue> issueList = issueDownloader.getIssueList();
 
