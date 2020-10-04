@@ -145,19 +145,26 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
     @Parameter( property = &quot;changes.removeSnapshotSuffix&quot;, defaultValue = &quot;true&quot; )
     private boolean removeSnapshotSuffix;
 
+    /**
+     * Github personal token. If informed, it will take precedence for user and password associated with
+     * serverId which will be ignored.
+     */
+    @Parameter( property = &quot;changes.personalToken&quot; )
+    private String personalToken;
+
     public String getOutputName()
     {
-<span class="nc" id="L150">        return &quot;github-report&quot;;</span>
+<span class="nc" id="L157">        return &quot;github-report&quot;;</span>
     }
 
     public String getName( Locale locale )
     {
-<span class="fc" id="L155">        return getBundle( locale ).getString( &quot;report.issues.name&quot; );</span>
+<span class="fc" id="L162">        return getBundle( locale ).getString( &quot;report.issues.name&quot; );</span>
     }
 
     public String getDescription( Locale locale )
     {
-<span class="nc" id="L160">        return getBundle( locale ).getString( &quot;report.issues.description&quot; );</span>
+<span class="nc" id="L167">        return getBundle( locale ).getString( &quot;report.issues.description&quot; );</span>
     }
 
     /* --------------------------------------------------------------------- */
@@ -170,17 +177,17 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
     public boolean canGenerateReport()
     {
         // Run only at the execution root
-<span class="pc bpc" id="L173" title="3 of 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+<span class="pc bpc" id="L180" title="3 of 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
         {
-<span class="nc" id="L175">            getLog().info( &quot;Skipping the GitHub Report in this project because it's not the Execution Root&quot; );</span>
-<span class="nc" id="L176">            return false;</span>
+<span class="nc" id="L182">            getLog().info( &quot;Skipping the GitHub Report in this project because it's not the Execution Root&quot; );</span>
+<span class="nc" id="L183">            return false;</span>
         }
-<span class="fc" id="L178">        String message = ProjectUtils.validateIssueManagement( project, &quot;GitHub&quot;, &quot;GitHub Report&quot; );</span>
-<span class="pc bpc" id="L179" title="1 of 2 branches missed.">        if ( message != null )</span>
+<span class="fc" id="L185">        String message = ProjectUtils.validateIssueManagement( project, &quot;GitHub&quot;, &quot;GitHub Report&quot; );</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">        if ( message != null )</span>
         {
-<span class="nc" id="L181">            getLog().warn( message );</span>
+<span class="nc" id="L188">            getLog().warn( message );</span>
         }
-<span class="pc bpc" id="L183" title="1 of 2 branches missed.">        return message == null;</span>
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">        return message == null;</span>
     }
 
     @Override
@@ -188,69 +195,70 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
     {
 
         // Validate parameters
-<span class="fc" id="L191">        List&lt;Integer&gt; columnIds = IssuesReportHelper.getColumnIds( columnNames, githubColumns );</span>
-<span class="pc bpc" id="L192" title="1 of 2 branches missed.">        if ( columnIds.size() == 0 )</span>
+<span class="fc" id="L198">        List&lt;Integer&gt; columnIds = IssuesReportHelper.getColumnIds( columnNames, githubColumns );</span>
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">        if ( columnIds.size() == 0 )</span>
         {
             // This can happen if the user has configured column names and they are all invalid
-<span class="nc" id="L195">            throw new MavenReportException(</span>
+<span class="nc" id="L202">            throw new MavenReportException(</span>
                     &quot;maven-changes-plugin: None of the configured columnNames '&quot; + columnNames + &quot;' are valid.&quot; );
         }
 
         try
         {
             // Download issues
-<span class="fc" id="L202">            GitHubDownloader issueDownloader = new GitHubDownloader( project, githubAPIScheme, githubAPIPort,</span>
+<span class="fc" id="L209">            GitHubDownloader issueDownloader = new GitHubDownloader( project, githubAPIScheme, githubAPIPort,</span>
                     includeOpenIssues, onlyMilestoneIssues );
 
-<span class="fc" id="L205">            issueDownloader.configureProxy( settings );</span>
+<span class="fc" id="L212">            issueDownloader.configureProxy( settings );</span>
 
-<span class="fc" id="L207">            issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, getLog() );</span>
+<span class="fc" id="L214">            issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, personalToken,</span>
+<span class="fc" id="L215">                    getLog() );</span>
 
-<span class="fc" id="L209">            List&lt;Issue&gt; issueList = issueDownloader.getIssueList();</span>
+<span class="fc" id="L217">            List&lt;Issue&gt; issueList = issueDownloader.getIssueList();</span>
 
-<span class="fc bfc" id="L211" title="All 2 branches covered.">            if ( onlyCurrentVersion )</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">            if ( onlyCurrentVersion )</span>
             {
-<span class="nc" id="L213">                issueList = IssueUtils.getIssuesForVersion( issueList, project.getVersion(), removeSnapshotSuffix );</span>
-<span class="nc" id="L214">                getLog().info( &quot;The GitHub Report will contain issues only for the current version.&quot; );</span>
+<span class="nc" id="L221">                issueList = IssueUtils.getIssuesForVersion( issueList, project.getVersion(), removeSnapshotSuffix );</span>
+<span class="nc" id="L222">                getLog().info( &quot;The GitHub Report will contain issues only for the current version.&quot; );</span>
             }
 
-<span class="fc" id="L217">            generateReport( locale, columnIds, issueList );</span>
+<span class="fc" id="L225">            generateReport( locale, columnIds, issueList );</span>
 
         }
-<span class="nc" id="L220">        catch ( MalformedURLException e )</span>
+<span class="nc" id="L228">        catch ( MalformedURLException e )</span>
         {
             // Rethrow this error so that the build fails
-<span class="nc" id="L223">            throw new MavenReportException( &quot;The Github URL is incorrect.&quot; );</span>
+<span class="nc" id="L231">            throw new MavenReportException( &quot;The Github URL is incorrect.&quot; );</span>
         }
-<span class="fc" id="L225">        catch ( Exception e )</span>
+<span class="fc" id="L233">        catch ( Exception e )</span>
         {
-<span class="fc bfc" id="L227" title="All 2 branches covered.">            if ( failOnError ) </span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">            if ( failOnError ) </span>
             {
-<span class="fc" id="L229">                throw new MavenReportException( e.getMessage(), e );</span>
+<span class="fc" id="L237">                throw new MavenReportException( e.getMessage(), e );</span>
             }
             else 
             {
-<span class="fc" id="L233">                getLog().warn( e.getMessage() );</span>
-<span class="fc" id="L234">                generateReport( locale, columnIds, new ArrayList&lt;Issue&gt;() );</span>
+<span class="fc" id="L241">                getLog().warn( e.getMessage() );</span>
+<span class="fc" id="L242">                generateReport( locale, columnIds, new ArrayList&lt;Issue&gt;() );</span>
             }            
-<span class="fc" id="L236">        }</span>
-<span class="fc" id="L237">    }</span>
+<span class="fc" id="L244">        }</span>
+<span class="fc" id="L245">    }</span>
 
     protected void generateReport( Locale locale, List&lt;Integer&gt; columnIds, List&lt;Issue&gt; issueList )
     {
         // Generate the report
-<span class="nc" id="L242">        IssuesReportGenerator report = new IssuesReportGenerator( IssuesReportHelper.toIntArray( columnIds ) );</span>
+<span class="nc" id="L250">        IssuesReportGenerator report = new IssuesReportGenerator( IssuesReportHelper.toIntArray( columnIds ) );</span>
 
-<span class="nc bnc" id="L244" title="All 2 branches missed.">        if ( issueList.isEmpty() )</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        if ( issueList.isEmpty() )</span>
         {
-<span class="nc" id="L246">            report.doGenerateEmptyReport( getBundle( locale ), getSink() );</span>
-<span class="nc" id="L247">            getLog().warn( &quot;No issue was matched.&quot; );</span>
+<span class="nc" id="L254">            report.doGenerateEmptyReport( getBundle( locale ), getSink() );</span>
+<span class="nc" id="L255">            getLog().warn( &quot;No issue was matched.&quot; );</span>
         }
         else
         {
-<span class="nc" id="L251">            report.doGenerateReport( getBundle( locale ), getSink(), issueList );</span>
+<span class="nc" id="L259">            report.doGenerateReport( getBundle( locale ), getSink(), issueList );</span>
         }
-<span class="nc" id="L253">    }</span>
+<span class="nc" id="L261">    }</span>
 
     /* --------------------------------------------------------------------- */
     /* Private methods */
@@ -258,7 +266,7 @@ import org.apache.maven.settings.crypto.SettingsDecrypter;
 
     private ResourceBundle getBundle( Locale locale )
     {
-<span class="fc" id="L261">        return ResourceBundle.getBundle( &quot;github-report&quot;, locale, this.getClass().getClassLoader() );</span>
+<span class="fc" id="L269">        return ResourceBundle.getBundle( &quot;github-report&quot;, locale, this.getClass().getClassLoader() );</span>
     }
 
 }

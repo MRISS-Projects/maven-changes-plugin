@@ -264,6 +264,13 @@ import org.codehaus.plexus.velocity.VelocityComponent;
     @Parameter( property = &quot;changes.removeSnapshotSuffix&quot;, defaultValue = &quot;true&quot; )
     private boolean removeSnapshotSuffix;
 
+    /**
+     * Github personal token. If informed, it will take precedence for user and password associated with
+     * serverId which will be ignored.
+     */
+    @Parameter
+    private String personalToken;
+
     // =======================================//
     // JIRA-Announcement Needed Parameters //
     // =======================================//
@@ -492,91 +499,91 @@ import org.codehaus.plexus.velocity.VelocityComponent;
         throws MojoExecutionException
     {
         // Fail build fast if it is using deprecated parameters
-<span class="fc" id="L495">        failIfUsingDeprecatedParameter( outputDirectory, &quot;outputDirectory&quot;, &quot;announcementDirectory&quot; );</span>
-<span class="fc" id="L496">        failIfUsingDeprecatedParameter( generateJiraAnnouncement, &quot;generateJiraAnnouncement&quot;,</span>
+<span class="fc" id="L502">        failIfUsingDeprecatedParameter( outputDirectory, &quot;outputDirectory&quot;, &quot;announcementDirectory&quot; );</span>
+<span class="fc" id="L503">        failIfUsingDeprecatedParameter( generateJiraAnnouncement, &quot;generateJiraAnnouncement&quot;,</span>
                                         &quot;issueManagementSystems &quot; );
-<span class="fc" id="L498">        failIfUsingDeprecatedParameter( jiraMerge, &quot;jiraMerge&quot;, &quot;issueManagementSystems &quot; );</span>
+<span class="fc" id="L505">        failIfUsingDeprecatedParameter( jiraMerge, &quot;jiraMerge&quot;, &quot;issueManagementSystems &quot; );</span>
         
-<span class="fc" id="L500">        releaseUtils = new ReleaseUtils( getLog(), failOnError );</span>
+<span class="fc" id="L507">        releaseUtils = new ReleaseUtils( getLog(), failOnError );</span>
 
         // Run only at the execution root
-<span class="pc bpc" id="L503" title="3 of 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
+<span class="pc bpc" id="L510" title="3 of 4 branches missed.">        if ( runOnlyAtExecutionRoot &amp;&amp; !isThisTheExecutionRoot() )</span>
         {
-<span class="nc" id="L505">            getLog().info( &quot;Skipping the announcement generation in this project because it's not the Execution Root&quot; );</span>
+<span class="nc" id="L512">            getLog().info( &quot;Skipping the announcement generation in this project because it's not the Execution Root&quot; );</span>
         }
         else
         {
-<span class="pc bpc" id="L509" title="1 of 2 branches missed.">            if ( issueManagementSystems == null )</span>
+<span class="pc bpc" id="L516" title="1 of 2 branches missed.">            if ( issueManagementSystems == null )</span>
             {
-<span class="fc" id="L511">                issueManagementSystems = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L518">                issueManagementSystems = new ArrayList&lt;String&gt;();</span>
             }
 
-<span class="pc bpc" id="L514" title="1 of 2 branches missed.">            if ( issueManagementSystems.isEmpty() )</span>
+<span class="pc bpc" id="L521" title="1 of 2 branches missed.">            if ( issueManagementSystems.isEmpty() )</span>
             {
-<span class="fc" id="L516">                issueManagementSystems.add( CHANGES_XML );</span>
+<span class="fc" id="L523">                issueManagementSystems.add( CHANGES_XML );</span>
             }
 
             // Fetch releases from the configured issue management systems
-<span class="fc" id="L520">            List&lt;Release&gt; releases = null;</span>
-<span class="pc bpc" id="L521" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( CHANGES_XML ) )</span>
+<span class="fc" id="L527">            List&lt;Release&gt; releases = null;</span>
+<span class="pc bpc" id="L528" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( CHANGES_XML ) )</span>
             {
-<span class="pc bpc" id="L523" title="1 of 2 branches missed.">                if ( getXmlPath().exists() )</span>
+<span class="pc bpc" id="L530" title="1 of 2 branches missed.">                if ( getXmlPath().exists() )</span>
                 {
-<span class="fc" id="L525">                    ChangesXML changesXML = new ChangesXML( getXmlPath(), getLog() );</span>
-<span class="fc" id="L526">                    List&lt;Release&gt; changesReleases = changesXML.getReleaseList();</span>
-<span class="fc" id="L527">                    releases = releaseUtils.mergeReleases( null, changesReleases );</span>
-<span class="fc" id="L528">                    getLog().info( &quot;Including issues from file &quot; + getXmlPath() + &quot; in announcement...&quot; );</span>
-<span class="fc" id="L529">                }</span>
+<span class="fc" id="L532">                    ChangesXML changesXML = new ChangesXML( getXmlPath(), getLog() );</span>
+<span class="fc" id="L533">                    List&lt;Release&gt; changesReleases = changesXML.getReleaseList();</span>
+<span class="fc" id="L534">                    releases = releaseUtils.mergeReleases( null, changesReleases );</span>
+<span class="fc" id="L535">                    getLog().info( &quot;Including issues from file &quot; + getXmlPath() + &quot; in announcement...&quot; );</span>
+<span class="fc" id="L536">                }</span>
                 else
                 {
-<span class="nc" id="L532">                    getLog().warn( &quot;changes.xml file &quot; + getXmlPath().getAbsolutePath() + &quot; does not exist.&quot; );</span>
+<span class="nc" id="L539">                    getLog().warn( &quot;changes.xml file &quot; + getXmlPath().getAbsolutePath() + &quot; does not exist.&quot; );</span>
                 }
             }
 
-<span class="pc bpc" id="L536" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( JIRA ) )</span>
+<span class="pc bpc" id="L543" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( JIRA ) )</span>
             {
-<span class="nc" id="L538">                String message = ProjectUtils.validateIssueManagement( project, JIRA, &quot;JIRA announcement&quot; );</span>
-<span class="nc bnc" id="L539" title="All 2 branches missed.">                if ( message == null )</span>
+<span class="nc" id="L545">                String message = ProjectUtils.validateIssueManagement( project, JIRA, &quot;JIRA announcement&quot; );</span>
+<span class="nc bnc" id="L546" title="All 2 branches missed.">                if ( message == null )</span>
                 {
-<span class="nc" id="L541">                    List&lt;Release&gt; jiraReleases = getJiraReleases();</span>
-<span class="nc" id="L542">                    releases = releaseUtils.mergeReleases( releases, jiraReleases );</span>
-<span class="nc" id="L543">                    getLog().info( &quot;Including issues from JIRA in announcement...&quot; );</span>
-<span class="nc" id="L544">                }</span>
+<span class="nc" id="L548">                    List&lt;Release&gt; jiraReleases = getJiraReleases();</span>
+<span class="nc" id="L549">                    releases = releaseUtils.mergeReleases( releases, jiraReleases );</span>
+<span class="nc" id="L550">                    getLog().info( &quot;Including issues from JIRA in announcement...&quot; );</span>
+<span class="nc" id="L551">                }</span>
                 else
                 {
-<span class="nc" id="L547">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
+<span class="nc" id="L554">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
                         + message );
                 }
             }
 
-<span class="pc bpc" id="L552" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( TRAC ) )</span>
+<span class="pc bpc" id="L559" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( TRAC ) )</span>
             {
-<span class="nc" id="L554">                String message = ProjectUtils.validateIssueManagement( project, TRAC, &quot;Trac announcement&quot; );</span>
-<span class="nc bnc" id="L555" title="All 2 branches missed.">                if ( message == null )</span>
+<span class="nc" id="L561">                String message = ProjectUtils.validateIssueManagement( project, TRAC, &quot;Trac announcement&quot; );</span>
+<span class="nc bnc" id="L562" title="All 2 branches missed.">                if ( message == null )</span>
                 {
-<span class="nc" id="L557">                    List&lt;Release&gt; tracReleases = getTracReleases();</span>
-<span class="nc" id="L558">                    releases = releaseUtils.mergeReleases( releases, tracReleases );</span>
-<span class="nc" id="L559">                    getLog().info( &quot;Including issues from Trac in announcement...&quot; );</span>
-<span class="nc" id="L560">                }</span>
+<span class="nc" id="L564">                    List&lt;Release&gt; tracReleases = getTracReleases();</span>
+<span class="nc" id="L565">                    releases = releaseUtils.mergeReleases( releases, tracReleases );</span>
+<span class="nc" id="L566">                    getLog().info( &quot;Including issues from Trac in announcement...&quot; );</span>
+<span class="nc" id="L567">                }</span>
                 else
                 {
-<span class="nc" id="L563">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
+<span class="nc" id="L570">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
                                     + message );
                 }
             }
 
-<span class="pc bpc" id="L568" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( GIT_HUB ) )</span>
+<span class="pc bpc" id="L575" title="1 of 2 branches missed.">            if ( issueManagementSystems.contains( GIT_HUB ) )</span>
             {
-<span class="nc" id="L570">                String message = ProjectUtils.validateIssueManagement( project, GIT_HUB, &quot;GitHub announcement&quot; );</span>
-<span class="nc bnc" id="L571" title="All 2 branches missed.">                if ( message == null )</span>
+<span class="nc" id="L577">                String message = ProjectUtils.validateIssueManagement( project, GIT_HUB, &quot;GitHub announcement&quot; );</span>
+<span class="nc bnc" id="L578" title="All 2 branches missed.">                if ( message == null )</span>
                 {
-<span class="nc" id="L573">                    List&lt;Release&gt; gitHubReleases = getGitHubReleases();</span>
-<span class="nc" id="L574">                    releases = releaseUtils.mergeReleases( releases, gitHubReleases );</span>
-<span class="nc" id="L575">                    getLog().info( &quot;Including issues from GitHub in announcement...&quot; );</span>
-<span class="nc" id="L576">                }</span>
+<span class="nc" id="L580">                    List&lt;Release&gt; gitHubReleases = getGitHubReleases();</span>
+<span class="nc" id="L581">                    releases = releaseUtils.mergeReleases( releases, gitHubReleases );</span>
+<span class="nc" id="L582">                    getLog().info( &quot;Including issues from GitHub in announcement...&quot; );</span>
+<span class="nc" id="L583">                }</span>
                 else
                 {
-<span class="nc" id="L579">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
+<span class="nc" id="L586">                    throw new MojoExecutionException( &quot;Something is wrong with the Issue Management section. &quot;</span>
                                     + message );
                 }
             }
@@ -591,27 +598,27 @@ import org.codehaus.plexus.velocity.VelocityComponent;
             // For help with these steps, you can have a look at how this has been done for JIRA or Trac
 
             // Generate the report
-<span class="pc bpc" id="L594" title="2 of 4 branches missed.">            if ( releases == null || releases.isEmpty() )</span>
+<span class="pc bpc" id="L601" title="2 of 4 branches missed.">            if ( releases == null || releases.isEmpty() )</span>
             {
-<span class="nc" id="L596">                throw new MojoExecutionException( &quot;No releases found in any of the &quot;</span>
+<span class="nc" id="L603">                throw new MojoExecutionException( &quot;No releases found in any of the &quot;</span>
                     + &quot;configured issue management systems.&quot; );
             }
             else
             {
-<span class="fc" id="L601">                doGenerate( releases );</span>
+<span class="fc" id="L608">                doGenerate( releases );</span>
             }
         }
-<span class="fc" id="L604">    }</span>
+<span class="fc" id="L611">    }</span>
 
     private void failIfUsingDeprecatedParameter( Object value, String name, String replacement )
         throws MojoExecutionException
     {
-<span class="pc bpc" id="L609" title="1 of 2 branches missed.">        if ( value != null )</span>
+<span class="pc bpc" id="L616" title="1 of 2 branches missed.">        if ( value != null )</span>
         {
-<span class="nc" id="L611">            throw new MojoExecutionException( &quot;You are using the old parameter '&quot; + name + &quot;'. &quot; + &quot;You must use '&quot;</span>
+<span class="nc" id="L618">            throw new MojoExecutionException( &quot;You are using the old parameter '&quot; + name + &quot;'. &quot; + &quot;You must use '&quot;</span>
                 + replacement + &quot;' instead.&quot; );
         }
-<span class="fc" id="L614">    }</span>
+<span class="fc" id="L621">    }</span>
 
     /**
      * Add the parameters to velocity context
@@ -622,72 +629,72 @@ import org.codehaus.plexus.velocity.VelocityComponent;
     public void doGenerate( List&lt;Release&gt; releases )
         throws MojoExecutionException
     {
-<span class="pc bpc" id="L625" title="1 of 2 branches missed.">        String version = ( versionPrefix == null ? &quot;&quot; : versionPrefix ) + getVersion();</span>
+<span class="pc bpc" id="L632" title="1 of 2 branches missed.">        String version = ( versionPrefix == null ? &quot;&quot; : versionPrefix ) + getVersion();</span>
 
-<span class="fc" id="L627">        getLog().debug( &quot;Generating announcement for version [&quot; + version + &quot;]. Found these releases: &quot;</span>
-<span class="fc" id="L628">            + ReleaseUtils.toString( releases ) );</span>
+<span class="fc" id="L634">        getLog().debug( &quot;Generating announcement for version [&quot; + version + &quot;]. Found these releases: &quot;</span>
+<span class="fc" id="L635">            + ReleaseUtils.toString( releases ) );</span>
 
-<span class="fc" id="L630">        doGenerate( releases, releaseUtils.getLatestRelease( releases, version, removeSnapshotSuffix ) );</span>
-<span class="fc" id="L631">    }</span>
+<span class="fc" id="L637">        doGenerate( releases, releaseUtils.getLatestRelease( releases, version, removeSnapshotSuffix ) );</span>
+<span class="fc" id="L638">    }</span>
 
     protected void doGenerate( List&lt;Release&gt; releases, Release release )
         throws MojoExecutionException
     {
         try
         {
-<span class="fc" id="L638">            ToolManager toolManager = new ToolManager( true );</span>
-<span class="fc" id="L639">            Context context = toolManager.createContext();</span>
+<span class="fc" id="L645">            ToolManager toolManager = new ToolManager( true );</span>
+<span class="fc" id="L646">            Context context = toolManager.createContext();</span>
 
-<span class="pc bpc" id="L641" title="2 of 4 branches missed.">            if ( getIntroduction() == null || getIntroduction().equals( &quot;&quot; ) )</span>
+<span class="pc bpc" id="L648" title="2 of 4 branches missed.">            if ( getIntroduction() == null || getIntroduction().equals( &quot;&quot; ) )</span>
             {
-<span class="nc" id="L643">                setIntroduction( getUrl() );</span>
+<span class="nc" id="L650">                setIntroduction( getUrl() );</span>
             }
 
-<span class="fc" id="L646">            context.put( &quot;releases&quot;, releases );</span>
+<span class="fc" id="L653">            context.put( &quot;releases&quot;, releases );</span>
 
-<span class="fc" id="L648">            context.put( &quot;groupId&quot;, getGroupId() );</span>
+<span class="fc" id="L655">            context.put( &quot;groupId&quot;, getGroupId() );</span>
 
-<span class="fc" id="L650">            context.put( &quot;artifactId&quot;, getArtifactId() );</span>
+<span class="fc" id="L657">            context.put( &quot;artifactId&quot;, getArtifactId() );</span>
 
-<span class="fc" id="L652">            context.put( &quot;version&quot;, getVersion() );</span>
+<span class="fc" id="L659">            context.put( &quot;version&quot;, getVersion() );</span>
 
-<span class="fc" id="L654">            context.put( &quot;packaging&quot;, getPackaging() );</span>
+<span class="fc" id="L661">            context.put( &quot;packaging&quot;, getPackaging() );</span>
 
-<span class="fc" id="L656">            context.put( &quot;url&quot;, getUrl() );</span>
+<span class="fc" id="L663">            context.put( &quot;url&quot;, getUrl() );</span>
 
-<span class="fc" id="L658">            context.put( &quot;release&quot;, release );</span>
+<span class="fc" id="L665">            context.put( &quot;release&quot;, release );</span>
 
-<span class="fc" id="L660">            context.put( &quot;introduction&quot;, getIntroduction() );</span>
+<span class="fc" id="L667">            context.put( &quot;introduction&quot;, getIntroduction() );</span>
 
-<span class="fc" id="L662">            context.put( &quot;developmentTeam&quot;, getDevelopmentTeam() );</span>
+<span class="fc" id="L669">            context.put( &quot;developmentTeam&quot;, getDevelopmentTeam() );</span>
 
-<span class="fc" id="L664">            context.put( &quot;finalName&quot;, getFinalName() );</span>
+<span class="fc" id="L671">            context.put( &quot;finalName&quot;, getFinalName() );</span>
 
-<span class="fc" id="L666">            context.put( &quot;urlDownload&quot;, getUrlDownload() );</span>
+<span class="fc" id="L673">            context.put( &quot;urlDownload&quot;, getUrlDownload() );</span>
 
-<span class="fc" id="L668">            context.put( &quot;project&quot;, project );</span>
+<span class="fc" id="L675">            context.put( &quot;project&quot;, project );</span>
 
-<span class="pc bpc" id="L670" title="1 of 2 branches missed.">            if ( announceParameters == null )</span>
+<span class="pc bpc" id="L677" title="1 of 2 branches missed.">            if ( announceParameters == null )</span>
             {
                 // empty Map to prevent NPE in velocity execution
-<span class="fc" id="L673">                context.put( &quot;announceParameters&quot;, Collections.emptyMap() );</span>
+<span class="fc" id="L680">                context.put( &quot;announceParameters&quot;, Collections.emptyMap() );</span>
             }
             else
             {
-<span class="nc" id="L677">                context.put( &quot;announceParameters&quot;, announceParameters );</span>
+<span class="nc" id="L684">                context.put( &quot;announceParameters&quot;, announceParameters );</span>
             }
 
-<span class="fc" id="L680">            processTemplate( context, announcementDirectory, template, announcementFile );</span>
+<span class="fc" id="L687">            processTemplate( context, announcementDirectory, template, announcementFile );</span>
         }
-<span class="nc" id="L682">        catch ( ResourceNotFoundException rnfe )</span>
+<span class="nc" id="L689">        catch ( ResourceNotFoundException rnfe )</span>
         {
-<span class="nc" id="L684">            throw new MojoExecutionException( &quot;Resource not found.&quot;, rnfe );</span>
+<span class="nc" id="L691">            throw new MojoExecutionException( &quot;Resource not found.&quot;, rnfe );</span>
         }
-<span class="nc" id="L686">        catch ( VelocityException ve )</span>
+<span class="nc" id="L693">        catch ( VelocityException ve )</span>
         {
-<span class="nc" id="L688">            throw new MojoExecutionException( ve.toString(), ve );</span>
-<span class="fc" id="L689">        }</span>
-<span class="fc" id="L690">    }</span>
+<span class="nc" id="L695">            throw new MojoExecutionException( ve.toString(), ve );</span>
+<span class="fc" id="L696">        }</span>
+<span class="fc" id="L697">    }</span>
 
     /**
      * Create the velocity template
@@ -705,160 +712,160 @@ import org.codehaus.plexus.velocity.VelocityComponent;
         File f;
 
         // Use the name of the template as a default value
-<span class="pc bpc" id="L708" title="1 of 2 branches missed.">        if ( StringUtils.isEmpty( announcementFile ) )</span>
+<span class="pc bpc" id="L715" title="1 of 2 branches missed.">        if ( StringUtils.isEmpty( announcementFile ) )</span>
         {
-<span class="fc" id="L710">            announcementFile = template;</span>
+<span class="fc" id="L717">            announcementFile = template;</span>
         }
 
         try
         {
-<span class="fc" id="L715">            f = new File( outputDirectory, announcementFile );</span>
+<span class="fc" id="L722">            f = new File( outputDirectory, announcementFile );</span>
 
-<span class="pc bpc" id="L717" title="1 of 2 branches missed.">            if ( !f.getParentFile().exists() )</span>
+<span class="pc bpc" id="L724" title="1 of 2 branches missed.">            if ( !f.getParentFile().exists() )</span>
             {
-<span class="nc" id="L719">                f.getParentFile().mkdirs();</span>
+<span class="nc" id="L726">                f.getParentFile().mkdirs();</span>
             }
 
-<span class="fc" id="L722">            VelocityEngine engine = velocity.getEngine();</span>
+<span class="fc" id="L729">            VelocityEngine engine = velocity.getEngine();</span>
 
-<span class="fc" id="L724">            engine.setApplicationAttribute( &quot;baseDirectory&quot;, basedir );</span>
+<span class="fc" id="L731">            engine.setApplicationAttribute( &quot;baseDirectory&quot;, basedir );</span>
 
-<span class="pc bpc" id="L726" title="1 of 2 branches missed.">            if ( StringUtils.isEmpty( templateEncoding ) )</span>
+<span class="pc bpc" id="L733" title="1 of 2 branches missed.">            if ( StringUtils.isEmpty( templateEncoding ) )</span>
             {
-<span class="fc" id="L728">                templateEncoding = ReaderFactory.FILE_ENCODING;</span>
-<span class="fc" id="L729">                getLog().warn( &quot;File encoding has not been set, using platform encoding &quot; + templateEncoding</span>
+<span class="fc" id="L735">                templateEncoding = ReaderFactory.FILE_ENCODING;</span>
+<span class="fc" id="L736">                getLog().warn( &quot;File encoding has not been set, using platform encoding &quot; + templateEncoding</span>
                     + &quot;, i.e. build is platform dependent!&quot; );
             }
 
-<span class="fc" id="L733">            Writer writer = new OutputStreamWriter( new FileOutputStream( f ), templateEncoding );</span>
+<span class="fc" id="L740">            Writer writer = new OutputStreamWriter( new FileOutputStream( f ), templateEncoding );</span>
 
-<span class="fc" id="L735">            Template velocityTemplate = engine.getTemplate( templateDirectory + &quot;/&quot; + template, templateEncoding );</span>
+<span class="fc" id="L742">            Template velocityTemplate = engine.getTemplate( templateDirectory + &quot;/&quot; + template, templateEncoding );</span>
 
-<span class="fc" id="L737">            velocityTemplate.merge( context, writer );</span>
+<span class="fc" id="L744">            velocityTemplate.merge( context, writer );</span>
 
-<span class="fc" id="L739">            writer.flush();</span>
+<span class="fc" id="L746">            writer.flush();</span>
 
-<span class="fc" id="L741">            writer.close();</span>
+<span class="fc" id="L748">            writer.close();</span>
 
-<span class="fc" id="L743">            getLog().info( &quot;Created template &quot; + f );</span>
+<span class="fc" id="L750">            getLog().info( &quot;Created template &quot; + f );</span>
         }
 
-<span class="nc" id="L746">        catch ( ResourceNotFoundException rnfe )</span>
+<span class="nc" id="L753">        catch ( ResourceNotFoundException rnfe )</span>
         {
-<span class="nc" id="L748">            throw new ResourceNotFoundException( &quot;Template not found. ( &quot; + templateDirectory + &quot;/&quot; + template + &quot; )&quot; );</span>
+<span class="nc" id="L755">            throw new ResourceNotFoundException( &quot;Template not found. ( &quot; + templateDirectory + &quot;/&quot; + template + &quot; )&quot; );</span>
         }
-<span class="nc" id="L750">        catch ( VelocityException ve )</span>
+<span class="nc" id="L757">        catch ( VelocityException ve )</span>
         {
-<span class="nc" id="L752">            throw new VelocityException( ve.toString() );</span>
+<span class="nc" id="L759">            throw new VelocityException( ve.toString() );</span>
         }
 
-<span class="nc" id="L755">        catch ( Exception e )</span>
+<span class="nc" id="L762">        catch ( Exception e )</span>
         {
-<span class="nc bnc" id="L757" title="All 2 branches missed.">            if ( e.getCause() != null )</span>
+<span class="nc bnc" id="L764" title="All 2 branches missed.">            if ( e.getCause() != null )</span>
             {
-<span class="nc" id="L759">                getLog().warn( e.getCause() );</span>
+<span class="nc" id="L766">                getLog().warn( e.getCause() );</span>
             }
-<span class="nc" id="L761">            throw new MojoExecutionException( e.toString(), e.getCause() );</span>
-<span class="fc" id="L762">        }</span>
-<span class="fc" id="L763">    }</span>
+<span class="nc" id="L768">            throw new MojoExecutionException( e.toString(), e.getCause() );</span>
+<span class="fc" id="L769">        }</span>
+<span class="fc" id="L770">    }</span>
 
     protected List&lt;Release&gt; getJiraReleases()
         throws MojoExecutionException
     {
-<span class="nc" id="L768">        AbstractJiraDownloader jiraDownloader = new AdaptiveJiraDownloader();</span>
+<span class="nc" id="L775">        AbstractJiraDownloader jiraDownloader = new AdaptiveJiraDownloader();</span>
 
-<span class="nc" id="L770">        File jiraXMLFile = jiraXML;</span>
+<span class="nc" id="L777">        File jiraXMLFile = jiraXML;</span>
 
-<span class="nc" id="L772">        jiraDownloader.setLog( getLog() );</span>
+<span class="nc" id="L779">        jiraDownloader.setLog( getLog() );</span>
 
-<span class="nc" id="L774">        jiraDownloader.setOutput( jiraXMLFile );</span>
+<span class="nc" id="L781">        jiraDownloader.setOutput( jiraXMLFile );</span>
 
-<span class="nc" id="L776">        jiraDownloader.setStatusIds( statusIds );</span>
+<span class="nc" id="L783">        jiraDownloader.setStatusIds( statusIds );</span>
 
-<span class="nc" id="L778">        jiraDownloader.setResolutionIds( resolutionIds );</span>
+<span class="nc" id="L785">        jiraDownloader.setResolutionIds( resolutionIds );</span>
 
-<span class="nc" id="L780">        jiraDownloader.setMavenProject( project );</span>
+<span class="nc" id="L787">        jiraDownloader.setMavenProject( project );</span>
 
-<span class="nc" id="L782">        jiraDownloader.setSettings( settings );</span>
+<span class="nc" id="L789">        jiraDownloader.setSettings( settings );</span>
 
-<span class="nc" id="L784">        jiraDownloader.setNbEntries( maxEntries );</span>
+<span class="nc" id="L791">        jiraDownloader.setNbEntries( maxEntries );</span>
 
-<span class="nc" id="L786">        jiraDownloader.setFilter( filter );</span>
+<span class="nc" id="L793">        jiraDownloader.setFilter( filter );</span>
 
-<span class="nc" id="L788">        jiraDownloader.setJiraUser( jiraUser );</span>
+<span class="nc" id="L795">        jiraDownloader.setJiraUser( jiraUser );</span>
 
-<span class="nc" id="L790">        jiraDownloader.setJiraPassword( jiraPassword );</span>
+<span class="nc" id="L797">        jiraDownloader.setJiraPassword( jiraPassword );</span>
 
-<span class="nc" id="L792">        jiraDownloader.setUseJql( useJql );</span>
+<span class="nc" id="L799">        jiraDownloader.setUseJql( useJql );</span>
 
-<span class="nc" id="L794">        jiraDownloader.setWebUser( webUser );</span>
+<span class="nc" id="L801">        jiraDownloader.setWebUser( webUser );</span>
 
-<span class="nc" id="L796">        jiraDownloader.setWebPassword( webPassword );</span>
+<span class="nc" id="L803">        jiraDownloader.setWebPassword( webPassword );</span>
 
-<span class="nc" id="L798">        jiraDownloader.setConnectionTimeout( jiraConnectionTimeout );</span>
+<span class="nc" id="L805">        jiraDownloader.setConnectionTimeout( jiraConnectionTimeout );</span>
 
-<span class="nc" id="L800">        jiraDownloader.setReceiveTimout( jiraReceiveTimout );</span>
+<span class="nc" id="L807">        jiraDownloader.setReceiveTimout( jiraReceiveTimout );</span>
 
         try
         {
-<span class="nc" id="L804">            jiraDownloader.doExecute();</span>
+<span class="nc" id="L811">            jiraDownloader.doExecute();</span>
 
-<span class="nc" id="L806">            List&lt;Issue&gt; issueList = jiraDownloader.getIssueList();</span>
+<span class="nc" id="L813">            List&lt;Issue&gt; issueList = jiraDownloader.getIssueList();</span>
 
-<span class="nc bnc" id="L808" title="All 2 branches missed.">            if ( StringUtils.isNotEmpty( versionPrefix ) )</span>
+<span class="nc bnc" id="L815" title="All 2 branches missed.">            if ( StringUtils.isNotEmpty( versionPrefix ) )</span>
             {
-<span class="nc" id="L810">                int originalNumberOfIssues = issueList.size();</span>
-<span class="nc" id="L811">                issueList = IssueUtils.filterIssuesWithVersionPrefix( issueList, versionPrefix );</span>
-<span class="nc" id="L812">                getLog().debug( &quot;Filtered out &quot; + issueList.size() + &quot; issues of &quot; + originalNumberOfIssues</span>
+<span class="nc" id="L817">                int originalNumberOfIssues = issueList.size();</span>
+<span class="nc" id="L818">                issueList = IssueUtils.filterIssuesWithVersionPrefix( issueList, versionPrefix );</span>
+<span class="nc" id="L819">                getLog().debug( &quot;Filtered out &quot; + issueList.size() + &quot; issues of &quot; + originalNumberOfIssues</span>
                     + &quot; that matched the versionPrefix '&quot; + versionPrefix + &quot;'.&quot; );
             }
 
-<span class="nc" id="L816">            return getReleases( issueList, new JIRAIssueManagmentSystem() );</span>
+<span class="nc" id="L823">            return getReleases( issueList, new JIRAIssueManagmentSystem() );</span>
         }
-<span class="nc" id="L818">        catch ( Exception e )</span>
+<span class="nc" id="L825">        catch ( Exception e )</span>
         {
-<span class="nc" id="L820">            throw new MojoExecutionException( &quot;Failed to extract issues from JIRA.&quot;, e );</span>
+<span class="nc" id="L827">            throw new MojoExecutionException( &quot;Failed to extract issues from JIRA.&quot;, e );</span>
         }
     }
 
     private List&lt;Release&gt; getReleases( List&lt;Issue&gt; issues, IssueManagementSystem ims )
         throws MojoExecutionException
     {
-<span class="nc bnc" id="L827" title="All 2 branches missed.">        if ( issueTypes != null )</span>
+<span class="nc bnc" id="L834" title="All 2 branches missed.">        if ( issueTypes != null )</span>
         {
-<span class="nc" id="L829">            ims.applyConfiguration( issueTypes );</span>
+<span class="nc" id="L836">            ims.applyConfiguration( issueTypes );</span>
         }
-<span class="nc bnc" id="L831" title="All 2 branches missed.">        if ( issues.isEmpty() )</span>
+<span class="nc bnc" id="L838" title="All 2 branches missed.">        if ( issues.isEmpty() )</span>
         {
-<span class="nc" id="L833">            return Collections.emptyList();</span>
+<span class="nc" id="L840">            return Collections.emptyList();</span>
         }
         else
         {
-<span class="nc" id="L837">            IssueAdapter adapter = new IssueAdapter( ims );</span>
-<span class="nc" id="L838">            return adapter.getReleases( issues );</span>
+<span class="nc" id="L844">            IssueAdapter adapter = new IssueAdapter( ims );</span>
+<span class="nc" id="L845">            return adapter.getReleases( issues );</span>
         }
     }
 
     protected List&lt;Release&gt; getTracReleases()
         throws MojoExecutionException
     {
-<span class="nc" id="L845">        TracDownloader issueDownloader = new TracDownloader();</span>
+<span class="nc" id="L852">        TracDownloader issueDownloader = new TracDownloader();</span>
 
-<span class="nc" id="L847">        issueDownloader.setProject( project );</span>
+<span class="nc" id="L854">        issueDownloader.setProject( project );</span>
 
-<span class="nc" id="L849">        issueDownloader.setQuery( tracQuery );</span>
+<span class="nc" id="L856">        issueDownloader.setQuery( tracQuery );</span>
 
-<span class="nc" id="L851">        issueDownloader.setTracPassword( tracPassword );</span>
+<span class="nc" id="L858">        issueDownloader.setTracPassword( tracPassword );</span>
 
-<span class="nc" id="L853">        issueDownloader.setTracUser( tracUser );</span>
+<span class="nc" id="L860">        issueDownloader.setTracUser( tracUser );</span>
 
         try
         {
-<span class="nc" id="L857">            return getReleases( issueDownloader.getIssueList(), new TracIssueManagmentSystem() );</span>
+<span class="nc" id="L864">            return getReleases( issueDownloader.getIssueList(), new TracIssueManagmentSystem() );</span>
         }
-<span class="nc" id="L859">        catch ( Exception e )</span>
+<span class="nc" id="L866">        catch ( Exception e )</span>
         {
-<span class="nc" id="L861">            throw new MojoExecutionException( &quot;Failed to extract issues from Trac.&quot;, e );</span>
+<span class="nc" id="L868">            throw new MojoExecutionException( &quot;Failed to extract issues from Trac.&quot;, e );</span>
         }
     }
 
@@ -867,18 +874,19 @@ import org.codehaus.plexus.velocity.VelocityComponent;
     {
         try
         {
-<span class="nc" id="L870">            GitHubDownloader issueDownloader =</span>
+<span class="nc" id="L877">            GitHubDownloader issueDownloader =</span>
                 new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues, true );
             
-<span class="nc" id="L873">            issueDownloader.configureProxy( settings );</span>
+<span class="nc" id="L880">            issueDownloader.configureProxy( settings );</span>
 
-<span class="nc" id="L875">            issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, getLog() );</span>
+<span class="nc" id="L882">            issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, personalToken,</span>
+<span class="nc" id="L883">                    getLog() );</span>
 
-<span class="nc" id="L877">            return getReleases( issueDownloader.getIssueList(), new GitHubIssueManagementSystem() );</span>
+<span class="nc" id="L885">            return getReleases( issueDownloader.getIssueList(), new GitHubIssueManagementSystem() );</span>
         }
-<span class="nc" id="L879">        catch ( Exception e )</span>
+<span class="nc" id="L887">        catch ( Exception e )</span>
         {
-<span class="nc" id="L881">            throw new MojoExecutionException( &quot;Failed to extract issues from GitHub.&quot;, e );</span>
+<span class="nc" id="L889">            throw new MojoExecutionException( &quot;Failed to extract issues from GitHub.&quot;, e );</span>
         }
     }
 
@@ -888,142 +896,142 @@ import org.codehaus.plexus.velocity.VelocityComponent;
 
     public String getArtifactId()
     {
-<span class="fc" id="L891">        return artifactId;</span>
+<span class="fc" id="L899">        return artifactId;</span>
     }
 
     public void setArtifactId( String artifactId )
     {
-<span class="nc" id="L896">        this.artifactId = artifactId;</span>
-<span class="nc" id="L897">    }</span>
+<span class="nc" id="L904">        this.artifactId = artifactId;</span>
+<span class="nc" id="L905">    }</span>
 
     public String getDevelopmentTeam()
     {
-<span class="fc" id="L901">        return developmentTeam;</span>
+<span class="fc" id="L909">        return developmentTeam;</span>
     }
 
     public void setDevelopmentTeam( String developmentTeam )
     {
-<span class="nc" id="L906">        this.developmentTeam = developmentTeam;</span>
-<span class="nc" id="L907">    }</span>
+<span class="nc" id="L914">        this.developmentTeam = developmentTeam;</span>
+<span class="nc" id="L915">    }</span>
 
     public String getFinalName()
     {
-<span class="fc" id="L911">        return finalName;</span>
+<span class="fc" id="L919">        return finalName;</span>
     }
 
     public void setFinalName( String finalName )
     {
-<span class="nc" id="L916">        this.finalName = finalName;</span>
-<span class="nc" id="L917">    }</span>
+<span class="nc" id="L924">        this.finalName = finalName;</span>
+<span class="nc" id="L925">    }</span>
 
     public String getGroupId()
     {
-<span class="fc" id="L921">        return groupId;</span>
+<span class="fc" id="L929">        return groupId;</span>
     }
 
     public void setGroupId( String groupId )
     {
-<span class="nc" id="L926">        this.groupId = groupId;</span>
-<span class="nc" id="L927">    }</span>
+<span class="nc" id="L934">        this.groupId = groupId;</span>
+<span class="nc" id="L935">    }</span>
 
     public String getIntroduction()
     {
-<span class="fc" id="L931">        return introduction;</span>
+<span class="fc" id="L939">        return introduction;</span>
     }
 
     public void setIntroduction( String introduction )
     {
-<span class="nc" id="L936">        this.introduction = introduction;</span>
-<span class="nc" id="L937">    }</span>
+<span class="nc" id="L944">        this.introduction = introduction;</span>
+<span class="nc" id="L945">    }</span>
 
     public void setIssueTypes( Map&lt;String, String&gt; issueTypes )
     {
-<span class="nc" id="L941">        this.issueTypes = issueTypes;</span>
-<span class="nc" id="L942">    }</span>
+<span class="nc" id="L949">        this.issueTypes = issueTypes;</span>
+<span class="nc" id="L950">    }</span>
 
     public Map&lt;String, String&gt; getIssueTypes()
     {
-<span class="nc" id="L946">        return issueTypes;</span>
+<span class="nc" id="L954">        return issueTypes;</span>
     }
 
     public File getAnnouncementDirectory()
     {
-<span class="nc" id="L951">        return announcementDirectory;</span>
+<span class="nc" id="L959">        return announcementDirectory;</span>
     }
 
     public void setAnnouncementDirectory( File announcementDirectory )
     {
-<span class="nc" id="L956">        this.announcementDirectory = announcementDirectory;</span>
-<span class="nc" id="L957">    }</span>
+<span class="nc" id="L964">        this.announcementDirectory = announcementDirectory;</span>
+<span class="nc" id="L965">    }</span>
 
     public String getPackaging()
     {
-<span class="fc" id="L961">        return packaging;</span>
+<span class="fc" id="L969">        return packaging;</span>
     }
 
     public void setPackaging( String packaging )
     {
-<span class="nc" id="L966">        this.packaging = packaging;</span>
-<span class="nc" id="L967">    }</span>
+<span class="nc" id="L974">        this.packaging = packaging;</span>
+<span class="nc" id="L975">    }</span>
 
     public String getUrl()
     {
-<span class="fc" id="L971">        return url;</span>
+<span class="fc" id="L979">        return url;</span>
     }
 
     public void setUrl( String url )
     {
-<span class="nc" id="L976">        this.url = url;</span>
-<span class="nc" id="L977">    }</span>
+<span class="nc" id="L984">        this.url = url;</span>
+<span class="nc" id="L985">    }</span>
 
     public String getUrlDownload()
     {
-<span class="fc" id="L981">        return urlDownload;</span>
+<span class="fc" id="L989">        return urlDownload;</span>
     }
 
     public void setUrlDownload( String urlDownload )
     {
-<span class="nc" id="L986">        this.urlDownload = urlDownload;</span>
-<span class="nc" id="L987">    }</span>
+<span class="nc" id="L994">        this.urlDownload = urlDownload;</span>
+<span class="nc" id="L995">    }</span>
 
     public VelocityComponent getVelocity()
     {
-<span class="nc" id="L991">        return velocity;</span>
+<span class="nc" id="L999">        return velocity;</span>
     }
 
     public void setVelocity( VelocityComponent velocity )
     {
-<span class="fc" id="L996">        this.velocity = velocity;</span>
-<span class="fc" id="L997">    }</span>
+<span class="fc" id="L1004">        this.velocity = velocity;</span>
+<span class="fc" id="L1005">    }</span>
 
     public String getVersion()
     {
-<span class="fc" id="L1001">        return version;</span>
+<span class="fc" id="L1009">        return version;</span>
     }
 
     public void setVersion( String version )
     {
-<span class="nc" id="L1006">        this.version = version;</span>
-<span class="nc" id="L1007">    }</span>
+<span class="nc" id="L1014">        this.version = version;</span>
+<span class="nc" id="L1015">    }</span>
 
     public ChangesXML getXml()
     {
-<span class="nc" id="L1011">        return xml;</span>
+<span class="nc" id="L1019">        return xml;</span>
     }
 
     public void setXml( ChangesXML xml )
     {
-<span class="nc" id="L1016">        this.xml = xml;</span>
-<span class="nc" id="L1017">    }</span>
+<span class="nc" id="L1024">        this.xml = xml;</span>
+<span class="nc" id="L1025">    }</span>
 
     public File getXmlPath()
     {
-<span class="fc" id="L1021">        return xmlPath;</span>
+<span class="fc" id="L1029">        return xmlPath;</span>
     }
 
     public void setXmlPath( File xmlPath )
     {
-<span class="nc" id="L1026">        this.xmlPath = xmlPath;</span>
-<span class="nc" id="L1027">    }</span>
+<span class="nc" id="L1034">        this.xmlPath = xmlPath;</span>
+<span class="nc" id="L1035">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

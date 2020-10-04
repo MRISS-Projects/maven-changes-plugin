@@ -42,7 +42,7 @@ Apache Maven Changes Plugin,org.apache.maven.plugins.trac,TracDownloader,306,0,6
 Apache Maven Changes Plugin,org.apache.maven.plugins.trac,TracMojo,307,0,12,0,64,0,15,0,9,0
 Apache Maven Changes Plugin,org.apache.maven.plugins.announcement,AbstractAnnouncementMojo,0,3,0,0,0,1,0,1,0,1
 Apache Maven Changes Plugin,org.apache.maven.plugins.announcement,AnnouncementMailMojo,643,0,48,0,143,0,61,0,37,0
-Apache Maven Changes Plugin,org.apache.maven.plugins.announcement,AnnouncementMojo,505,393,34,18,116,80,47,17,21,17
+Apache Maven Changes Plugin,org.apache.maven.plugins.announcement,AnnouncementMojo,507,393,34,18,117,80,47,17,21,17
 Apache Maven Changes Plugin,org.apache.maven.plugins.announcement,MailSender,41,0,0,0,13,0,7,0,7,0
 Apache Maven Changes Plugin,org.apache.maven.plugins.changes,AbstractChangesReport,120,169,4,2,19,32,7,4,4,4
 Apache Maven Changes Plugin,org.apache.maven.plugins.changes,ChangesCheckMojo,114,64,16,12,16,20,10,8,2,2
@@ -58,8 +58,8 @@ Apache Maven Changes Plugin,org.apache.maven.plugins.changes,IssueAdapter,80,56,
 Apache Maven Changes Plugin,org.apache.maven.plugins.changes,ProjectUtils,41,26,5,5,3,6,5,1,0,1
 Apache Maven Changes Plugin,org.apache.maven.plugins.changes,ChangesValidatorMojo,40,101,6,10,4,22,5,6,0,3
 Apache Maven Changes Plugin,org.apache.maven.plugins.changes,HelpMojo,889,0,108,0,157,0,70,0,16,0
-Apache Maven Changes Plugin,org.apache.maven.plugins.github,GitHubMojo,85,163,8,8,16,33,9,8,3,6
+Apache Maven Changes Plugin,org.apache.maven.plugins.github,GitHubMojo,85,165,8,8,16,34,9,8,3,6
 Apache Maven Changes Plugin,org.apache.maven.plugins.github,GitHubIssueManagementSystem,17,0,0,0,5,0,2,0,2,0
 Apache Maven Changes Plugin,org.apache.maven.plugins.github,GitHubTextListMojo,1,66,1,1,1,15,1,4,0,4
 Apache Maven Changes Plugin,org.apache.maven.plugins.github,GitHubTextListMojo.IssueComparator,2,75,3,11,1,20,3,7,0,3
-Apache Maven Changes Plugin,org.apache.maven.plugins.github,GitHubDownloader,70,350,19,39,13,75,13,21,0,5
+Apache Maven Changes Plugin,org.apache.maven.plugins.github,GitHubDownloader,70,372,20,42,13,81,14,22,0,5
