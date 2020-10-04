@@ -250,8 +250,8 @@ public class GitHubDownloader
         if ( personalToken != null && !personalToken.isEmpty() ) 
         {
             log.info( "Using developer personal access token for authentication." );
-            this.client.setOAuth2Token( personalToken );
             this.client.setCredentials( null, null );
+            this.client.setOAuth2Token( personalToken );
             configured = true;
         }
         else
