@@ -250,8 +250,8 @@ public class GitHubDownloader
 <span class="pc bpc" id="L250" title="1 of 4 branches missed.">        if ( personalToken != null &amp;&amp; !personalToken.isEmpty() ) </span>
         {
 <span class="fc" id="L252">            log.info( &quot;Using developer personal access token for authentication.&quot; );</span>
-<span class="fc" id="L253">            this.client.setOAuth2Token( personalToken );</span>
-<span class="fc" id="L254">            this.client.setCredentials( null, null );</span>
+<span class="fc" id="L253">            this.client.setCredentials( null, null );</span>
+<span class="fc" id="L254">            this.client.setOAuth2Token( personalToken );</span>
 <span class="fc" id="L255">            configured = true;</span>
         }
         else
