@@ -48,6 +48,9 @@ new additions:
 3. **New Github mojo configuration parameter to use Github personal token**: If this config parameter is set, it will
    be preferred over user and password which will be ignored. Instructions on how to used it can be found 
    [here](https://mriss-projects.github.io/maven-changes-plugin/github-text-list-mojo.html#personalToken).
+   **Important**: when using personal token, don't put it directly at pom.xml files which will be commited. Add
+   the token as a pom property instead, and define the property value at another file which won't be commited, just like
+   `settings.xml`.
 
 ## Discussion on New Mojo to Generate Issue List in Text Format
 
