@@ -1,0 +1,59 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploymentUrl:
+        description: 'Deployment URL (e.g. https://maven.pkg.github.com/MRISS-Projects/maven-repo)'
+        required: true
+        default: 'https://maven.pkg.github.com/MRISS-Projects/maven-repo'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Maven 3.9.9
+        run: |
+          curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz | tar xz -C /opt
+          echo "/opt/apache-maven-3.9.9/bin" >> $GITHUB_PATH
+
+      - name: Configure Maven settings for GitHub Packages
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOF
+          <settings>
+            <servers>
+              <server>
+                <id>MRISS-Projects-maven-repo</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+              <server>
+                <id>releases</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+              <server>
+                <id>snapshots</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      - name: Deploy
+        run: mvn clean deploy -DdeploymentUrl=${{ github.event.inputs.deploymentUrl }}
