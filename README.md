@@ -293,7 +293,7 @@ The repository where to find the adapted versions is located at:
 
 ## Process
 
-* Do all changes and PRs from and to DEVELOP branch. Test `build` and `deploy` workflows.
-* When ready, remove the SNAPSHOT from version, run `deploy` workflow and then create PR to merge to master.
+* Do all changes and PRs from and to `DEVELOP` branch. Test `build` and `deploy` workflows.
+* When ready, remove the `SNAPSHOT` from version, run `deploy` workflow and then create PR to merge to master.
 * Tag master with new release TAG.
-* Back in DEVELOP branch increment to next -SNAPSHOT.
+* Back in `DEVELOP` branch increment to next `SNAPSHOT`.
