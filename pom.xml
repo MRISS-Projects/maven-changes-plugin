@@ -76,7 +76,7 @@
         <doxiaVersion>1.4</doxiaVersion>
         <doxiaSitetoolsVersion>1.4</doxiaSitetoolsVersion>
         <mavenVersion>3.0</mavenVersion>
-        <sitePluginVersion>3.3</sitePluginVersion>
+        <sitePluginVersion>3.12.1</sitePluginVersion>
         <wagonVersion>1.0-beta-6</wagonVersion>
         <!-- Set nexus server as a system property at command line -->
         <deploymentUrl>${nexus.server}/content/repositories/releases/</deploymentUrl>
@@ -491,6 +491,14 @@
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>3.6.4</version>
                 </plugin>
+                <!-- Override parent POM's maven-site-plugin:3.5.1 with a version that uses
+                     flexmark-java for Markdown parsing (Java 17 compatible). The old version
+                     used Pegdown/Parboiled which fails with ExceptionInInitializerError on Java 17. -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${sitePluginVersion}</version>
+                </plugin>
                 <plugin>
                     <groupId>org.codehaus.plexus</groupId>
                     <artifactId>plexus-component-metadata</artifactId>
@@ -661,6 +669,18 @@
     </plugin>
         </plugins>
     </build>
+
+    <!-- Override the parent POM's maven-plugin-plugin:3.4 reporting plugin.
+         Version 3.4 fails with IllegalArgumentException on Java 17; 3.6.4+ is required. -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>3.6.4</version>
+            </plugin>
+        </plugins>
+    </reporting>
 
     <profiles>
         <profile>
