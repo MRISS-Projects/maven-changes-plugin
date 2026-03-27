@@ -19,7 +19,7 @@
  <!--- NOTE: For help with the syntax of this file, see: --->
  <!--- http://maven.apache.org/doxia/references/apt-format.html --->
 
-[![Build Status](https://34.70.246.135/jenkins/buildStatus/icon?job=maven-changes-plugin-snapshot)](https://34.70.246.135/jenkins/view/maven-changes-plugin/job/maven-changes-plugin-snapshot/)
+[![Build Status](https://github.com/MRISS-Projects/maven-changes-plugin/actions/workflows/build.yml/badge.svg?branch=DEVELOP)](https://github.com/MRISS-Projects/maven-changes-plugin/actions/workflows/build.yml)
 ![altText](jacoco-badge/jacoco.svg "title")
 
 # Maven Changes Plugin - Adapted Version
@@ -219,7 +219,7 @@ your project.
             <id>mriss-repository</id>
             <layout>default</layout>
             <name>mriss-repository</name>
-            <url>https://raw.github.com/MRISS-Projects/maven-repo/master</url>
+            <url>https://maven.pkg.github.com/MRISS-Projects/maven-repo</url>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -227,7 +227,7 @@ your project.
             <id>mriss-plugin-repository</id>
             <layout>default</layout>
             <name>mriss-plugin-repository</name>
-            <url>https://raw.github.com/MRISS-Projects/maven-repo/master</url>
+            <url>https://maven.pkg.github.com/MRISS-Projects/maven-repo</url>
         </pluginRepository>
     </pluginRepositories>
 </project>
@@ -281,7 +281,7 @@ An example with a list of issues in markdown format can be found in the README a
 ### Maven Repository Where to Find the Adapted Plugin Version
 
 The repository where to find the adapted versions is located at:
-`https://raw.github.com/MRISS-Projects/maven-repo/master`. The POM coordinates are:
+`https://maven.pkg.github.com/MRISS-Projects/maven-repo`. The POM coordinates are:
 
 ```xml
 <plugin>

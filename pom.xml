@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>maven-changes-plugin</artifactId>
-    <version>2.12.6</version>
+    <version>2.12.7-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <name>Apache Maven Changes Plugin</name>
@@ -419,7 +419,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.0.8-beta</version>
+            <version>4.11.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -427,7 +427,7 @@
     <repositories>
         <repository>
             <id>MRISS-Projects-maven-repo</id>
-            <url>https://raw.githubusercontent.com/MRISS-Projects/maven-repo/master</url>
+            <url>https://maven.pkg.github.com/MRISS-Projects/maven-repo</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -437,7 +437,7 @@
     <pluginRepositories>
         <pluginRepository>
             <id>MRISS-Projects-maven-repo</id>
-            <url>https://raw.githubusercontent.com/MRISS-Projects/maven-repo/master</url>
+            <url>https://maven.pkg.github.com/MRISS-Projects/maven-repo</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -482,8 +482,19 @@
                             <exclude>eclipse/**</exclude>
                             <exclude>**/*.md.html</exclude>
                             <exclude>jacoco-badge/**</exclude>
+                            <exclude>.github/**</exclude>
                         </excludes>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-plugin-plugin</artifactId>
+                    <version>3.6.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-component-metadata</artifactId>
+                    <version>2.2.0</version>
                 </plugin>
                 <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven 
                     build itself. -->
@@ -516,6 +527,19 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <!-- Disable the bytecode version check from the parent POM: it uses extra-enforcer-rules
+                         1.0-beta-3 which crashes (NPE) on Java 17 class files, and maxJdkVersion=1.6
+                         is not applicable when targeting Java 17. -->
+                    <execution>
+                        <id>enforce-bytecode-version</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <configuration>
                     <escapeString>\</escapeString>
@@ -523,7 +547,11 @@
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
                 <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <release>17</release>
                     <compilerArgument>-Xlint:all</compilerArgument>
                 </configuration>
             </plugin>
@@ -591,7 +619,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.6</version>
+                <version>0.8.12</version>
                 <configuration>
                     <excludes>
                         <!-- Any exclusions you require, *.class -->
