@@ -742,21 +742,6 @@
                                     <skipDeletedFiles>true</skipDeletedFiles>
                                 </configuration>
                             </execution>
-                            <execution>
-                                <id>publish-artifact-to-github</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>publish-scm</goal>
-                                </goals>
-                                <configuration>
-                                    <serverId>github.com</serverId>
-                                    <checkinComment>Publishing artifact for version ${project.version}</checkinComment>
-                                    <pubScmUrl>scm:git:https://github.com/MRISS-Projects/maven-repo</pubScmUrl>
-                                    <content>${project.build.directory}/maven-repo</content>
-                                    <checkoutDirectory>${project.build.directory}/artifact-deploy-checkout</checkoutDirectory>
-                                    <skipDeletedFiles>true</skipDeletedFiles>
-                                </configuration>
-                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
@@ -774,21 +759,6 @@
                                     <basedir>${basedir}/jacoco-badge</basedir>
                                     <includes>jacoco.svg</includes>
                                     <message>[skip jenkins] Jacoco coverage badge</message>
-                                    <connectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</connectionUrl>
-                                    <developerConnectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</developerConnectionUrl>
-                                </configuration>
-                                <inherited>false</inherited>
-                            </execution>
-                            <execution>
-                                <id>commit-readme</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>checkin</goal>
-                                </goals>
-                                <configuration>
-                                    <basedir>${basedir}</basedir>
-                                    <includes>README.md</includes>
-                                    <message>[skip jenkins] Update README</message>
                                     <connectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</connectionUrl>
                                     <developerConnectionUrl>scm:git:https://github.com/MRISS-Projects/maven-changes-plugin</developerConnectionUrl>
                                 </configuration>
