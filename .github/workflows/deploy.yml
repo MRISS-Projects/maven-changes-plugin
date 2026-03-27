@@ -56,4 +56,4 @@ jobs:
           EOF
 
       - name: Deploy
-        run: mvn clean deploy -DdeploymentUrl=${{ github.event.inputs.deploymentUrl }}
+        run: mvn clean deploy -P deployment -DdeploymentUrl=${{ github.event.inputs.deploymentUrl }}
