@@ -670,6 +670,18 @@
         </plugins>
     </build>
 
+    <!-- Override the parent POM's maven-plugin-plugin:3.4 reporting plugin.
+         Version 3.4 fails with IllegalArgumentException on Java 17; 3.6.4+ is required. -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>3.6.4</version>
+            </plugin>
+        </plugins>
+    </reporting>
+
     <profiles>
         <profile>
             <id>run-its</id>
