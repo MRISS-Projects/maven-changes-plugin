@@ -19,6 +19,10 @@ package org.apache.maven.plugins.changes;
  * under the License.
  */
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 import junit.framework.TestCase;
 
 /**
@@ -98,10 +102,17 @@ public class ChangesCheckMojoTestCase
 
         // Czech locale
         locale = "cs_CZ";
-        assertFalse( ChangesCheckMojo.isValidDate( null, pattern, locale ) );
-        assertFalse( ChangesCheckMojo.isValidDate( "", pattern, locale ) );
-        assertTrue( ChangesCheckMojo.isValidDate( "06 XII 2010", pattern, locale ) );
-        assertFalse( ChangesCheckMojo.isValidDate( "pending", pattern, locale ) );
+        {
+            // Compute the expected December abbreviation for the current JDK's Czech locale data
+            // (Java 9+ CLDR uses "pro" instead of the old "XII" Roman numeral)
+            Calendar cal = Calendar.getInstance();
+            cal.set( 2010, 11, 6 ); // December 6, 2010 (month is 0-based)
+            String czechDecDate = new SimpleDateFormat( "dd MMM yyyy", new Locale( "cs", "CZ" ) ).format( cal.getTime() );
+            assertFalse( ChangesCheckMojo.isValidDate( null, pattern, locale ) );
+            assertFalse( ChangesCheckMojo.isValidDate( "", pattern, locale ) );
+            assertTrue( ChangesCheckMojo.isValidDate( czechDecDate, pattern, locale ) );
+            assertFalse( ChangesCheckMojo.isValidDate( "pending", pattern, locale ) );
+        }
 
         // English locale
         locale = "en_US";
