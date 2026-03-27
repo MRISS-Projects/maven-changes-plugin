@@ -219,7 +219,7 @@ your project.
             <id>mriss-repository</id>
             <layout>default</layout>
             <name>mriss-repository</name>
-            <url>https://raw.github.com/MRISS-Projects/maven-repo/master</url>
+            <url>https://maven.pkg.github.com/MRISS-Projects/maven-repo</url>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -227,7 +227,7 @@ your project.
             <id>mriss-plugin-repository</id>
             <layout>default</layout>
             <name>mriss-plugin-repository</name>
-            <url>https://raw.github.com/MRISS-Projects/maven-repo/master</url>
+            <url>https://maven.pkg.github.com/MRISS-Projects/maven-repo</url>
         </pluginRepository>
     </pluginRepositories>
 </project>
@@ -281,7 +281,7 @@ An example with a list of issues in markdown format can be found in the README a
 ### Maven Repository Where to Find the Adapted Plugin Version
 
 The repository where to find the adapted versions is located at:
-`https://raw.github.com/MRISS-Projects/maven-repo/master`. The POM coordinates are:
+`https://maven.pkg.github.com/MRISS-Projects/maven-repo`. The POM coordinates are:
 
 ```xml
 <plugin>
