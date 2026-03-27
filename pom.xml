@@ -482,6 +482,7 @@
                             <exclude>eclipse/**</exclude>
                             <exclude>**/*.md.html</exclude>
                             <exclude>jacoco-badge/**</exclude>
+                            <exclude>.github/**</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
