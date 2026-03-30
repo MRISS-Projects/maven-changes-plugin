@@ -105,8 +105,9 @@ public class GitHubMojo extends AbstractChangesReport
     private int githubAPIPort;
 
     /**
-     * The settings.xml server id to be used to authenticate into github api domain. Only use if using github
-     * enterprise.
+     * The settings.xml server id to be used to authenticate into github api domain. The server's password field
+     * should contain a GitHub personal access token (OAuth2). Only use if using github enterprise or if
+     * personalToken is not set.
      */
     @Parameter( defaultValue = "github" )
     private String githubAPIServerId;

@@ -269,9 +269,11 @@ public class GitHubDownloader
                         log.error( problem.getMessage(), problem.getException() );
                     }
                     server = result.getServer();
-                    String user = server.getUsername();
-                    String password = server.getPassword();
-                    this.client.setCredentials( user, password );
+                    String token = server.getPassword();
+                    log.info( "Using OAuth2 token from settings server id [" + githubAPIServerId
+                            + "] for authentication." );
+                    this.client.setCredentials( null, null );
+                    this.client.setOAuth2Token( token );
 
                     configured = true;
                     break;
