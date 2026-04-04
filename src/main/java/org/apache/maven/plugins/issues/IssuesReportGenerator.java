@@ -91,6 +91,8 @@ public class IssuesReportGenerator
 
         sink.table();
 
+        sink.tableRows( null, false );
+
         sink.tableRow();
 
         for ( int column : columns )
@@ -262,6 +264,8 @@ public class IssuesReportGenerator
 
             sink.tableRow_();
         }
+
+        sink.tableRows_();
 
         sink.table_();
     }
