@@ -39,17 +39,17 @@ jobs:
               <server>
                 <id>MRISS-Projects-maven-repo</id>
                 <username>${{ github.actor }}</username>
-                <password>${{ secrets.GITHUB_TOKEN }}</password>
+                <password>${{ secrets.DEPLOY_TOKEN }}</password>
               </server>
               <server>
                 <id>releases</id>
                 <username>${{ github.actor }}</username>
-                <password>${{ secrets.GITHUB_TOKEN }}</password>
+                <password>${{ secrets.DEPLOY_TOKEN }}</password>
               </server>
               <server>
                 <id>snapshots</id>
                 <username>${{ github.actor }}</username>
-                <password>${{ secrets.GITHUB_TOKEN }}</password>
+                <password>${{ secrets.DEPLOY_TOKEN }}</password>
               </server>
             </servers>
           </settings>
@@ -62,9 +62,9 @@ jobs:
 
       - name: Configure Git credentials for HTTPS push
         run: |
-          git config --global credential.helper '!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f'
+          git config --global credential.helper '!f() { echo username=x-access-token; echo password=$DEPLOY_TOKEN; }; f'
 
       - name: Deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: mvn clean site-deploy deploy -P deployment -DdeploymentUrl=${{ github.event.inputs.deploymentUrl }}

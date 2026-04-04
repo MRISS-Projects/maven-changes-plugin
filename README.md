@@ -287,6 +287,13 @@ The repository where to find the adapted versions is located at:
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-changes-plugin</artifactId>
-    <version>2.12.6</version>
+    <version>2.12.7</version>
 </plugin>
 ```
+
+## Process
+
+* Do all changes and PRs from and to `DEVELOP` branch. Test `build` and `deploy` workflows.
+* When ready, remove the `SNAPSHOT` from version, run `deploy` workflow and then create PR to merge to master.
+* Tag master with new release TAG.
+* Back in `DEVELOP` branch increment to next `SNAPSHOT`.

@@ -125,6 +125,40 @@ public class GitHubDownloaderTestCase extends TestCase
         verify( log ).warn( "Can't find server id [github-server] configured in githubAPIServerId." );
     }
 
+    public void testConfigureAuthenticationWithPersonalToken()
+        throws Exception
+    {
+        IssueManagement issueManagement = newGitHubIssueManagement();
+        GitHubDownloader gitHubDownloader = newGitHubDownloader( issueManagement );
+        Settings settings = new Settings();
+        SettingsDecrypter decrypter = mock( SettingsDecrypter.class );
+        Log log = mock( Log.class );
+
+        gitHubDownloader.configureAuthentication( decrypter, "github-server", settings, "my-personal-token", log );
+
+        verify( log ).info( "Using developer personal access token for authentication." );
+    }
+
+    public void testConfigureAuthenticationWithServerToken()
+        throws Exception
+    {
+        IssueManagement issueManagement = newGitHubIssueManagement();
+        GitHubDownloader gitHubDownloader = newGitHubDownloader( issueManagement );
+        Settings settings = new Settings();
+        Server server = newServer( "github-server" );
+        settings.addServer( server );
+        SettingsDecrypter decrypter = mock( SettingsDecrypter.class );
+        SettingsDecryptionResult result = mock( SettingsDecryptionResult.class );
+        Log log = mock( Log.class );
+        when( result.getProblems() ).thenReturn( Collections.<SettingsProblem>emptyList() );
+        when( result.getServer() ).thenReturn( server );
+        when( decrypter.decrypt( any( SettingsDecryptionRequest.class ) ) ).thenReturn( result );
+
+        gitHubDownloader.configureAuthentication( decrypter, "github-server", settings, null, log );
+
+        verify( log ).info( "Using OAuth2 token from settings server id [github-server] for authentication." );
+    }
+
     private Server newServer( String id )
     {
         Server server = new Server();
