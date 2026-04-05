@@ -448,6 +448,8 @@ public class ChangesReportGenerator
 
         sink.table();
 
+        sink.tableRows( null, false );
+
         sink.tableRow();
 
         sinkHeader( sink, bundle.getString( "report.issues.label.fixVersion" ) );
@@ -470,6 +472,8 @@ public class ChangesReportGenerator
 
             sink.tableRow_();
         }
+
+        sink.tableRows_();
 
         sink.table_();
 
@@ -532,6 +536,8 @@ public class ChangesReportGenerator
         {
             sink.table();
 
+            sink.tableRows( null, false );
+
             sink.tableRow();
             sinkHeader( sink, bundle.getString( "report.issues.label.type" ) );
             sinkHeader( sink, bundle.getString( "report.issues.label.summary" ) );
@@ -552,6 +558,8 @@ public class ChangesReportGenerator
                 Component component = (Component) o;
                 constructComponent( sink, bundle, component );
             }
+
+            sink.tableRows_();
 
             sink.table_();
         }
