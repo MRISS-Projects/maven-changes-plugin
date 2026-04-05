@@ -287,7 +287,7 @@ The repository where to find the adapted versions is located at:
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-changes-plugin</artifactId>
-    <version>2.12.7</version>
+    <version>2.12.8</version>
 </plugin>
 ```
 
