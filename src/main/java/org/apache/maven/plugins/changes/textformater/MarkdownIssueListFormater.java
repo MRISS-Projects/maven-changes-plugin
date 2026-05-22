@@ -243,7 +243,8 @@ public class MarkdownIssueListFormater implements IssueListFormater
         {
             String headerText = bundle.getString( headerLabelKeys[column] );
             resultHeader += ( " " + headerText + " " + COLUMN_SEPARATOR );
-            resultHeaderSeparator += ( " " + StringUtils.repeat( "-", headerText.length() ) + " " + COLUMN_SEPARATOR );
+            resultHeaderSeparator += ( " " + StringUtils.repeat( "-", Math.max( 3, headerText.length() ) ) + " "
+                    + COLUMN_SEPARATOR );
         }
         return resultHeader + "\n" + resultHeaderSeparator + "\n";
     }
