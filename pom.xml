@@ -483,6 +483,7 @@
                             <exclude>**/*.md.html</exclude>
                             <exclude>jacoco-badge/**</exclude>
                             <exclude>.github/**</exclude>
+                            <exclude>specs/**</exclude>
                         </excludes>
                     </configuration>
                 </plugin>
