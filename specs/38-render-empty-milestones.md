@@ -61,26 +61,26 @@ DSH's `0.3.1` is the case in point: closed, deliberately empty, and absent from 
 
 ## Plan
 
-- [ ] Merge `DEVELOP` into this branch once #40 is merged.
-- [ ] **D1 (red).** `GitHubDownloaderTestCase`: with a mocked `MilestoneService`,
+- [x] Merge `DEVELOP` into this branch once #40 is merged.
+- [x] **D1 (red).** `GitHubDownloaderTestCase`: with a mocked `MilestoneService`,
       `getClosedMilestoneTitles()` returns the milestones' titles, and it asks only for state
       `closed`.
-- [ ] **F1 (red).** `MarkdownIssueListFormaterTest`, with the version separator on, formats an issue
+- [x] **F1 (red).** `MarkdownIssueListFormaterTest`, with the version separator on, formats an issue
       in `0.3.2`, an `EmptyMilestoneIssue` for `0.3.1`, and an issue in `0.3.0`. The `0.3.1`
       section is present, has one row `| - | - | No issues | ... |`, and that row has as many cells
       as the header.
-- [ ] **F2 (red).** `AptIssueListFormaterTest`: an `EmptyMilestoneIssue` renders
+- [x] **F2 (red).** `AptIssueListFormaterTest`: an `EmptyMilestoneIssue` renders
       `| - | No issues | - | - | - |`.
-- [ ] **M1 (red).** `GitHubMojoTestCase`: a text-list mojo with `includeEmptyMilestones` set gets
+- [x] **M1 (red).** `GitHubMojoTestCase`: a text-list mojo with `includeEmptyMilestones` set gets
       closed milestones `0.3.2`, `0.3.1` and `0.3.0` from a mocked downloader, with issues in `0.3.2`
       and `0.3.0` only. `generateReport()` receives one placeholder, for `0.3.1`, between them.
-- [ ] **M2 (red).** The same mojo with the parameter off receives the downloaded issues only, and the
+- [x] **M2 (red).** The same mojo with the parameter off receives the downloaded issues only, and the
       downloader is never asked for milestones.
-- [ ] Run `mvn -B clean install`. The new tests fail because `EmptyMilestoneIssue`,
+- [x] Run `mvn -B clean install`. The new tests fail because `EmptyMilestoneIssue`,
       `getClosedMilestoneTitles()` and `addEmptyMilestones()` do not exist yet. Check that those
       are the only compile errors.
-- [ ] Implement design 1–4.
-- [ ] Run `mvn -B clean install` until it is green, with instruction coverage not below #37's
+- [x] Implement design 1–4.
+- [x] Run `mvn -B clean install` until it is green, with instruction coverage not below #37's
       38.82%.
 - [ ] Open a PR into `DEVELOP` that references `#38`. Once it merges, dispatch `deploy.yml` from
       `DEVELOP`. `2.12.10` is then complete, and the release follows the README's process.
