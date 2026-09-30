@@ -49,4 +49,27 @@ public class AptIssueListFormaterTest extends TestCase
         assertNotNull( formatter.formatIssueList( issues ) );
     }
 
+    /**
+     * Issue #36: the Type cell of an issue without a type (a GitHub issue with no label) shows {@code n/a},
+     * never the literal {@code null}. Priority and resolution are set, so only Type could print {@code null}.
+     */
+    public void testIssueWithoutTypeShowsNotAvailable()
+    {
+        AptIssueListFormater formatter = new AptIssueListFormater( false );
+        List<Issue> issues = new ArrayList<Issue>();
+        Issue issue = new Issue();
+        issue.setId( "8" );
+        issue.setSummary( "the summary" );
+        issue.setPriority( "priority" );
+        issue.setResolution( "resolution" );
+        issue.setVersion( "the version" );
+        issues.add( issue );
+
+        String output = formatter.formatIssueList( issues );
+
+        assertTrue( "The Type cell must show n/a, in: " + output,
+            output.contains( "| 8 | the summary | n/a | priority | resolution |" ) );
+        assertFalse( "No cell may print null, in: " + output, output.contains( "null" ) );
+    }
+
 }

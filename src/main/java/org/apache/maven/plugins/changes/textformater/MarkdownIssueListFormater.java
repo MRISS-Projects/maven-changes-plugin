@@ -114,7 +114,7 @@ public class MarkdownIssueListFormater implements IssueListFormater
         for ( Iterator<Issue> iterator = issueList.iterator(); iterator.hasNext(); )
         {
             Issue issue = (Issue) iterator.next();
-            if ( issue == null || issue.getType() == null )
+            if ( issue == null )
             {
                 continue;
             }
@@ -208,7 +208,8 @@ public class MarkdownIssueListFormater implements IssueListFormater
                 break;
 
             case IssuesReportHelper.COLUMN_TYPE:
-                result += ( MD_COLUMN_SPACE + issue.getType() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );
+                String type = issue.getType() == null ? NOT_AVAILABLE : issue.getType();
+                result += ( MD_COLUMN_SPACE + type + MD_COLUMN_SPACE + COLUMN_SEPARATOR );
                 break;
 
             case IssuesReportHelper.COLUMN_UPDATED:

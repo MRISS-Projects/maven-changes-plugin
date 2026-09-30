@@ -180,4 +180,59 @@ public class MarkdownIssueListFormaterTest extends TestCase
         assertTrue( "Output must contain the summary", output.contains( "A summary" ) );
     }
 
+    /**
+     * Issue #36: an issue without a type (a GitHub issue with no label) must still be listed.
+     */
+    public void testIssueWithoutTypeIsListed()
+    {
+        List<Integer> columns = Arrays.asList( IssuesReportHelper.COLUMN_ID, IssuesReportHelper.COLUMN_SUMMARY,
+            IssuesReportHelper.COLUMN_TYPE );
+        MarkdownIssueListFormater formatter = createFormatter( columns );
+
+        List<Issue> issues = new ArrayList<Issue>();
+        issues.add( buildIssue( "7", "Typed issue", "bug", "1.1" ) );
+        issues.add( buildIssue( "8", "Untyped issue", null, "1.1" ) );
+
+        String output = formatter.formatIssueList( issues );
+
+        assertNotNull( "The typed issue must be listed, in: " + output, findRow( output, "7" ) );
+        assertNotNull( "The untyped issue must be listed, in: " + output, findRow( output, "8" ) );
+    }
+
+    /**
+     * Issue #36: the Type cell of an issue without a type shows {@code n/a}, never the literal {@code null}.
+     */
+    public void testIssueWithoutTypeShowsNotAvailable()
+    {
+        List<Integer> columns = Arrays.asList( IssuesReportHelper.COLUMN_ID, IssuesReportHelper.COLUMN_SUMMARY,
+            IssuesReportHelper.COLUMN_TYPE );
+        MarkdownIssueListFormater formatter = createFormatter( columns );
+
+        List<Issue> issues = new ArrayList<Issue>();
+        issues.add( buildIssue( "8", "Untyped issue", null, "1.1" ) );
+
+        String output = formatter.formatIssueList( issues );
+        String row = findRow( output, "8" );
+
+        assertNotNull( "The untyped issue must be listed, in: " + output, row );
+        assertTrue( "The Type cell must show n/a, in: " + row, row.endsWith( "| n/a |" ) );
+        assertFalse( "No cell may print null, in: " + row, row.contains( "null" ) );
+    }
+
+    /**
+     * Returns the table row whose Id cell links to the given issue id, or {@code null} if there is none.
+     */
+    private String findRow( String markdown, String id )
+    {
+        String idCell = "[" + id + "](" + ISSUE_MANAGEMENT_URL + "/" + id + ")";
+        for ( String line : markdown.split( "\n" ) )
+        {
+            if ( line.startsWith( "| " + idCell + " |" ) )
+            {
+                return line;
+            }
+        }
+        return null;
+    }
+
 }
