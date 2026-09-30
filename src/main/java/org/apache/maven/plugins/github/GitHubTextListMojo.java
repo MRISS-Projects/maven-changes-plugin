@@ -19,14 +19,19 @@ package org.apache.maven.plugins.github;
  * under the License.
  */
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.changes.textformater.IssueListFormater;
 import org.apache.maven.plugins.changes.textformater.IssueListFormatterFactory;
+import org.apache.maven.plugins.issues.EmptyMilestoneIssue;
 import org.apache.maven.plugins.issues.Issue;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.reporting.MavenReportException;
@@ -62,6 +67,43 @@ public class GitHubTextListMojo extends GitHubMojo
      */
     @Parameter( property = "subtitle.level.number", defaultValue = "3" )
     private int subtitleLevelNumber;
+
+    /***
+     * If a closed milestone with no issues should still get its version section, with a single "no issues" row.
+     * Open milestones are never listed this way.
+     *
+     * @since 2.12.10
+     */
+    @Parameter( property = "changes.includeEmptyMilestones", defaultValue = "false" )
+    private boolean includeEmptyMilestones;
+
+    /**
+     * With <code>includeEmptyMilestones</code> set, adds an {@link EmptyMilestoneIssue} for each closed milestone
+     * that no downloaded issue belongs to.
+     */
+    @Override
+    protected List<Issue> addEmptyMilestones( GitHubDownloader downloader, List<Issue> issueList )
+        throws IOException
+    {
+        if ( !includeEmptyMilestones )
+        {
+            return issueList;
+        }
+        Set<String> milestonesWithIssues = new HashSet<String>();
+        for ( Issue issue : issueList )
+        {
+            milestonesWithIssues.addAll( issue.getFixVersions() );
+        }
+        List<Issue> result = new ArrayList<Issue>( issueList );
+        for ( String milestone : downloader.getClosedMilestoneTitles() )
+        {
+            if ( !milestonesWithIssues.contains( milestone ) )
+            {
+                result.add( new EmptyMilestoneIssue( milestone ) );
+            }
+        }
+        return result;
+    }
 
     @Override
     protected void generateReport( Locale locale, List<Integer> columnIds, List<Issue> issueList )
