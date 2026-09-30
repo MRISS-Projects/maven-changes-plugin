@@ -21,6 +21,7 @@ package org.apache.maven.plugins.github;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -207,8 +208,7 @@ public class GitHubMojo extends AbstractChangesReport
         try
         {
             // Download issues
-            GitHubDownloader issueDownloader = new GitHubDownloader( project, githubAPIScheme, githubAPIPort,
-                    includeOpenIssues, onlyMilestoneIssues );
+            GitHubDownloader issueDownloader = createDownloader();
 
             issueDownloader.configureProxy( settings );
 
@@ -222,6 +222,8 @@ public class GitHubMojo extends AbstractChangesReport
                 issueList = IssueUtils.getIssuesForVersion( issueList, project.getVersion(), removeSnapshotSuffix );
                 getLog().info( "The GitHub Report will contain issues only for the current version." );
             }
+
+            Collections.sort( issueList, new GitHubIssueComparator() );
 
             generateReport( locale, columnIds, issueList );
 
@@ -243,6 +245,16 @@ public class GitHubMojo extends AbstractChangesReport
                 generateReport( locale, columnIds, new ArrayList<Issue>() );
             }            
         }
+    }
+
+    /**
+     * Creates the downloader that fetches the issues from GitHub. Tests override it to supply issues without
+     * calling GitHub.
+     */
+    protected GitHubDownloader createDownloader() throws MalformedURLException
+    {
+        return new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues,
+                onlyMilestoneIssues );
     }
 
     protected void generateReport( Locale locale, List<Integer> columnIds, List<Issue> issueList )

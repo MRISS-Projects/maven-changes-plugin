@@ -73,6 +73,6 @@ If issue types come into use later, that is a new issue, opened then.
 - [x] Fix `MarkdownIssueListFormater` (design 1) and `AptIssueListFormater` (design 2).
 - [x] Run `mvn -B clean install`, which is what `build.yml` runs, until it is green. Check that the
       JaCoCo coverage has not dropped.
-- [ ] Open a PR into `DEVELOP` that references `#36`. Once it merges, dispatch `deploy.yml` (manual
+- [x] Open a PR into `DEVELOP` that references `#36`. Once it merges, dispatch `deploy.yml` (manual
       only) from `DEVELOP` to publish `2.12.10-SNAPSHOT`, as the README's process asks ("Test `build`
       and `deploy` workflows"). parent-poms `#86` can then validate against it before the release.
