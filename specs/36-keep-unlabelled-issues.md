@@ -58,20 +58,20 @@ If issue types come into use later, that is a new issue, opened then.
 
 ## Plan
 
-- [ ] **T1 (red).** `MarkdownIssueListFormaterTest.testIssueWithoutTypeIsListed`: two issues, one
+- [x] **T1 (red).** `MarkdownIssueListFormaterTest.testIssueWithoutTypeIsListed`: two issues, one
       typed `bug` and one with type `null`. Both rows appear, the untyped one identified by its
       `[id](url)` link. Fails today: the row is missing.
-- [ ] **T2 (red).** `MarkdownIssueListFormaterTest.testIssueWithoutTypeShowsNotAvailable`: the
+- [x] **T2 (red).** `MarkdownIssueListFormaterTest.testIssueWithoutTypeShowsNotAvailable`: the
       untyped issue's row contains `| n/a |` in the Type column and no `null` cell.
-- [ ] **T3 (red).** `AptIssueListFormaterTest.testIssueWithoutTypeShowsNotAvailable`: an untyped
+- [x] **T3 (red).** `AptIssueListFormaterTest.testIssueWithoutTypeShowsNotAvailable`: an untyped
       issue, with priority and resolution set so that only Type could print `null`. The row shows
       `n/a` and does not contain `null`. Fails today: it prints `null`.
-- [ ] **T4.** `GitHubDownloaderTestCase`: pin the downloader's contract. No labels leave the type
+- [x] **T4.** `GitHubDownloaderTestCase`: pin the downloader's contract. No labels leave the type
       `null`, and two labels give the first as the type. This test is green before the fix and
       guards design point 3.
-- [ ] Run `mvn -B clean install` and confirm that T1–T3 fail for the stated reasons.
-- [ ] Fix `MarkdownIssueListFormater` (design 1) and `AptIssueListFormater` (design 2).
-- [ ] Run `mvn -B clean install`, which is what `build.yml` runs, until it is green. Check that the
+- [x] Run `mvn -B clean install` and confirm that T1–T3 fail for the stated reasons.
+- [x] Fix `MarkdownIssueListFormater` (design 1) and `AptIssueListFormater` (design 2).
+- [x] Run `mvn -B clean install`, which is what `build.yml` runs, until it is green. Check that the
       JaCoCo coverage has not dropped.
 - [ ] Open a PR into `DEVELOP` that references `#36`. Once it merges, dispatch `deploy.yml` (manual
       only) from `DEVELOP` to publish `2.12.10-SNAPSHOT`, as the README's process asks ("Test `build`
