@@ -44,6 +44,7 @@ import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
+import org.eclipse.egit.github.core.Label;
 import org.eclipse.egit.github.core.User;
 import org.mockito.ArgumentCaptor;
 
@@ -77,6 +78,36 @@ public class GitHubDownloaderTestCase extends TestCase
         assertEquals( githubIssue.getTitle(), issue.getTitle() );
         assertEquals( githubIssue.getTitle(), issue.getSummary() );
         assertEquals( issueManagement.getUrl() + githubIssue.getNumber(), issue.getLink() );
+    }
+
+    /**
+     * Issue #36: an issue with no labels has no type. The text formatters render that as n/a; the
+     * downloader's model must stay honest, because other renderers handle a missing type themselves.
+     */
+    public void testCreateIssueWithoutLabelsHasNoType()
+        throws IOException
+    {
+        GitHubDownloader gitHubDownloader = newGitHubDownloader( newGitHubIssueManagement() );
+
+        org.eclipse.egit.github.core.Issue githubIssue = new org.eclipse.egit.github.core.Issue();
+        githubIssue.setNumber( 1 );
+        githubIssue.setUser( new User() );
+        githubIssue.setLabels( Collections.<Label>emptyList() );
+
+        assertNull( gitHubDownloader.createIssue( githubIssue ).getType() );
+    }
+
+    public void testCreateIssueTakesTypeFromFirstLabel()
+        throws IOException
+    {
+        GitHubDownloader gitHubDownloader = newGitHubDownloader( newGitHubIssueManagement() );
+
+        org.eclipse.egit.github.core.Issue githubIssue = new org.eclipse.egit.github.core.Issue();
+        githubIssue.setNumber( 1 );
+        githubIssue.setUser( new User() );
+        githubIssue.setLabels( Arrays.asList( new Label().setName( "bug" ), new Label().setName( "task" ) ) );
+
+        assertEquals( "bug", gitHubDownloader.createIssue( githubIssue ).getType() );
     }
 
     public void testConfigureAuthenticationWithProblems()

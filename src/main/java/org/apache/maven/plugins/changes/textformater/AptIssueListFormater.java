@@ -38,6 +38,8 @@ public class AptIssueListFormater implements IssueListFormater
 
     private static final String APT_COLUMN_SPACE = " ";
 
+    private static final String NOT_AVAILABLE = "n/a";
+
     private static final String LINE = APT_LINE_PREFIX
             + "*------------+----------+-------+-----------+--------------+\n";
     private static final String HEADER = APT_LINE_PREFIX
@@ -71,7 +73,8 @@ public class AptIssueListFormater implements IssueListFormater
             result += ( APT_LINE_PREFIX + COLUMN_SEPARATOR );
             result += ( APT_COLUMN_SPACE + issue.getId() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );
             result += ( APT_COLUMN_SPACE + issue.getSummary() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );
-            result += ( APT_COLUMN_SPACE + issue.getType() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );
+            String type = issue.getType() == null ? NOT_AVAILABLE : issue.getType();
+            result += ( APT_COLUMN_SPACE + type + APT_COLUMN_SPACE + COLUMN_SEPARATOR );
             result += ( APT_COLUMN_SPACE + issue.getPriority() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );
             result += ( APT_COLUMN_SPACE + issue.getResolution() + APT_COLUMN_SPACE + COLUMN_SEPARATOR + "\n" );
             result += LINE;
