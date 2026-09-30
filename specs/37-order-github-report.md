@@ -56,25 +56,25 @@ On top of that, an issue with a `null` update date throws an NPE in the tie-brea
 
 ## Plan
 
-- [ ] **C1 (red).** `GitHubIssueComparatorTest`: `3.10.0` sorts before `3.9.10` and `3.9.2`.
+- [x] **C1 (red).** `GitHubIssueComparatorTest`: `3.10.0` sorts before `3.9.10` and `3.9.2`.
       `3.9.0-SNAPSHOT` and `3.9.0` compare equal on version.
-- [ ] **C2 (red).** For the same version, the later update date comes first.
-- [ ] **C3 (red).** An issue with no version sorts after every versioned issue. So does an issue
+- [x] **C2 (red).** For the same version, the later update date comes first.
+- [x] **C3 (red).** An issue with no version sorts after every versioned issue. So does an issue
       whose only fix version is blank.
-- [ ] **C4 (red).** A non-numeric title (`Backlog`) sorts without throwing, and ahead of the
+- [x] **C4 (red).** A non-numeric title (`Backlog`) sorts without throwing, and ahead of the
       no-version issues.
-- [ ] **C5 (red).** A `null` update date sorts last within its version, and does not throw.
-- [ ] **M1 (red).** `GitHubMojoTestCase`: a `GitHubMojo` subclass with a mocked downloader returns an
+- [x] **C5 (red).** A `null` update date sorts last within its version, and does not throw.
+- [x] **M1 (red).** `GitHubMojoTestCase`: a `GitHubMojo` subclass with a mocked downloader returns an
       unsorted list, and the list `generateReport()` receives is in the order above.
-- [ ] **M2 (red).** The same test for a `GitHubTextListMojo` subclass: it receives the same order
+- [x] **M2 (red).** The same test for a `GitHubTextListMojo` subclass: it receives the same order
       from the shared sort.
-- [ ] Run `mvn -B clean install`. C1–C5 fail because `GitHubIssueComparator` does not compile yet.
+- [x] Run `mvn -B clean install`. C1–C5 fail because `GitHubIssueComparator` does not compile yet.
       That is the red for a class that does not exist, so check it is the only compile error. M1
       fails because nothing sorts.
-- [ ] Add `GitHubIssueComparator`, delete the inner comparator, sort in `executeReport()`, and
+- [x] Add `GitHubIssueComparator`, delete the inner comparator, sort in `executeReport()`, and
       extract `createDownloader()`.
-- [ ] Run `mvn -B clean install` until it is green, with instruction coverage no lower than 38%.
-- [ ] Tick #36's last plan step in `specs/36-keep-unlabelled-issues.md`, which the #36 PR merged
+- [x] Run `mvn -B clean install` until it is green, with instruction coverage no lower than 38%.
+- [x] Tick #36's last plan step in `specs/36-keep-unlabelled-issues.md`, which the #36 PR merged
       unticked.
 - [ ] Open a PR into `DEVELOP` that references `#37`. Once it merges, dispatch `deploy.yml` from
       `DEVELOP` to refresh `2.12.10-SNAPSHOT`.
