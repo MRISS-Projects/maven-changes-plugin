@@ -566,6 +566,19 @@ or if personalToken is not set.<br /><b>Default value is</b>: <code>github</code
           
 <tr class="a">
             
+<td align="left"><code><a href="#includeEmptyMilestones">&lt;includeEmptyMilestones&gt;</a></code></td>
+            
+<td><code>boolean</code></td>
+            
+<td><code>2.12.10</code></td>
+            
+<td>If a closed milestone with no issues should still get its version
+section, with a single &quot;no issues&quot; row. Open milestones are never
+listed this way.<br /><b>Default value is</b>: <code>false</code>.<br /><b>User property is</b>: <code>changes.includeEmptyMilestones</code>.<br /></td>
+          </tr>
+          
+<tr class="b">
+            
 <td align="left"><code><a href="#includeOpenIssues">&lt;includeOpenIssues&gt;</a></code></td>
             
 <td><code>boolean</code></td>
@@ -575,7 +588,7 @@ or if personalToken is not set.<br /><b>Default value is</b>: <code>github</code
 <td>Boolean which says if we should include open issues in the report.<br /><b>Default value is</b>: <code>true</code>.<br /></td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td align="left"><code><a href="#issueListPropertyName">&lt;issueListPropertyName&gt;</a></code></td>
             
@@ -588,7 +601,7 @@ issues, following the format defined at
 <code>textListFormater</code>.<br /><b>Default value is</b>: <code>issues.text.list</code>.<br /><b>User property is</b>: <code>changes.issue.list.propert.name</code>.<br /></td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td align="left"><code><a href="#onlyCurrentVersion">&lt;onlyCurrentVersion&gt;</a></code></td>
             
@@ -602,7 +615,7 @@ report. The current version being used is
 <code>removeSnapshotSuffix</code> is set to <code>true</code>.<br /><b>Default value is</b>: <code>false</code>.<br /></td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td align="left"><code><a href="#onlyMilestoneIssues">&lt;onlyMilestoneIssues&gt;</a></code></td>
             
@@ -614,7 +627,7 @@ report. The current version being used is
 milestones.<br /><b>Default value is</b>: <code>true</code>.<br /></td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td align="left"><code><a href="#outputDirectory">&lt;outputDirectory&gt;</a></code></td>
             
@@ -629,7 +642,7 @@ generation, the output directory configured in the Maven Site
 Plugin is used instead.<br /><b>Default value is</b>: <code>${project.reporting.outputDirectory}</code>.<br /></td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td align="left"><code><a href="#outputEncoding">&lt;outputEncoding&gt;</a></code></td>
             
@@ -644,7 +657,7 @@ generation, the output encoding configured in the Maven Site Plugin
 is used instead.<br /><b>Default value is</b>: <code>${project.reporting.outputEncoding}</code>.<br /><b>User property is</b>: <code>outputEncoding</code>.<br /></td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td align="left"><code><a href="#personalToken">&lt;personalToken&gt;</a></code></td>
             
@@ -656,7 +669,7 @@ is used instead.<br /><b>Default value is</b>: <code>${project.reporting.outputE
 user and password associated with serverId which will be ignored.<br /><b>User property is</b>: <code>changes.personalToken</code>.<br /></td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td align="left"><code><a href="#removeSnapshotSuffix">&lt;removeSnapshotSuffix&gt;</a></code></td>
             
@@ -667,7 +680,7 @@ user and password associated with serverId which will be ignored.<br /><b>User p
 <td>If &quot;-SNAPSHOT&quot; suffix should be removed when searching for issues.<br /><b>Default value is</b>: <code>true</code>.<br /><b>User property is</b>: <code>changes.removeSnapshotSuffix</code>.<br /></td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td align="left"><code><a href="#runOnlyAtExecutionRoot">&lt;runOnlyAtExecutionRoot&gt;</a></code></td>
             
@@ -680,7 +693,7 @@ module tree. That is, run in the project contained in the same
 folder where the mvn execution was launched.<br /><b>Default value is</b>: <code>false</code>.<br /><b>User property is</b>: <code>changes.runOnlyAtExecutionRoot</code>.<br /></td>
           </tr>
           
-<tr class="b">
+<tr class="a">
             
 <td align="left"><code><a href="#subtitleLevelNumber">&lt;subtitleLevelNumber&gt;</a></code></td>
             
@@ -693,7 +706,7 @@ version title separators. In case of markdown the number of '#'
 characters used in the version sub-title.<br /><b>Default value is</b>: <code>3</code>.<br /><b>User property is</b>: <code>subtitle.level.number</code>.<br /></td>
           </tr>
           
-<tr class="a">
+<tr class="b">
             
 <td align="left"><code><a href="#textListFormater">&lt;textListFormater&gt;</a></code></td>
             
@@ -807,6 +820,24 @@ or if personalToken is not set.</div>
 <li><b>Required</b>: <code>No</code></li>
           
 <li><b>Default</b>: <code>github</code></li>
+        </ul><hr /></section><section>
+<h4><a name="a.3CincludeEmptyMilestones.3E"></a><b><a name="includeEmptyMilestones">&lt;includeEmptyMilestones&gt;</a></b></h4>
+        
+<div>If a closed milestone with no issues should still get its version
+section, with a single &quot;no issues&quot; row. Open milestones are never
+listed this way.</div>
+        
+<ul>
+          
+<li><b>Type</b>: <code>boolean</code></li>
+          
+<li><b>Since</b>: <code>2.12.10</code></li>
+          
+<li><b>Required</b>: <code>No</code></li>
+          
+<li><b>User Property</b>: <code>changes.includeEmptyMilestones</code></li>
+          
+<li><b>Default</b>: <code>false</code></li>
         </ul><hr /></section><section>
 <h4><a name="a.3CincludeOpenIssues.3E"></a><b><a name="includeOpenIssues">&lt;includeOpenIssues&gt;</a></b></h4>
         
