@@ -39,8 +39,10 @@ import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
 import org.eclipse.egit.github.core.Label;
+import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.IssueService;
+import org.eclipse.egit.github.core.service.MilestoneService;
 
 
 /**
@@ -204,6 +206,29 @@ public class GitHubDownloader
         }
 
         return issue;
+    }
+
+    /**
+     * Creates the service that lists milestones. Tests override it to supply milestones without calling GitHub.
+     */
+    protected MilestoneService createMilestoneService()
+    {
+        return new MilestoneService( client );
+    }
+
+    /**
+     * @return the titles of the repository's closed milestones. Open milestones are never listed.
+     * @throws IOException if GitHub cannot be read
+     * @since 2.12.10
+     */
+    public List<String> getClosedMilestoneTitles() throws IOException
+    {
+        List<String> titles = new ArrayList<String>();
+        for ( Milestone milestone : createMilestoneService().getMilestones( githubOwner, githubRepo, "closed" ) )
+        {
+            titles.add( milestone.getTitle() );
+        }
+        return titles;
     }
 
     public List<Issue> getIssueList() throws IOException

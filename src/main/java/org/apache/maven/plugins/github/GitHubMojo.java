@@ -19,6 +19,7 @@ package org.apache.maven.plugins.github;
  * under the License.
  */
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -215,7 +216,7 @@ public class GitHubMojo extends AbstractChangesReport
             issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, personalToken,
                     getLog() );
 
-            List<Issue> issueList = issueDownloader.getIssueList();
+            List<Issue> issueList = addEmptyMilestones( issueDownloader, issueDownloader.getIssueList() );
 
             if ( onlyCurrentVersion )
             {
@@ -255,6 +256,21 @@ public class GitHubMojo extends AbstractChangesReport
     {
         return new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues,
                 onlyMilestoneIssues );
+    }
+
+    /**
+     * Adds a placeholder for each closed milestone that has no issues. The GitHub report has no use for them, so this
+     * returns the issues unchanged; the text list overrides it.
+     *
+     * @param downloader the downloader the issues came from
+     * @param issueList the downloaded issues
+     * @return the issues to report on
+     * @throws IOException if the milestones cannot be read
+     */
+    protected List<Issue> addEmptyMilestones( GitHubDownloader downloader, List<Issue> issueList )
+        throws IOException
+    {
+        return issueList;
     }
 
     protected void generateReport( Locale locale, List<Integer> columnIds, List<Issue> issueList )
