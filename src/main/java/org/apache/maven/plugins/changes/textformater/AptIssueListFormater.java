@@ -22,6 +22,7 @@ package org.apache.maven.plugins.changes.textformater;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.maven.plugins.issues.EmptyMilestoneIssue;
 import org.apache.maven.plugins.issues.Issue;
 
 /**
@@ -38,10 +39,15 @@ public class AptIssueListFormater implements IssueListFormater
 
     private static final String APT_COLUMN_SPACE = " ";
 
+    private static final String NOT_AVAILABLE = "n/a";
+
     private static final String LINE = APT_LINE_PREFIX
             + "*------------+----------+-------+-----------+--------------+\n";
     private static final String HEADER = APT_LINE_PREFIX
             + "|| Ticket Id || Summary || Type || Priority || Resolution ||\n";
+
+    /** The row of a closed milestone with no issues, in the five columns of {@link #HEADER}. */
+    private static final String EMPTY_MILESTONE_ROW = "| - | " + EmptyMilestoneIssue.SUMMARY + " | - | - | - |\n";
 
     private boolean versionSeparator;
 
@@ -68,10 +74,16 @@ public class AptIssueListFormater implements IssueListFormater
                 result += ( "\n Version " + issue.getVersion() + "\n\n" );
                 result += ( LINE + HEADER + LINE );
             }
+            if ( issue instanceof EmptyMilestoneIssue )
+            {
+                result += ( APT_LINE_PREFIX + EMPTY_MILESTONE_ROW + LINE );
+                continue;
+            }
             result += ( APT_LINE_PREFIX + COLUMN_SEPARATOR );
             result += ( APT_COLUMN_SPACE + issue.getId() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );
             result += ( APT_COLUMN_SPACE + issue.getSummary() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );
-            result += ( APT_COLUMN_SPACE + issue.getType() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );
+            String type = issue.getType() == null ? NOT_AVAILABLE : issue.getType();
+            result += ( APT_COLUMN_SPACE + type + APT_COLUMN_SPACE + COLUMN_SEPARATOR );
             result += ( APT_COLUMN_SPACE + issue.getPriority() + APT_COLUMN_SPACE + COLUMN_SEPARATOR );
             result += ( APT_COLUMN_SPACE + issue.getResolution() + APT_COLUMN_SPACE + COLUMN_SEPARATOR + "\n" );
             result += LINE;

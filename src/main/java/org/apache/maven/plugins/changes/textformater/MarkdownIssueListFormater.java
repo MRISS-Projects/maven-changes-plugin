@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.maven.plugins.issues.EmptyMilestoneIssue;
 import org.apache.maven.plugins.issues.Issue;
 import org.apache.maven.plugins.issues.IssuesReportHelper;
 
@@ -45,6 +46,8 @@ public class MarkdownIssueListFormater implements IssueListFormater
     private static final String MD_COLUMN_SPACE = " ";
 
     private static final String NOT_AVAILABLE = "n/a";
+
+    private static final String EMPTY_CELL = "-";
 
     // private static final String HEADER = MD_LINE_PREFIX + "| Ticket Id | Summary | Type | Priority | Resolution |\n"
     // + "| --------- | ------- | ---- | -------- | ---------- |\n";
@@ -114,7 +117,7 @@ public class MarkdownIssueListFormater implements IssueListFormater
         for ( Iterator<Issue> iterator = issueList.iterator(); iterator.hasNext(); )
         {
             Issue issue = (Issue) iterator.next();
-            if ( issue == null || issue.getType() == null )
+            if ( issue == null )
             {
                 continue;
             }
@@ -147,8 +150,26 @@ public class MarkdownIssueListFormater implements IssueListFormater
         return result;
     }
 
+    /**
+     * The row of a closed milestone with no issues: one cell per header column, the Summary saying so and every other
+     * cell {@code -}.
+     */
+    private String generateEmptyMilestoneDetail( String result, int[] columns )
+    {
+        for ( int column : columns )
+        {
+            String cell = column == IssuesReportHelper.COLUMN_SUMMARY ? EmptyMilestoneIssue.SUMMARY : EMPTY_CELL;
+            result += ( MD_COLUMN_SPACE + cell + MD_COLUMN_SPACE + COLUMN_SEPARATOR );
+        }
+        return result + "\n";
+    }
+
     private String generateDetail( String result, DateFormat df, int[] columns, Issue issue, String issueVersion )
     {
+        if ( issue instanceof EmptyMilestoneIssue )
+        {
+            return generateEmptyMilestoneDetail( result, columns );
+        }
         for ( int column : columns )
         {
             switch ( column ) 
@@ -208,7 +229,8 @@ public class MarkdownIssueListFormater implements IssueListFormater
                 break;
 
             case IssuesReportHelper.COLUMN_TYPE:
-                result += ( MD_COLUMN_SPACE + issue.getType() + MD_COLUMN_SPACE + COLUMN_SEPARATOR );
+                String type = issue.getType() == null ? NOT_AVAILABLE : issue.getType();
+                result += ( MD_COLUMN_SPACE + type + MD_COLUMN_SPACE + COLUMN_SEPARATOR );
                 break;
 
             case IssuesReportHelper.COLUMN_UPDATED:

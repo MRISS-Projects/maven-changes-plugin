@@ -20,9 +20,13 @@ package org.apache.maven.plugins.github;
  */
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -44,7 +48,10 @@ import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
+import org.eclipse.egit.github.core.Label;
+import org.eclipse.egit.github.core.Milestone;
 import org.eclipse.egit.github.core.User;
+import org.eclipse.egit.github.core.service.MilestoneService;
 import org.mockito.ArgumentCaptor;
 
 import junit.framework.TestCase;
@@ -77,6 +84,54 @@ public class GitHubDownloaderTestCase extends TestCase
         assertEquals( githubIssue.getTitle(), issue.getTitle() );
         assertEquals( githubIssue.getTitle(), issue.getSummary() );
         assertEquals( issueManagement.getUrl() + githubIssue.getNumber(), issue.getLink() );
+    }
+
+    /**
+     * Issue #36: an issue with no labels has no type. The text formatters render that as n/a; the
+     * downloader's model must stay honest, because other renderers handle a missing type themselves.
+     */
+    public void testCreateIssueWithoutLabelsHasNoType()
+        throws IOException
+    {
+        GitHubDownloader gitHubDownloader = newGitHubDownloader( newGitHubIssueManagement() );
+
+        org.eclipse.egit.github.core.Issue githubIssue = new org.eclipse.egit.github.core.Issue();
+        githubIssue.setNumber( 1 );
+        githubIssue.setUser( new User() );
+        githubIssue.setLabels( Collections.<Label>emptyList() );
+
+        assertNull( gitHubDownloader.createIssue( githubIssue ).getType() );
+    }
+
+    public void testCreateIssueTakesTypeFromFirstLabel()
+        throws IOException
+    {
+        GitHubDownloader gitHubDownloader = newGitHubDownloader( newGitHubIssueManagement() );
+
+        org.eclipse.egit.github.core.Issue githubIssue = new org.eclipse.egit.github.core.Issue();
+        githubIssue.setNumber( 1 );
+        githubIssue.setUser( new User() );
+        githubIssue.setLabels( Arrays.asList( new Label().setName( "bug" ), new Label().setName( "task" ) ) );
+
+        assertEquals( "bug", gitHubDownloader.createIssue( githubIssue ).getType() );
+    }
+
+    /**
+     * Issue #38 (D1): the closed milestones' titles are listed, and only closed milestones are asked for, so open
+     * milestones never get a "no issues" row.
+     */
+    public void testGetClosedMilestoneTitlesAsksForClosedOnly()
+        throws IOException
+    {
+        MilestoneService milestoneService = mock( MilestoneService.class );
+        when( milestoneService.getMilestones( anyString(), anyString(), anyString() ) ).thenReturn(
+            Arrays.asList( new Milestone().setTitle( "0.3.2" ), new Milestone().setTitle( "0.3.1" ) ) );
+        GitHubDownloader gitHubDownloader = spy( newGitHubDownloader( newGitHubIssueManagement() ) );
+        doReturn( milestoneService ).when( gitHubDownloader ).createMilestoneService();
+
+        assertEquals( Arrays.asList( "0.3.2", "0.3.1" ), gitHubDownloader.getClosedMilestoneTitles() );
+        verify( milestoneService ).getMilestones( "dadoonet", "spring-elasticsearch", "closed" );
+        verifyNoMoreInteractions( milestoneService );
     }
 
     public void testConfigureAuthenticationWithProblems()

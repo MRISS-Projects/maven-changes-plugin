@@ -19,8 +19,10 @@ package org.apache.maven.plugins.github;
  * under the License.
  */
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -207,21 +209,22 @@ public class GitHubMojo extends AbstractChangesReport
         try
         {
             // Download issues
-            GitHubDownloader issueDownloader = new GitHubDownloader( project, githubAPIScheme, githubAPIPort,
-                    includeOpenIssues, onlyMilestoneIssues );
+            GitHubDownloader issueDownloader = createDownloader();
 
             issueDownloader.configureProxy( settings );
 
             issueDownloader.configureAuthentication( settingsDecrypter, githubAPIServerId, settings, personalToken,
                     getLog() );
 
-            List<Issue> issueList = issueDownloader.getIssueList();
+            List<Issue> issueList = addEmptyMilestones( issueDownloader, issueDownloader.getIssueList() );
 
             if ( onlyCurrentVersion )
             {
                 issueList = IssueUtils.getIssuesForVersion( issueList, project.getVersion(), removeSnapshotSuffix );
                 getLog().info( "The GitHub Report will contain issues only for the current version." );
             }
+
+            Collections.sort( issueList, new GitHubIssueComparator() );
 
             generateReport( locale, columnIds, issueList );
 
@@ -243,6 +246,31 @@ public class GitHubMojo extends AbstractChangesReport
                 generateReport( locale, columnIds, new ArrayList<Issue>() );
             }            
         }
+    }
+
+    /**
+     * Creates the downloader that fetches the issues from GitHub. Tests override it to supply issues without
+     * calling GitHub.
+     */
+    protected GitHubDownloader createDownloader() throws MalformedURLException
+    {
+        return new GitHubDownloader( project, githubAPIScheme, githubAPIPort, includeOpenIssues,
+                onlyMilestoneIssues );
+    }
+
+    /**
+     * Adds a placeholder for each closed milestone that has no issues. The GitHub report has no use for them, so this
+     * returns the issues unchanged; the text list overrides it.
+     *
+     * @param downloader the downloader the issues came from
+     * @param issueList the downloaded issues
+     * @return the issues to report on
+     * @throws IOException if the milestones cannot be read
+     */
+    protected List<Issue> addEmptyMilestones( GitHubDownloader downloader, List<Issue> issueList )
+        throws IOException
+    {
+        return issueList;
     }
 
     protected void generateReport( Locale locale, List<Integer> columnIds, List<Issue> issueList )

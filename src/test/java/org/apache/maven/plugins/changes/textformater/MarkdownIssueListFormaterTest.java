@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.maven.plugins.issues.EmptyMilestoneIssue;
 import org.apache.maven.plugins.issues.Issue;
 import org.apache.maven.plugins.issues.IssuesReportHelper;
 
@@ -178,6 +179,101 @@ public class MarkdownIssueListFormaterTest extends TestCase
         assertTrue( "Output must not be empty", output.length() > 0 );
         assertTrue( "Output must contain the issue id", output.contains( "7" ) );
         assertTrue( "Output must contain the summary", output.contains( "A summary" ) );
+    }
+
+    /**
+     * Issue #36: an issue without a type (a GitHub issue with no label) must still be listed.
+     */
+    public void testIssueWithoutTypeIsListed()
+    {
+        List<Integer> columns = Arrays.asList( IssuesReportHelper.COLUMN_ID, IssuesReportHelper.COLUMN_SUMMARY,
+            IssuesReportHelper.COLUMN_TYPE );
+        MarkdownIssueListFormater formatter = createFormatter( columns );
+
+        List<Issue> issues = new ArrayList<Issue>();
+        issues.add( buildIssue( "7", "Typed issue", "bug", "1.1" ) );
+        issues.add( buildIssue( "8", "Untyped issue", null, "1.1" ) );
+
+        String output = formatter.formatIssueList( issues );
+
+        assertNotNull( "The typed issue must be listed, in: " + output, findRow( output, "7" ) );
+        assertNotNull( "The untyped issue must be listed, in: " + output, findRow( output, "8" ) );
+    }
+
+    /**
+     * Issue #36: the Type cell of an issue without a type shows {@code n/a}, never the literal {@code null}.
+     */
+    public void testIssueWithoutTypeShowsNotAvailable()
+    {
+        List<Integer> columns = Arrays.asList( IssuesReportHelper.COLUMN_ID, IssuesReportHelper.COLUMN_SUMMARY,
+            IssuesReportHelper.COLUMN_TYPE );
+        MarkdownIssueListFormater formatter = createFormatter( columns );
+
+        List<Issue> issues = new ArrayList<Issue>();
+        issues.add( buildIssue( "8", "Untyped issue", null, "1.1" ) );
+
+        String output = formatter.formatIssueList( issues );
+        String row = findRow( output, "8" );
+
+        assertNotNull( "The untyped issue must be listed, in: " + output, row );
+        assertTrue( "The Type cell must show n/a, in: " + row, row.endsWith( "| n/a |" ) );
+        assertFalse( "No cell may print null, in: " + row, row.contains( "null" ) );
+    }
+
+    /**
+     * Issue #38 (F1): a closed milestone with no issues gets its own section, in list order, with one "no issues"
+     * row that has as many cells as the header.
+     */
+    public void testEmptyMilestoneRendersNoIssuesRow()
+    {
+        List<Integer> columns = Arrays.asList( IssuesReportHelper.COLUMN_ID, IssuesReportHelper.COLUMN_TYPE,
+            IssuesReportHelper.COLUMN_SUMMARY, IssuesReportHelper.COLUMN_ASSIGNEE, IssuesReportHelper.COLUMN_REPORTER,
+            IssuesReportHelper.COLUMN_UPDATED );
+        MarkdownIssueListFormater formatter =
+            new MarkdownIssueListFormater( true, ISSUE_MANAGEMENT_URL, "", columns, Locale.ENGLISH, 3 );
+
+        List<Issue> issues = new ArrayList<Issue>();
+        issues.add( buildIssue( "2", "In 0.3.2", "bug", "0.3.2" ) );
+        issues.add( new EmptyMilestoneIssue( "0.3.1" ) );
+        issues.add( buildIssue( "1", "In 0.3.0", "bug", "0.3.0" ) );
+
+        String output = formatter.formatIssueList( issues );
+
+        int v032 = output.indexOf( "### Version 0.3.2\n" );
+        int v031 = output.indexOf( "### Version 0.3.1\n" );
+        int v030 = output.indexOf( "### Version 0.3.0\n" );
+        assertTrue( "The 0.3.1 section must sit between 0.3.2 and 0.3.0, in: " + output,
+            v032 >= 0 && v032 < v031 && v031 < v030 );
+
+        String section = output.substring( v031, v030 );
+        String[] lines = section.trim().split( "\n" );
+        String header = lines[2];
+        String row = lines[4];
+        assertEquals( "The section holds a heading, a header, a separator and one row, in: " + section, 5,
+            lines.length );
+        assertEquals( "| - | - | No issues | - | - | - |", row );
+        assertEquals( "The row keeps the header's column count", countCells( header ), countCells( row ) );
+    }
+
+    private static int countCells( String line )
+    {
+        return line.split( "\\|", -1 ).length - 2;
+    }
+
+    /**
+     * Returns the table row whose Id cell links to the given issue id, or {@code null} if there is none.
+     */
+    private String findRow( String markdown, String id )
+    {
+        String idCell = "[" + id + "](" + ISSUE_MANAGEMENT_URL + "/" + id + ")";
+        for ( String line : markdown.split( "\n" ) )
+        {
+            if ( line.startsWith( "| " + idCell + " |" ) )
+            {
+                return line;
+            }
+        }
+        return null;
     }
 
 }
